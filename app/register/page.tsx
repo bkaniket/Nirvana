@@ -96,9 +96,10 @@ export default function RegisterPage() {
         /><br />
 
         <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="USER">User</option>
           <option value="ADMIN">Admin</option>
-          <option value="FINANCE">Finance</option>
+          <option value="MANAGER">Manager</option>
+          <option value="REVIEWER">Reviewer</option>
+          <option value="EMPLOYEE">Employee</option>
         </select><br />
 
         <button type="submit">Create User</button>

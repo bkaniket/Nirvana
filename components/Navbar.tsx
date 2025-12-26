@@ -12,7 +12,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="w-full h-16 bg-gray-800 text-white flex items-center justify-between px-6">
+    <nav className="w-full h-20 bg-gray-800 text-white flex items-center justify-between px-6">
       <div className="text-xl font-bold cursor-pointer" onClick={() => router.push("/dashboard")}>
         MyLogo
       </div>

@@ -10,6 +10,7 @@ export default function Sidebar() {
     { label: "Buildings", path: "/buildings" },
     { label: "Leases", path: "/leases" },
     { label: "User Management", path: "/users" },
+    { label: "Role Management", path: "/roles" },
     // Add more pages here in the future
   ];
 

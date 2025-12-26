@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { hasPermission } from "@/app/lib/permission";
+
 
 type Role = {
   id: number;
@@ -24,14 +26,24 @@ export default function RBACUsersPage() {
 
   const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
 
+  const loggedInUserId =
+  typeof window !== "undefined"
+    ? JSON.parse(sessionStorage.getItem("user") || "{}")?.user_id
+    : null;
   // Redirect if not logged in
-  useEffect(() => {
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    fetchData();
-  }, [router, token]);
+useEffect(() => {
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
+  if (!hasPermission("USER", "view")) {
+    router.replace("/dashboard");
+    return;
+  }
+
+  fetchData();
+}, [router, token]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -104,40 +116,66 @@ export default function RBACUsersPage() {
     }
   };
 
-  if (loading) return <p>Loading RBAC data...</p>;
+ if (loading) {
+  return (
+    <div className="p-10">
+      <h2 className="text-xl font-semibold">Loading user permissions…</h2>
+      <p className="text-gray-500 mt-2">Please wait</p>
+    </div>
+  );
+}
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>User Management (RBAC)</h1>
+    <div className="p-6 space-y-6">
+  <div>
+    <h1 className="text-2xl font-bold">User Access Management</h1>
+    <p className="text-gray-600">
+      Assign roles to users. Permissions are inherited from roles.
+    </p>
+  </div>
+    <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded">
+  <strong>Note:</strong> Permissions are derived from roles.
+  To change module actions (create, view, approve), edit role permissions.
+</div>
+      <div className="bg-white rounded shadow overflow-x-auto">
+  <table className="min-w-full border-collapse">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-3 border text-left">User</th>
+        {roles.map((role) => (
+          <th key={role.id} className="p-3 border text-center">
+            {role.code}
+          </th>
+        ))}
+      </tr>
+    </thead>
 
-      <table border={1} cellPadding={10} style={{ borderCollapse: "collapse", width: "100%", marginTop: "20px" }}>
-        <thead style={{ backgroundColor: "#f0f0f0" }}>
-          <tr>
-            <th>User</th>
-            {roles.map((role) => (
-              <th key={role.id}>{role.code}</th>
-            ))}
-          </tr>
-        </thead>
+    <tbody>
+      {users.map((user) => (
+        <tr key={user.user_id} className="hover:bg-gray-50">
+          <td className="p-3 border font-medium">
+            {user.username}
+          </td>
 
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.user_id}>
-              <td>{user.username}</td>
-              {roles.map((role) => (
-                <td key={role.id} style={{ textAlign: "center" }}>
-                  <input
-                    type="checkbox"
-                    disabled={updatingUserId === user.user_id}
-                    checked={user.roles.some((r) => r.code === role.code)}
-                    onChange={() => toggleRole(user.user_id, role.code)}
-                  />
-                </td>
-              ))}
-            </tr>
+          {roles.map((role) => (
+            <td key={role.id} className="p-3 border text-center">
+              <input
+                type="checkbox"
+                className="h-4 w-4 cursor-pointer"
+                disabled={
+                  updatingUserId === user.user_id ||
+                  (user.user_id === loggedInUserId && role.code === "ADMIN")
+                }
+                checked={user.roles.some((r) => r.code === role.code)}
+                onChange={() => toggleRole(user.user_id, role.code)}
+              />
+            </td>
           ))}
-        </tbody>
-      </table>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
     </div>
   );
 }
