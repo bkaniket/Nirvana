@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { hasPermission } from "@/app/lib/permission";
 
 /* ---------------- Types ---------------- */
 
@@ -43,8 +44,16 @@ export default function RolePermissionEditor() {
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [matrix, setMatrix] = useState<Record<number, number[]>>({});
   const [loading, setLoading] = useState(true);
-
+const canEditUser = hasPermission("USER", "edit");
   /* ---------------- Load initial data ---------------- */
+
+  useEffect(() => {
+    if (!hasPermission("USER", "edit")) {
+      alert("You do not have permission to edit roles.");
+      router.replace("/dashboard");
+      return;
+    }
+    },[]);
 
   useEffect(() => {
     if (!token) {

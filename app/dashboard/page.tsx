@@ -1,84 +1,96 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  PieChart, Pie, Cell,
+  LineChart, Line,
+  BarChart, Bar,
+  XAxis, YAxis, Tooltip, ResponsiveContainer
+} from "recharts";
 
-type User = {
-  username: string;
-  roles: string[];
-};
-
-type Permissions = {
-  [module: string]: string[];
-};
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [permissions, setPermissions] = useState<Permissions | null>(null);
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-   const token = sessionStorage.getItem("token");
-    const storedUser = sessionStorage.getItem("user");
-    const storedPermissions = sessionStorage.getItem("permissions");
+    const token = sessionStorage.getItem("token");
+    fetch("http://127.0.0.1:8000/api/dashboard/stats", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(setData);
+  }, []);
 
-    if (!token || !storedUser || !storedPermissions) {
-      router.push("/login");
-      return;
-    }
+  if (!data) return <p>Loading dashboard...</p>;
 
-    setUser(JSON.parse(storedUser));
-    setPermissions(JSON.parse(storedPermissions));
-  }, [router]);
+  const pieData = Object.entries(data.lease_status_pie).map(
+    ([name, value]: any) => ({ name, value })
+  );
 
-  if (!user || !permissions) return null;
+  const barData = Object.entries(data.buildings_by_country).map(
+    ([name, value]: any) => ({ name, value })
+  );
 
-  const can = (module: string, action: string) =>
-    permissions[module]?.includes(action);
-
-  const isAdmin = user.roles.includes("ADMIN");
+  const lineData = Object.entries(data.leases_over_time).map(
+    ([name, value]: any) => ({ name, value })
+  );
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Dashboard</h1>
-      <p>Welcome, {user.username}</p>
-
-      <hr />
-
-      {/* Admin Actions */}
-      {isAdmin && can("USER", "create") && (
-        <div>
-          <h2>Admin Actions</h2>
-          <button onClick={() => router.push("/register")}>
-            ➕ Create User
-          </button>
-        </div>
-      )}
-
-      <hr />
-
-      <div>
-        <h2>Management</h2>
-        <ul>
-          {can("BUILDING", "view") && (
-            <li>
-              <button onClick={() => router.push("/buildings")}>
-                🏢 Buildings
-              </button>
-            </li>
-          )}
-
-          {can("LEASE", "view") && (
-            <li>
-              <button onClick={() => router.push("/leases")}>
-                📄 Leases
-              </button>
-            </li>
-          )}
-        </ul>
+    <div className="p-6 space-y-8">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-5 gap-4">
+        {Object.entries(data.cards).map(([k, v]: any) => (
+          <div key={k} className="bg-white p-4 rounded shadow text-center">
+            <h3 className="text-gray-500 capitalize">{k.replace("_", " ")}</h3>
+            <p className="text-2xl font-bold">{v}</p>
+          </div>
+        ))}
       </div>
 
-      <hr />
+      {/* Charts */}
+      <div className="grid grid-cols-2 gap-6">
+        {/* Pie */}
+        <div className="bg-white p-4 rounded shadow">
+          <h3 className="mb-4 font-semibold">Lease Status</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={pieData} dataKey="value" nameKey="name">
+                {pieData.map((_: any, i: number) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Bar */}
+        <div className="bg-white p-4 rounded shadow">
+          <h3 className="mb-4 font-semibold">Buildings by Country</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={barData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Line */}
+      <div className="bg-white p-4 rounded shadow">
+        <h3 className="mb-4 font-semibold">Leases Over Time</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={lineData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line dataKey="value" strokeWidth={3} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

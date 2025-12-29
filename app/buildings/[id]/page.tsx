@@ -13,6 +13,9 @@ type Building = {
   building_status?: string;
   ownership_type?: string;
   managed_by?: string;
+  clli?: string;
+  sio?: string;
+  zip_code?: string;
 };
 
 export default function BuildingDetailsPage() {

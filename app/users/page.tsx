@@ -25,6 +25,13 @@ export default function RBACUsersPage() {
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
 
   const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const sessionRoles =
+  typeof window !== "undefined"
+    ? JSON.parse(sessionStorage.getItem("roles") || "[]")
+    : [];
+
+const isAdmin = sessionRoles.includes("ADMIN");
+const canCreateUser = hasPermission("USER", "create");
 
   const loggedInUserId =
   typeof window !== "undefined"
@@ -127,12 +134,23 @@ useEffect(() => {
 
   return (
     <div className="p-6 space-y-6">
+ <div className="flex items-center justify-between">
   <div>
     <h1 className="text-2xl font-bold">User Access Management</h1>
     <p className="text-gray-600">
       Assign roles to users. Permissions are inherited from roles.
     </p>
   </div>
+
+  {isAdmin && canCreateUser && (
+    <button
+      onClick={() => router.push("/register")}
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+    >
+      ➕ Create User
+    </button>
+  )}
+</div>
     <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded">
   <strong>Note:</strong> Permissions are derived from roles.
   To change module actions (create, view, approve), edit role permissions.

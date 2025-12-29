@@ -35,6 +35,8 @@ const handleLogin = async (e: React.FormEvent) => {
     // ✅ Session storage (RBAC compatible)
     sessionStorage.setItem("token", data.token);
     sessionStorage.setItem("user", JSON.stringify(data.user));
+    sessionStorage.setItem("user_name", data.user.username || "");
+    sessionStorage.setItem("roles", JSON.stringify(data.user.roles || []));
     sessionStorage.setItem(
       "permissions",
       JSON.stringify(data.permissions || {})
