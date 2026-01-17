@@ -9,6 +9,8 @@ export default function Sidebar() {
     { label: "Dashboard", path: "/dashboard" },
     { label: "Buildings", path: "/buildings" },
     { label: "Leases", path: "/leases" },
+    { label: "Accounts", path: "/accounts" },
+    {label:" Workflow", path: "/workflow" },
     { label: "User Management", path: "/users" },
     { label: "Role Management", path: "/roles" },
     // Add more pages here in the future

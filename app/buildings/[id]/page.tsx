@@ -17,12 +17,24 @@ type Building = {
   sio?: string;
   zip_code?: string;
 };
+type WorkflowUser = {
+  name: string;
+  created_at?: string;
+  approved_at?: string;
+};
+
+type WorkflowInfo = {
+  status: "APPROVED" | "PENDING";
+  created_by?: WorkflowUser;
+  approved_by?: WorkflowUser | string;
+};
 
 export default function BuildingDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
 
   const [building, setBuilding] = useState<Building | null>(null);
+  const [workflow, setWorkflow] = useState<WorkflowInfo | null>(null);
   const [loading, setLoading] = useState(true);
 const canEdit   = hasPermission("BUILDING", "edit");
   useEffect(() => {
@@ -43,9 +55,10 @@ const canEdit   = hasPermission("BUILDING", "edit");
         return res.json();
       })
       .then((data) => {
-        console.log("Building details:", data);
-        setBuilding(data);
-      })
+  console.log("Building details:", data);
+  setBuilding(data.building);
+  setWorkflow(data.workflow);
+})
       .catch(() => router.push("/buildings"))
       .finally(() => setLoading(false));
   }, [id, router]);
@@ -68,12 +81,43 @@ const canEdit   = hasPermission("BUILDING", "edit");
             className="px-4 py-2 bg-yellow-500 text-white rounded"
             onClick={() => router.push(`/buildings/${id}/edit`)}
           >
-            ✏️ Edit Lease
+            ✏️ Edit Building
           </button>
         )}
-      </div>
 
+      </div>
+{/* 🔹 Workflow / Approval Info */}
+{workflow && (
+  <div className="bg-white p-6 rounded shadow border-l-4
+    border-blue-500 space-y-2">
+
+    <h2 className="text-lg font-semibold">Approval Workflow</h2>
+
+    <p>
+      <strong>Status:</strong>{" "}
+      {workflow.status === "APPROVED" ? (
+        <span className="text-green-600 font-semibold">✅ Approved</span>
+      ) : (
+        <span className="text-yellow-600 font-semibold">⏳ Approval Pending</span>
+      )}
+    </p>
+
+    <p>
+      <strong>Created By:</strong>{" "}
+      {workflow.created_by?.name || "-"}
+    </p>
+
+    <p>
+      <strong>Approved By:</strong>{" "}
+      {typeof workflow.approved_by === "string"
+        ? workflow.approved_by
+        : workflow.approved_by?.name || "Approval Pending"}
+    </p>
+  </div>
+)}
       <div className="grid grid-cols-2 gap-4 bg-white p-6 rounded shadow">
+
+        
         
         <Detail label="CLLI" value={building.clli} />
         <Detail label="SIO" value={building.sio} />

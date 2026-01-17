@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+const BASE_URL = process.env.Backend_API;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const res = await fetch("http://127.0.0.1:8000/api/register", {
+    const res = await fetch(`${BASE_URL}/api/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,56 +55,96 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Create New User</h1>
+<div style={{ padding: "40px" }}>
+  <h1>Create New User</h1>
 
-      <form onSubmit={handleRegister}>
-        <input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        /><br />
-
-        <input
-          placeholder="First Name"
-          value={user_firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        /><br />
-
-        <input
-          placeholder="Last Name"
-          value={user_lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-        /><br />
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email_id}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        /><br />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br />
-
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="ADMIN">Admin</option>
-          <option value="MANAGER">Manager</option>
-          <option value="REVIEWER">Reviewer</option>
-          <option value="EMPLOYEE">Employee</option>
-        </select><br />
-
-        <button type="submit">Create User</button>
-      </form>
+  <form onSubmit={handleRegister}>
+    <div>
+      <label>Username</label>
+      <br />
+      <input
+        type="text"
+        placeholder="Enter username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
     </div>
+
+    <br />
+
+    <div>
+      <label>First Name</label>
+      <br />
+      <input
+        type="text"
+        placeholder="Enter first name"
+        value={user_firstName}
+        onChange={(e) => setFirstName(e.target.value)}
+        required
+      />
+    </div>
+
+    <br />
+
+    <div>
+      <label>Last Name</label>
+      <br />
+      <input
+        type="text"
+        placeholder="Enter last name"
+        value={user_lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        required
+      />
+    </div>
+
+    <br />
+
+    <div>
+      <label>Email</label>
+      <br />
+      <input
+        type="email"
+        placeholder="Enter email"
+        value={email_id}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+    </div>
+
+    <br />
+
+    <div>
+      <label>Password</label>
+      <br />
+      <input
+        type="password"
+        placeholder="Enter password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+    </div>
+
+    <br />
+
+    <div>
+      <label>Role</label>
+      <br />
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="ADMIN">Admin</option>
+        <option value="MANAGER">Manager</option>
+        <option value="REVIEWER">Reviewer</option>
+        <option value="EMPLOYEE">Employee</option>
+      </select>
+    </div>
+
+    <br />
+
+    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Create User</button>
+  </form>
+</div>
+
   );
 }
