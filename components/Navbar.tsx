@@ -10,7 +10,10 @@ type User = {
   roles: string[];
 };
 
-export default function NavBar() {
+type NavbarProps = {
+  onMenuClick: () => void;
+};
+export default function NavBar({onMenuClick}: NavbarProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -38,14 +41,24 @@ export default function NavBar() {
 
   return (
     <nav className="w-full h-20 bg-gray-800 text-white flex items-center justify-between px-6">
-      {/* Logo */}
-      <div
-        className="text-xl font-bold cursor-pointer"
-        onClick={() => router.push("/dashboard")}
-      >
-        MyLogo
-      </div>
 
+      {/* Left: Hamburger + Logo */}
+      <div className="flex items-center gap-4">
+        {/* Hamburger only on small screens */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden text-white focus:outline-none"
+        >
+          ☰
+        </button>
+
+        <div
+          className="text-xl font-bold cursor-pointer"
+          onClick={() => router.push("/dashboard")}
+        >
+          MyLogo
+        </div>
+        </div>
       {/* Profile */}
       <div className="relative">
         <button
@@ -85,6 +98,7 @@ export default function NavBar() {
           </div>
         )}
       </div>
+
     </nav>
   );
 }

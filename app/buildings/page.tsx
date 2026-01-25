@@ -7,7 +7,7 @@ import { hasPermission } from "@/app/lib/permission";
 type Building = {
   id: number;
   building_name: string;
-  address_1:string;
+  address_1: string;
   city?: string;
   country?: string;
   building_status?: string;
@@ -22,9 +22,10 @@ export default function BuildingsPage() {
   const [loading, setLoading] = useState(true);
   const canCreate = hasPermission("BUILDING", "create");
   const canView = hasPermission("BUILDING", "view");
-const canEdit   = hasPermission("BUILDING", "edit");
-const canDelete = hasPermission("BUILDING", "delete");
+  const canEdit = hasPermission("BUILDING", "edit");
+  const canDelete = hasPermission("BUILDING", "delete");
 
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
@@ -32,7 +33,7 @@ const canDelete = hasPermission("BUILDING", "delete");
       return;
     }
 
-    fetch("http://127.0.0.1:8000/api/buildings", {
+    fetch(`${BASE_URL}/buildings`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -41,7 +42,7 @@ const canDelete = hasPermission("BUILDING", "delete");
         if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
-  .then((data) => {setBuildings(data); console.log(data);})
+      .then((data) => { setBuildings(data); console.log(data); })
       .catch(() => router.push("/dashboard"))
       .finally(() => setLoading(false));
   }, [router]);
@@ -56,14 +57,14 @@ const canDelete = hasPermission("BUILDING", "delete");
       <div className="flex justify-between items-center">
         {/* Left: CRUD */}
         <div className="flex gap-2">
-           {canCreate && (
-    <button
-      className="px-4 py-2 bg-blue-300 text-white rounded"
-      onClick={() => router.push("/buildings/create")}
-    >
-      ➕ Create
-    </button>
-  )}
+          {canCreate && (
+            <button
+              className="px-4 py-2 bg-blue-300 text-white rounded"
+              onClick={() => router.push("/buildings/create")}
+            >
+              ➕ Create
+            </button>
+          )}
 
           <button className="px-4 py-2 bg-yellow-300 text-white rounded">
             ✏️ Edit
@@ -126,10 +127,10 @@ const canDelete = hasPermission("BUILDING", "delete");
                   key={building.id}
                   className="hover:bg-gray-100 cursor-pointer"
                   onClick={() => {
-    if (canView) {
-      router.push(`/buildings/${building.id}`);
-    }
-  }}
+                    if (canView) {
+                      router.push(`/buildings/${building.id}`);
+                    }
+                  }}
                 >
                   <td className="p-3 border font-medium">
                     {building.sio}
@@ -140,13 +141,13 @@ const canDelete = hasPermission("BUILDING", "delete");
                   <td className="p-3 border font-medium">
                     {building.building_name}
                   </td>
-                  <td className="p-3 border">{building.address_1|| ""},<br/>{building.city || "-"} {building.zip_code|| "-"},<br/>{building.country || "-"}
+                  <td className="p-3 border">{building.address_1 || ""},<br />{building.city || "-"} {building.zip_code || "-"},<br />{building.country || "-"}
 
                   </td>
-                  <td className="p-3 border">Property Type : {building.building_type || "-"} <br/>
-                    Construction Year : {building.construction_year || "-"}<br/> 
-                    Rentable Area : {building.building_rentable_area || "-"} <br/>{building.building_measure_units || "-"} <br/>
-                    Purchas Price: {building.purchase_price || "-"} {building.currency_type || "-"} <br/> 
+                  <td className="p-3 border">Property Type : {building.building_type || "-"} <br />
+                    Construction Year : {building.construction_year || "-"}<br />
+                    Rentable Area : {building.building_rentable_area || "-"} <br />{building.building_measure_units || "-"} <br />
+                    Purchas Price: {building.purchase_price || "-"} {building.currency_type || "-"} <br />
                     Last Renovation Year : {building.last_renovation_year || "Not Renoveted"}
                   </td>
                   <td className="p-3 border">
