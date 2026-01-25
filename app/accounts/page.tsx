@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 
-  type Expense = {
+type Expense = {
   expense_id: number;
   lease_id?: number | null;
   building_id?: number | null;
@@ -30,7 +30,8 @@ export default function AccountsPage() {
   const [canView, setCanView] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [canDelete, setCanDelete] = useState(false);
-
+  
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   /* ✅ Permissions – client only */
   useEffect(() => {
     setMounted(true);
@@ -50,7 +51,7 @@ export default function AccountsPage() {
       return;
     }
 
-    fetch("http://127.0.0.1:8000/api/expenses", {
+    fetch(`${BASE_URL}/expenses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -60,21 +61,21 @@ export default function AccountsPage() {
         return res.json();
       })
       .then((data) => {
-  console.log("API EXPENSES:", data);
-  setExpenses(data);
-})
-      
+        console.log("API EXPENSES:", data);
+        setExpenses(data);
+      })
+
       .catch(() => router.push("/dashboard"))
       .finally(() => setLoading(false));
   }, [mounted, router]);
 
   if (!mounted) return null; // 🔥 hydration fix
 
-const filteredExpenses = expenses.filter((e) =>
-  `${e.expense_category} ${e.expense_year} ${e.status}`
-    .toLowerCase()
-    .includes(search.toLowerCase())
-);
+  const filteredExpenses = expenses.filter((e) =>
+    `${e.expense_category} ${e.expense_year} ${e.status}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
     <div className="space-y-4">
@@ -120,15 +121,15 @@ const filteredExpenses = expenses.filter((e) =>
       <div className="bg-white rounded shadow overflow-x-auto">
         <table className="min-w-full border">
           <thead className="bg-gray-200">
-  <tr>
-    <th className="p-3 border">ID</th>
-    <th className="p-3 border">Year</th>
-    <th className="p-3 border">Period</th>
-    <th className="p-3 border">Category</th>
-    <th className="p-3 border">Amount</th>
-    <th className="p-3 border">Status</th>
-  </tr>
-</thead>
+            <tr>
+              <th className="p-3 border">ID</th>
+              <th className="p-3 border">Year</th>
+              <th className="p-3 border">Period</th>
+              <th className="p-3 border">Category</th>
+              <th className="p-3 border">Amount</th>
+              <th className="p-3 border">Status</th>
+            </tr>
+          </thead>
 
           <tbody>
             {/* Skeleton */}
@@ -146,30 +147,30 @@ const filteredExpenses = expenses.filter((e) =>
             {/* Data */}
             {!loading &&
               filteredExpenses.map((expense) => (
-<tr
-  key={expense.expense_id}
-  className="hover:bg-gray-100 cursor-pointer"
-  onClick={() => canView && router.push(`/accounts/${expense.expense_id}`)}
->
-  <td className="p-3 border font-medium">
-    {expense.expense_id}
-  </td>
-  <td className="p-3 border">
-    {expense.expense_year || "-"}
-  </td>
-  <td className="p-3 border">
-    {expense.expense_period || "-"}
-  </td>
-  <td className="p-3 border">
-    {expense.expense_category || "-"}
-  </td>
-  <td className="p-3 border">
-    {expense.amount} {expense.currency}
-  </td>
-  <td className="p-3 border">
-    {expense.status || "-"}
-  </td>
-</tr>
+                <tr
+                  key={expense.expense_id}
+                  className="hover:bg-gray-100 cursor-pointer"
+                  onClick={() => canView && router.push(`/accounts/${expense.expense_id}`)}
+                >
+                  <td className="p-3 border font-medium">
+                    {expense.expense_id}
+                  </td>
+                  <td className="p-3 border">
+                    {expense.expense_year || "-"}
+                  </td>
+                  <td className="p-3 border">
+                    {expense.expense_period || "-"}
+                  </td>
+                  <td className="p-3 border">
+                    {expense.expense_category || "-"}
+                  </td>
+                  <td className="p-3 border">
+                    {expense.amount} {expense.currency}
+                  </td>
+                  <td className="p-3 border">
+                    {expense.status || "-"}
+                  </td>
+                </tr>
 
               ))}
 

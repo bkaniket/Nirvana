@@ -7,8 +7,9 @@ import { hasPermission } from "@/app/lib/permission";
 export default function CreateExpensePage() {
   const router = useRouter();
   const canCreate = hasPermission("EXPENSE", "create");
-
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState({
+      
     expense_year: "",
     expense_period: "",
     expense_category: "",
@@ -24,7 +25,7 @@ export default function CreateExpensePage() {
   const submit = async () => {
     const token = sessionStorage.getItem("token");
 
-    await fetch("http://127.0.0.1:8000/api/expenses", {
+    await fetch(`${BASE_URL}/expenses`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

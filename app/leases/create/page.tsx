@@ -52,7 +52,7 @@ const canViewBuildings = hasPermission("BUILDING", "view");
 
   const token = sessionStorage.getItem("token");
 
-  fetch("http://127.0.0.1:8000/api/buildings", {
+  fetch("http://127.0.0.1:8000/api/buildings/names", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

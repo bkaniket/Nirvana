@@ -132,6 +132,8 @@ export default function AccountDetailsPage() {
           label="Amount"
           value={`${expense.amount ?? "-"} ${expense.currency ?? ""}`}
         />
+
+
       </div>
 
       {/* Expense Status */}

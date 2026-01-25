@@ -150,48 +150,87 @@ export default function LeaseDetailsPage() {
       )}
 
       {/* Sections */}
-      <Section title="Parties">
-        <Field label="Tenant" value={lease.tenant_legal_name} />
-        <Field label="Landlord" value={lease.landlord_legal_name} />
-        <Field label="Legacy Entity" value={lease.legacy_entity_name} />
-      </Section>
+{/* 🔹 Lease Identification */}
+<Section title="Lease Identification">
+  <Field label="System Lease ID" value={lease.system_lease_id} />
+  <Field label="Client Lease ID" value={lease.client_lease_id} />
+  <Field label="Lease Version" value={lease.lease_version} />
+  <Field label="Lease Source" value={lease.lease_source} />
+  <Field label="Lease Hierarchy" value={lease.lease_hierarchy} />
+  <Field label="Parent Lease ID" value={lease.parent_lease_id} />
+</Section>
 
-      <Section title="Key Dates">
-        <Field label="Agreement Date" value={lease.lease_agreement_date} />
-        <Field label="Possession Date" value={lease.possession_date} />
-        <Field label="Rent Commencement" value={lease.rent_commencement_date} />
-        <Field label="Termination Date" value={lease.termination_date} />
-      </Section>
+{/* 🔹 Parties Involved */}
+<Section title="Parties Involved">
+  <Field label="Tenant Legal Name" value={lease.tenant_legal_name} />
+  <Field label="Landlord Legal Name" value={lease.landlord_legal_name} />
+  <Field label="Legacy Entity" value={lease.legacy_entity_name} />
+</Section>
 
-      <Section title="Lease Terms">
-        <Field label="Lease Type" value={lease.lease_type} />
-        <Field label="Status" value={lease.lease_status} />
-        <Field label="Current Term" value={lease.current_term} />
-        <Field label="Term Remaining" value={lease.current_term_remaining} />
-      </Section>
+{/* 🔹 Key Dates & Lifecycle */}
+<Section title="Key Dates & Lifecycle">
+  <Field label="Lease Agreement Date" value={lease.lease_agreement_date} />
+  <Field label="Possession Date" value={lease.possession_date} />
+  <Field label="Rent Commencement Date" value={lease.rent_commencement_date} />
+  <Field label="Current Commencement Date" value={lease.current_commencement_date} />
+  <Field label="Termination Date" value={lease.termination_date} />
+  <Field label="Possible Expiration" value={lease.lease_possible_expiration} />
+</Section>
 
-      <Section title="Financials">
-        <Field
-          label="Rentable Area"
-          value={`${lease.lease_rentable_area || "-"} ${
-            lease.measure_units || ""
-          }`}
-        />
-        <Field label="Escalation Type" value={lease.escalation_type} />
-        <Field
-          label="Security Deposit Type"
-          value={lease.security_deposit_type}
-        />
-        <Field
-          label="Security Deposit Amount"
-          value={lease.security_deposit_amount}
-        />
-      </Section>
+{/* 🔹 Lease Terms */}
+<Section title="Lease Terms">
+  <Field label="Lease Type" value={lease.lease_type} />
+  <Field label="Lease Status" value={lease.lease_status} />
+  <Field label="Current Term" value={lease.current_term} />
+  <Field label="Term Remaining" value={lease.current_term_remaining} />
+  <Field label="Critical Lease" value={lease.critical_lease} />
+  <Field label="Within Landlord Tenant Act" value={lease.within_landlord_tenant_act} />
+</Section>
 
-      <Section title="Additional Information">
-        <Field label="Portfolio" value={lease.portfolio} />
-        <Field label="Remarks" value={lease.remarks} />
-      </Section>
+{/* 🔹 Space & Usage */}
+<Section title="Space & Usage">
+  <Field label="Primary Use" value={lease.primary_use} />
+  <Field label="Additional Use" value={lease.additional_use} />
+  <Field
+    label="Rentable Area"
+    value={`${lease.lease_rentable_area || "-"} ${lease.measure_units || ""}`}
+  />
+  <Field label="Measure Units" value={lease.measure_units} />
+  <Field label="Ownership Type" value={lease.ownership_type} />
+</Section>
+
+{/* 🔹 Financial & Recovery */}
+<Section title="Financial & Recovery">
+  <Field label="Account Type" value={lease.account_type} />
+  <Field label="Lease Recovery Type" value={lease.lease_recovery_type} />
+  <Field label="Escalation Type" value={lease.escalation_type} />
+  <Field label="Security Deposit Type" value={lease.security_deposit_type} />
+  <Field label="Security Deposit Amount" value={lease.security_deposit_amount} />
+  <Field label="Deposit Date" value={lease.security_deposit_deposited_date} />
+  <Field label="Deposit Return Date" value={lease.security_deposit_return_date} />
+</Section>
+
+{/* 🔹 Compliance & Legal */}
+<Section title="Compliance & Legal">
+  <Field label="Compliance Status" value={lease.compliance_status} />
+  <Field label="Deed of Grant" value={lease.deed_of_grant} />
+  <Field label="Lease Acts" value={lease.lease_acts} />
+  <Field label="Lease Clauses" value={lease.lease_clauses} />
+  <Field label="Lease Penalties" value={lease.lease_penalties} />
+</Section>
+
+{/* 🔹 Portfolio & Classification */}
+<Section title="Portfolio & Classification">
+  <Field label="Portfolio" value={lease.portfolio} />
+  <Field label="Portfolio Sub Group" value={lease.portfolio_sub_group} />
+  <Field label="Building ID" value={lease.building_id} />
+</Section>
+
+{/* 🔹 Remarks & Notes */}
+<Section title="Remarks & Notes">
+  <Field label="Remarks" value={lease.remarks} />
+</Section>
+
     </div>
   );
 }

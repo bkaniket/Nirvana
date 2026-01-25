@@ -58,18 +58,18 @@ const canDelete = hasPermission("BUILDING", "delete");
         <div className="flex gap-2">
            {canCreate && (
     <button
-      className="px-4 py-2 bg-blue-600 text-white rounded"
+      className="px-4 py-2 bg-blue-300 text-white rounded"
       onClick={() => router.push("/buildings/create")}
     >
       ➕ Create
     </button>
   )}
 
-          <button className="px-4 py-2 bg-yellow-500 text-white rounded">
+          <button className="px-4 py-2 bg-yellow-300 text-white rounded">
             ✏️ Edit
           </button>
 
-          <button className="px-4 py-2 bg-red-600 text-white rounded">
+          <button className="px-4 py-2 bg-red-300 text-white rounded">
             🗑 Delete
           </button>
         </div>
@@ -91,9 +91,9 @@ const canDelete = hasPermission("BUILDING", "delete");
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded shadow overflow-x-auto">
+      <div className="bg-white-300 rounded shadow overflow-x-auto">
         <table className="min-w-full border">
-          <thead className="bg-gray-200">
+          <thead className="bg-blue-200">
             <tr>
               <th className="p-3 border" >SIO</th>
               <th className="p-3 border">CLLI</th>
