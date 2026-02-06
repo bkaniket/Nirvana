@@ -41,7 +41,7 @@ type Lease = {
 export default function BuildingDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [building, setBuilding] = useState<Building | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowInfo | null>(null);
   const [leases, setLeases] = useState<Lease[]>([]);
@@ -55,7 +55,7 @@ const canEdit   = hasPermission("BUILDING", "edit");
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/api/buildings/${id}`, {
+    fetch(`${BASE_URL}/api/buildings/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -2,13 +2,13 @@
 
 import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { hasPermission } from "@/app/lib/permissions";
+import { hasPermission } from "@/app/lib/permission";
 
 export default function CreateBuildingPage() {
   const router = useRouter();
   
   const [saving, setSaving] = useState(false);
-
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState({
     building_name: "",
     address_1: "",
@@ -35,7 +35,7 @@ export default function CreateBuildingPage() {
       return;
     }
 
-    const res = await fetch("http://127.0.0.1:8000/api/buildings", {
+    const res = await fetch(`${BASE_URL}/api/buildings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -12,10 +12,10 @@ const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   useEffect(() => {
     const token = sessionStorage.getItem("token");
-    fetch("http://127.0.0.1:8000/api/dashboard/stats", {
+    fetch(`${BASE_URL}/dashboard/stats`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())

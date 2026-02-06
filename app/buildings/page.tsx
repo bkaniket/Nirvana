@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import { AgGridReact } from "ag-grid-react";
+import type { ColDef } from "ag-grid-community";
+import "@/src/lib/ag-grid-setup";
 
 type Building = {
   id: number;
@@ -20,10 +23,33 @@ export default function BuildingsPage() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const canCreate = hasPermission("BUILDING", "create");
-  const canView = hasPermission("BUILDING", "view");
-  const canEdit = hasPermission("BUILDING", "edit");
-  const canDelete = hasPermission("BUILDING", "delete");
+const [permissions, setPermissions] = useState({
+  create: false,
+  view: false,
+  edit: false,
+  delete: false,
+});
+
+useEffect(() => {
+  setPermissions({
+    create: hasPermission("BUILDING", "create"),
+    view: hasPermission("BUILDING", "view"),
+    edit: hasPermission("BUILDING", "edit"),
+    delete: hasPermission("BUILDING", "delete"),
+  });
+}, []);
+const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = permissions;
+
+  const columnDefs: ColDef[] = [
+    { field: "sio", headerName: "SIO", filter: true },
+    { field: "clli", headerName: "CLLI", filter: true },
+    { field: "building_name", headerName: "Name", flex: 1 },
+    { field: "city", headerName: "City" },
+    { field: "country", headerName: "Country" },
+    { field: "building_status", headerName: "Status" },
+    { field: "ownership_type", headerName: "Ownership" },
+    { field: "managed_by", headerName: "Managed By" }
+  ];
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   useEffect(() => {
@@ -50,6 +76,28 @@ export default function BuildingsPage() {
   const filteredBuildings = buildings.filter((b) =>
     b.building_name.toLowerCase().includes(search.toLowerCase())
   );
+  function BuildingsSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {/* Header */}
+      <div className="flex justify-between">
+        <div className="flex gap-2">
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+        </div>
+        <div className="h-10 w-64 bg-gray-300 rounded" />
+      </div>
+
+      {/* Table */}
+      <div className="h-[600px] bg-gray-300 rounded" />
+    </div>
+  );
+}
+
+if(loading){
+return <BuildingsSkeleton />;
+}
 
   return (
     <div className="space-y-4">
@@ -92,89 +140,18 @@ export default function BuildingsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white-300 rounded shadow overflow-x-auto">
-        <table className="min-w-full border">
-          <thead className="bg-blue-200">
-            <tr>
-              <th className="p-3 border" >SIO</th>
-              <th className="p-3 border">CLLI</th>
-              <th className="p-3 border">Name</th>
-              <th className="p-3 border">Address</th>
-              <th className="p-3 border">Additional-Details</th>
-              <th className="p-3 border">Ownership</th>
-              <th className="p-3 border">Managed By</th>
-              <th className="p-3 border">Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {/* 🔹 Skeleton Loader */}
-            {loading &&
-              Array.from({ length: 8 }).map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  {Array.from({ length: 8 }).map((_, j) => (
-                    <td key={j} className="p-3 border">
-                      <div className="h-4 bg-gray-300 rounded w-full"></div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-
-            {/* 🔹 Actual Data */}
-            {!loading &&
-              filteredBuildings.map((building) => (
-                <tr
-                  key={building.id}
-                  className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    if (canView) {
-                      router.push(`/buildings/${building.id}`);
-                    }
-                  }}
-                >
-                  <td className="p-3 border font-medium">
-                    {building.sio}
-                  </td>
-                  <td className="p-3 border font-medium">
-                    {building.clli}
-                  </td>
-                  <td className="p-3 border font-medium">
-                    {building.building_name}
-                  </td>
-                  <td className="p-3 border">{building.address_1 || ""},<br />{building.city || "-"} {building.zip_code || "-"},<br />{building.country || "-"}
-
-                  </td>
-                  <td className="p-3 border">Property Type : {building.building_type || "-"} <br />
-                    Construction Year : {building.construction_year || "-"}<br />
-                    Rentable Area : {building.building_rentable_area || "-"} <br />{building.building_measure_units || "-"} <br />
-                    Purchas Price: {building.purchase_price || "-"} {building.currency_type || "-"} <br />
-                    Last Renovation Year : {building.last_renovation_year || "Not Renoveted"}
-                  </td>
-                  <td className="p-3 border">
-                    {building.managed_by || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {building.ownership_type || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {building.building_status || "-"}
-                  </td>
-                </tr>
-              ))}
-
-            {/* 🔹 No Data State */}
-            {!loading && filteredBuildings.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="p-6 text-center text-gray-500"
-                >
-                  No buildings found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="ag-theme-quartz" style={{ height: 600, width: "100%" }}>
+        <AgGridReact
+          rowData={filteredBuildings}
+          columnDefs={columnDefs}
+          rowSelection="single"
+          animateRows
+          onRowClicked={(event) => {
+            if (canView) {
+              router.push(`/buildings/${event.data.id}`);
+            }
+          }}
+        />
       </div>
     </div>
   );
