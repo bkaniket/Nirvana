@@ -55,7 +55,7 @@ const canEdit   = hasPermission("BUILDING", "edit");
       return;
     }
 
-    fetch(`${BASE_URL}/api/buildings/${id}`, {
+    fetch(`${BASE_URL}/buildings/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
