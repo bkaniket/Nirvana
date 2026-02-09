@@ -28,7 +28,7 @@ export default function EditLeasePage() {
   const router = useRouter();
 
   const canEdit = hasPermission("LEASE", "edit");
-
+   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,7 +41,7 @@ export default function EditLeasePage() {
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/api/leases/${id}`, {
+    fetch(`${BASE_URL}/leases/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -62,7 +62,7 @@ export default function EditLeasePage() {
     setSaving(true);
     const token = sessionStorage.getItem("token");
 
-    await fetch(`http://127.0.0.1:8000/api/leases/${id}`, {
+    await fetch(`${BASE_URL}/leases/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

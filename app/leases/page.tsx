@@ -22,7 +22,7 @@ type Lease = {
 
 export default function LeasesPage() {
   const router = useRouter();
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [leases, setLeases] = useState<Lease[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -40,7 +40,7 @@ export default function LeasesPage() {
       return;
     }
 
-    fetch("http://127.0.0.1:8000/api/leases", {
+    fetch(`${BASE_URL}/leases`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

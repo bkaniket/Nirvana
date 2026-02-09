@@ -23,7 +23,7 @@ export default function RBACUsersPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
   const sessionRoles =
   typeof window !== "undefined"
@@ -65,7 +65,7 @@ useEffect(() => {
   };
 
   const fetchUsers = async () => {
-    const res = await fetch("http://127.0.0.1:8000/api/admin/users", {
+    const res = await fetch(`${BASE_URL}/admin/users`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch users");
@@ -74,7 +74,7 @@ useEffect(() => {
   };
 
   const fetchRoles = async () => {
-    const res = await fetch("http://127.0.0.1:8000/api/admin/roles", {
+    const res = await fetch(`${BASE_URL}/admin/roles`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error("Failed to fetch roles");
@@ -97,7 +97,7 @@ useEffect(() => {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/admin/users/${userId}/roles`,
+        `${BASE_URL}/admin/users/${userId}/roles`,
         {
           method: "POST", // matches backend route
           headers: {

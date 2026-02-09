@@ -43,12 +43,12 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
   const columnDefs: ColDef[] = [
     { field: "sio", headerName: "SIO", filter: true },
     { field: "clli", headerName: "CLLI", filter: true },
-    { field: "building_name", headerName: "Name", flex: 1 },
-    { field: "city", headerName: "City" },
-    { field: "country", headerName: "Country" },
+    { field: "building_name", headerName: "Name",  filter: true },
+    { field: "city", headerName: "City" , filter: true},
+    { field: "country", headerName: "Country", filter: true },
     { field: "building_status", headerName: "Status" },
-    { field: "ownership_type", headerName: "Ownership" },
-    { field: "managed_by", headerName: "Managed By" }
+    { field: "ownership_type", headerName: "Ownership", filter: true },
+    { field: "managed_by", headerName: "Managed By", filter: true }
   ];
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;

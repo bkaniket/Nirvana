@@ -37,7 +37,7 @@ export default function RolePermissionEditor() {
   const router = useRouter();
   const token =
     typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [roles, setRoles] = useState<Role[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -62,15 +62,15 @@ const canEditUser = hasPermission("USER", "edit");
     }
 
     Promise.all([
-      fetch("http://127.0.0.1:8000/api/admin/roles", {
+      fetch(`${BASE_URL}/admin/roles`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((r) => r.json()),
 
-      fetch("http://127.0.0.1:8000/api/admin/modules", {
+      fetch(`${BASE_URL}/admin/modules`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((r) => r.json()),
 
-      fetch("http://127.0.0.1:8000/api/admin/permissions", {
+      fetch(`${BASE_URL}/admin/permissions`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((r) => r.json()),
     ])
@@ -121,7 +121,7 @@ const canEditUser = hasPermission("USER", "edit");
     if (!selectedRole) return;
 
     await fetch(
-      "http://127.0.0.1:8000/api/admin/assign-permissions",
+      `${BASE_URL}/admin/assign-permissions`,
       {
         method: "POST",
         headers: {

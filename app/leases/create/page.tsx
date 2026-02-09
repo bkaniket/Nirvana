@@ -33,7 +33,7 @@ export default function CreateLeasePage() {
   const router = useRouter();
   const [buildings, setBuildings] = useState<Building[]>([]);
 const canViewBuildings = hasPermission("BUILDING", "view");
-
+ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const canCreate = hasPermission("LEASE", "create");
 
   const [form, setForm] = useState<LeaseForm>({
@@ -52,7 +52,7 @@ const canViewBuildings = hasPermission("BUILDING", "view");
 
   const token = sessionStorage.getItem("token");
 
-  fetch("http://127.0.0.1:8000/api/buildings/names", {
+  fetch(`${BASE_URL}/buildings/names`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -86,7 +86,7 @@ const canViewBuildings = hasPermission("BUILDING", "view");
     const token = sessionStorage.getItem("token");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/leases", {
+      const res = await fetch(`${BASE_URL}/leases`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

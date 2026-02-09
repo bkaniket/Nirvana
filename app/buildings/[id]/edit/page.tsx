@@ -17,7 +17,7 @@ type Building = {
 export default function EditBuildingPage() {
   const { id } = useParams();
   const router = useRouter();
-
+   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState<Building>({
     building_name: "",
   });
@@ -37,7 +37,7 @@ export default function EditBuildingPage() {
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/api/buildings/${id}`, {
+    fetch(`${BASE_URL}/buildings/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -67,7 +67,7 @@ export default function EditBuildingPage() {
     const token = sessionStorage.getItem("token");
 
     const res = await fetch(
-      `http://127.0.0.1:8000/api/buildings/${id}`,
+      `${BASE_URL}/buildings/${id}`,
       {
         method: "PUT",
         headers: {

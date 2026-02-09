@@ -14,7 +14,7 @@ type Invoice = {
   created_at?: string;
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API || "";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API ;
 
 export default function InvoicesPage() {
   const router = useRouter();

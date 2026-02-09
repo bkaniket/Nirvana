@@ -9,13 +9,13 @@ export default function LoginPage() {
   const [email_id, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
 
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/login", {
+    const res = await fetch(`${BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
