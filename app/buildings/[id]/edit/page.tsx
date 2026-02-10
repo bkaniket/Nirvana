@@ -12,6 +12,7 @@ type Building = {
   building_status?: string;
   ownership_type?: string;
   managed_by?: string;
+  sio?:string;
 };
 
 export default function EditBuildingPage() {
