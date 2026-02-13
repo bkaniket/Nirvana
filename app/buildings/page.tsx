@@ -169,14 +169,7 @@ return <BuildingsSkeleton />;
         </div>
 
         {/* Right: Search & Export */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search building..."
-            className="border px-3 py-2 rounded"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex gap-2"> 
 
           <button className="px-4 py-2 bg-green-600 text-white rounded">
             ⬇ Export
@@ -186,7 +179,7 @@ return <BuildingsSkeleton />;
 
       {/* Table */}
       <div   style={{
-    height: "530px",
+    height: "500px",
     width: "100%",
     "--ag-odd-row-background-color": "#ffffff",
     "--ag-even-row-background-color": "#f3f4f6",

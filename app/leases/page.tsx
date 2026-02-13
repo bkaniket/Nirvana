@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import { AgGridReact } from "ag-grid-react";
+import { themeQuartz } from "ag-grid-community";
+import type { ColDef } from "ag-grid-community";
+import "@/src/lib/ag-grid-setup";
 
 type Lease = {
   id: number;
@@ -36,6 +40,29 @@ export default function LeasesPage() {
   const canView   = hasPermission("LEASE", "view");
   const canEdit   = hasPermission("LEASE", "edit");
   const canDelete = hasPermission("LEASE", "delete");
+  const myTheme = themeQuartz.withParams({
+  backgroundColor: "#f8f9fa",        // off-white grid
+  foregroundColor: "#1f2937",
+  headerBackgroundColor: "#dbeafe",  // light blue header
+  headerTextColor: "#1e3a8a",
+  borderColor: "#e5e7eb",
+  spacing: 8,
+  rowHoverColor: "#e0f2fe",
+});
+const columnDefs: ColDef[] = [
+  { field: "tenant_legal_name", headerName: "Tenant", filter: true },
+  { field: "landlord_legal_name", headerName: "Landlord", filter: true },
+  { field: "lease_type", headerName: "Lease Type", filter: true },
+  { field: "lease_status", headerName: "Status", filter: true },
+  { 
+    headerName: "Rent Area",
+    valueGetter: (params) =>
+      `${params.data.lease_rentable_area || "-"} ${params.data.measure_units || ""}`,
+    filter: true
+  },
+  { field: "rent_commencement_date", headerName: "Commencement", filter: true },
+  { field: "termination_date", headerName: "Termination", filter: true },
+];
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -66,6 +93,26 @@ export default function LeasesPage() {
       l.tenant_legal_name?.toLowerCase().includes(search.toLowerCase()) ||
       l.landlord_legal_name?.toLowerCase().includes(search.toLowerCase())
   );
+  if (loading) {
+  return (   <div className="space-y-4 animate-pulse">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        {/* Left buttons skeleton */}
+        <div className="flex gap-2">
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+        </div>
+
+        {/* Right search skeleton */}
+        <div className="h-10 w-64 bg-gray-300 rounded" />
+      </div>
+
+      {/* Grid skeleton */}
+      <div className="h-[530px] w-full bg-gray-300 rounded" />
+    </div>
+  );
+}
 
   return (
     <div className="space-y-4">
@@ -95,94 +142,31 @@ export default function LeasesPage() {
           )}
         </div>
 
-        {/* Right: Search */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search tenant / landlord..."
-            className="border px-3 py-2 rounded"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="min-w-full border">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-3 border">Tenant</th>
-              <th className="p-3 border">Landlord</th>
-              <th className="p-3 border">Lease Type</th>
-              <th className="p-3 border">Status</th>
-              <th className="p-3 border">Rent Area</th>
-              <th className="p-3 border">Commencement</th>
-              <th className="p-3 border">Termination</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {/* 🔹 Skeleton Loader */}
-            {loading &&
-              Array.from({ length: 8 }).map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  {Array.from({ length: 7 }).map((_, j) => (
-                    <td key={j} className="p-3 border">
-                      <div className="h-4 bg-gray-300 rounded w-full"></div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-
-            {/* 🔹 Data Rows */}
-            {!loading &&
-              filteredLeases.map((lease) => (
-                <tr
-                  key={lease.id}
-                  className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    if (canView) {
-                      router.push(`/leases/${lease.id}`);
-                    }
-                  }}
-                >
-                  <td className="p-3 border font-medium">
-                    {lease.tenant_legal_name || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.landlord_legal_name || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.lease_type || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.lease_status || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.lease_rentable_area || "-"}{" "}
-                    {lease.measure_units || ""}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.rent_commencement_date || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {lease.termination_date || "-"}
-                  </td>
-                </tr>
-              ))}
-
-            {/* 🔹 No Data */}
-            {!loading && filteredLeases.length === 0 && (
-              <tr>
-                <td colSpan={7} className="p-6 text-center text-gray-500">
-                  No leases found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+<div
+  style={{
+    height: "530px",
+    width: "100%",
+    "--ag-odd-row-background-color": "#ffffff",
+    "--ag-even-row-background-color": "#f3f4f6",
+  } as React.CSSProperties}
+>
+  <AgGridReact
+    theme={myTheme}
+    rowData={filteredLeases}
+    columnDefs={columnDefs}
+    rowSelection="single"
+    animateRows
+    onRowClicked={(event) => {
+      if (canView) {
+        router.push(`/leases/${event.data.id}`);
+      }
+    }}
+  />
+</div>
     </div>
   );
 }

@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import { AgGridReact } from "ag-grid-react";
+import { themeQuartz } from "ag-grid-community";
+import type { ColDef } from "ag-grid-community";
+import "@/src/lib/ag-grid-setup";
 
 type Expense = {
   expense_id: number;
@@ -41,6 +45,28 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
     setCanDelete(hasPermission("EXPENSE", "delete"));
   }, []);
 
+  const myTheme = themeQuartz.withParams({
+  backgroundColor: "#f8f9fa",
+  foregroundColor: "#1f2937",
+  headerBackgroundColor: "#dbeafe",
+  headerTextColor: "#1e3a8a",
+  borderColor: "#e5e7eb",
+  spacing: 8,
+  rowHoverColor: "#e0f2fe",
+});
+const columnDefs: ColDef[] = [
+  { field: "expense_id", headerName: "ID", filter: true },
+  { field: "expense_year", headerName: "Year", filter: true },
+  { field: "expense_period", headerName: "Period", filter: true },
+  { field: "expense_category", headerName: "Category", filter: true },
+  {
+    headerName: "Amount",
+    valueGetter: (params) =>
+      `${params.data.amount || "-"} ${params.data.currency || ""}`,
+    filter: true,
+  },
+  { field: "status", headerName: "Status", filter: true },
+];
   /* ✅ Fetch data */
   useEffect(() => {
     if (!mounted) return;
@@ -70,12 +96,32 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   }, [mounted, router]);
 
   if (!mounted) return null; // 🔥 hydration fix
+  if (loading) {
+  return <AccountsSkeleton />;
+}
 
-  const filteredExpenses = expenses.filter((e) =>
-    `${e.expense_category} ${e.expense_year} ${e.status}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
+  const filteredExpenses = expenses.filter((expense) =>
+    JSON.stringify(expense).toLowerCase().includes(search.toLowerCase())
   );
+
+  
+  function AccountsSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+          <div className="h-10 w-24 bg-gray-300 rounded" />
+        </div>
+        <div className="h-10 w-64 bg-gray-300 rounded" />
+      </div>
+
+      <div className="h-[530px] w-full bg-gray-300 rounded" />
+    </div>
+  );
+}
+
 
   return (
     <div className="space-y-4">
@@ -107,84 +153,32 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
         {/* Right: Search */}
         <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search expense..."
-            className="border px-3 py-2 rounded"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded shadow overflow-x-auto">
-        <table className="min-w-full border">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-3 border">ID</th>
-              <th className="p-3 border">Year</th>
-              <th className="p-3 border">Period</th>
-              <th className="p-3 border">Category</th>
-              <th className="p-3 border">Amount</th>
-              <th className="p-3 border">Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {/* Skeleton */}
-            {loading &&
-              Array.from({ length: 8 }).map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <td key={j} className="p-3 border">
-                      <div className="h-4 bg-gray-300 rounded w-full"></div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-
-            {/* Data */}
-            {!loading &&
-              filteredExpenses.map((expense) => (
-                <tr
-                  key={expense.expense_id}
-                  className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => canView && router.push(`/accounts/${expense.expense_id}`)}
-                >
-                  <td className="p-3 border font-medium">
-                    {expense.expense_id}
-                  </td>
-                  <td className="p-3 border">
-                    {expense.expense_year || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {expense.expense_period || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {expense.expense_category || "-"}
-                  </td>
-                  <td className="p-3 border">
-                    {expense.amount} {expense.currency}
-                  </td>
-                  <td className="p-3 border">
-                    {expense.status || "-"}
-                  </td>
-                </tr>
-
-              ))}
-
-            {/* No data */}
-            {!loading && filteredExpenses.length === 0 && (
-              <tr>
-                <td colSpan={6} className="p-6 text-center text-gray-500">
-                  No expenses found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+<div
+  style={{
+    height: "530px",
+    width: "100%",
+    "--ag-odd-row-background-color": "#ffffff",
+    "--ag-even-row-background-color": "#f3f4f6",
+  } as React.CSSProperties}
+>
+  <AgGridReact
+    theme={myTheme}
+    rowData={filteredExpenses}
+    columnDefs={columnDefs}
+    rowSelection="single"
+    animateRows
+    onRowClicked={(event) => {
+      if (canView) {
+        router.push(`/accounts/${event.data.expense_id}`);
+      }
+    }}
+  />
+</div>
     </div>
   );
 }
