@@ -13,6 +13,12 @@ type Building = {
   ownership_type?: string;
   managed_by?: string;
   sio?:string;
+  clli?:string;
+  latitude?: string;
+  longitude?: string;
+  geocode_latitude?: string;
+  geocode_longitude?: string;
+  zip_code?: string;  
 };
 
 export default function EditBuildingPage() {

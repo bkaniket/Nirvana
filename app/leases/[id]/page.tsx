@@ -20,7 +20,7 @@ type WorkflowInfo = {
 
 type Lease = {
   id: number;
-  building_id: number;
+  building_id?: string;
   tenant_legal_name?: string;
   landlord_legal_name?: string;
   legacy_entity_name?: string;
@@ -39,6 +39,30 @@ type Lease = {
   security_deposit_amount?: string;
   portfolio?: string;
   remarks?: string;
+  system_lease_id?: string;
+  client_lease_id?: string;
+  lease_version?: string;
+  lease_source?: string;
+  lease_hierarchy?: string;
+  parent_lease_id?: string;
+  primary_use?: string;
+  additional_use?: string;
+  ownership_type?: string;
+  account_type?: string;
+  lease_recovery_type?: string;
+  critical_lease?: string;
+  within_landlord_tenant_act?: string;
+  compliance_status?: string;
+  deed_of_grant?: string;
+  lease_acts?: string;
+  lease_clauses?: string;
+  lease_penalties?: string;
+  current_commencement_date?: string;
+  lease_possible_expiration?: string;
+  security_deposit_deposited_date?: string;
+  security_deposit_return_date?: string;
+  portfolio_sub_group?: string;
+
 };
 
 export default function LeaseDetailsPage() {

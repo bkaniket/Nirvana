@@ -9,11 +9,11 @@ type Document = {
   expense_id?: number;
   file_name: string;
   file_path: string;
-  document_type?: string;
+  file_type?: string; // ✅ fix
   created_at?: string;
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API ?? "";
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -58,11 +58,11 @@ const [form, setForm] = useState({
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setForm({ ...form, file: e.target.files[0] });
-    }
-  };
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  if (e.target.files) {
+    setForm({ ...form, files: Array.from(e.target.files) });
+  }
+};
 
 const handleSubmit = async () => {
   if (form.files.length === 0) {
@@ -206,7 +206,7 @@ const startEdit = (doc: Document) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {documents.map((doc) => {
 
-         const fileUrl = `${BASE_URL.replace("/api","")}/storage/${doc.file_path}`;
+         const fileUrl = `${BASE_URL.replace("/api", "")}/storage/${doc.file_path}`;
           const isImage = doc.file_name.match(/\.(jpg|jpeg|png|gif)$/i);
           const isPdf = doc.file_name.match(/\.pdf$/i);
 
@@ -243,7 +243,7 @@ const startEdit = (doc: Document) => {
               <div className="text-sm text-gray-600 space-y-1">
                 {doc.lease_id && <p>Lease ID: {doc.lease_id}</p>}
                 {doc.expense_id && <p>Expense ID: {doc.expense_id}</p>}
-                {doc.document_type && <p>Type: {doc.document_type}</p>}
+               {doc.file_type && <p>Type: {doc.file_type}</p>}
               </div>
 
               {/* 🔹 Actions */}

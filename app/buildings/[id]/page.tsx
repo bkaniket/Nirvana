@@ -16,6 +16,21 @@ type Building = {
   clli?: string;
   sio?: string;
   zip_code?: string;
+  system_building_id?: string;
+  building_type?: string;
+  construction_year?: string;
+  last_renovation_year?: string;
+  building_rentable_area?: string;
+  building_measure_units?: string;
+  purchase_price?: string;
+  currency_type?: string;
+  portfolio?: string;
+  portfolio_sub_group?: string;
+  latitude?: string;
+  longitude?: string;
+  geocode_latitude?: string;
+  geocode_longitude?: string;
+
 };
 type WorkflowUser = {
   name: string;

@@ -28,7 +28,7 @@ export default function EditLeasePage() {
   const router = useRouter();
 
   const canEdit = hasPermission("LEASE", "edit");
-   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

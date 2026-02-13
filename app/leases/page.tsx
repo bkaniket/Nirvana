@@ -18,6 +18,10 @@ type Lease = {
   lease_rentable_area?: string;
   measure_units?: string;
   portfolio?: string;
+  system_lease_id?: string;
+  client_lease_id?: string;
+  lease_version?: string;
+  lease_source?: string;
 };
 
 export default function LeasesPage() {
