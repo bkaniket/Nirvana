@@ -4,17 +4,31 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { AgGridReact } from "ag-grid-react";
+import { themeQuartz } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
 import "@/src/lib/ag-grid-setup";
 
 type Building = {
   id: number;
+  sio: string;
   building_name: string;
   address_1: string;
   city?: string;
+  zip_code?: string;
   country?: string;
-  building_status?: string;
+  clli?: string;
   ownership_type?: string;
+  building_type?: string;
+  building_rentable_area?: string;
+  building_measure_units?: string;
+  
+purchase_price?: string;
+currency_type?: string;
+latitude?: string;
+longitude?: string;
+geocode_latitude?: string;
+geocode_longitude?: string;
+  building_status?: string;
   managed_by?: string;
 };
 
@@ -29,6 +43,28 @@ const [permissions, setPermissions] = useState({
   edit: false,
   delete: false,
 });
+const myTheme = themeQuartz.withParams({
+  // 🌿 Main grid background (off-white)
+  backgroundColor: "#f8f9fa",
+
+  // 📝 Text color
+  foregroundColor: "#1f2937",
+
+  // 🔷 Header background (light blue)
+  headerBackgroundColor: "#dbeafe",
+
+  // 🔹 Header text color
+  headerTextColor: "#1e3a8a",
+
+  // 🔲 Borders
+  borderColor: "#e5e7eb",
+
+  // 📏 Spacing
+  spacing: 8,
+
+  // 🔄 Alternate row color
+  rowHoverColor: "#e0f2fe",
+});
 
 useEffect(() => {
   setPermissions({
@@ -42,13 +78,22 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
 
   const columnDefs: ColDef[] = [
     { field: "sio", headerName: "SIO", filter: true },
-    { field: "clli", headerName: "CLLI", filter: true },
     { field: "building_name", headerName: "Name",  filter: true },
+    { field: "address_1", headerName: "Address", filter: true },
     { field: "city", headerName: "City" , filter: true},
+    { field: "zip_code", headerName: "Zip Code", filter: true },
     { field: "country", headerName: "Country", filter: true },
-    { field: "building_status", headerName: "Status" },
+    { field: "clli", headerName: "CLLI", filter: true },
     { field: "ownership_type", headerName: "Ownership", filter: true },
-    { field: "managed_by", headerName: "Managed By", filter: true }
+    { field: "building_type", headerName: "Building Type", filter: true },
+    { field: "building_rentable_area", headerName: "Rentable Area", filter: true },
+    { field: "purchase_price", headerName: "Purchase Price", filter: true },
+    { field: "currency_type", headerName: "Currency Type", filter: true },
+    { field: "latitude", headerName: "Latitude", filter: true },
+    { field: "longitude", headerName: "Longitude", filter: true },
+    { field: "geocode_latitude", headerName: "Geocode Latitude", filter: true },
+    { field: "geocode_longitude", headerName: "Geocode Longitude", filter: true },
+
   ];
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -140,8 +185,14 @@ return <BuildingsSkeleton />;
       </div>
 
       {/* Table */}
-      <div className="ag-theme-quartz" style={{ height: 600, width: "100%" }}>
+      <div   style={{
+    height: "530px",
+    width: "100%",
+    "--ag-odd-row-background-color": "#ffffff",
+    "--ag-even-row-background-color": "#f3f4f6",
+  } as React.CSSProperties}>
         <AgGridReact
+            theme={myTheme}
           rowData={filteredBuildings}
           columnDefs={columnDefs}
           rowSelection="single"
