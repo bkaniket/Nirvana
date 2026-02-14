@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
@@ -71,7 +71,11 @@ export default function Sidebar({
             className="hidden md:block text-gray-400 hover:text-white"
             title="Toggle sidebar"
           >
-            {collapsed ? "»" : "«"}
+            {collapsed ? "»" :  <Image src="/icons/close.png"
+    alt="Cross"
+    width={18}
+    height={18}
+    className="object-contain" />}
           </button>
 
           {/* Mobile close */}
@@ -89,7 +93,9 @@ export default function Sidebar({
           {/* Dashboard */}
           <li>
             <button onClick={() => go("/dashboard")} className={linkClass("/dashboard")}>
-              <span>🏠</span>
+              <span>🏠
+
+              </span>
               {!collapsed && <span>Dashboard</span>}
             </button>
           </li>
