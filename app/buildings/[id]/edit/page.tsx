@@ -12,30 +12,63 @@ type Building = {
   building_status?: string;
   ownership_type?: string;
   managed_by?: string;
-  sio?:string;
-  clli?:string;
+  clli?: string;
+  sio?: string;
+  zip_code?: string;
+  system_building_id?: string;
+  building_type?: string;
+  construction_year?: string;
+  last_renovation_year?: string;
+  building_rentable_area?: string;
+  building_measure_units?: string;
+  purchase_price?: string;
+  currency_type?: string;
+  portfolio?: string;
+  portfolio_sub_group?: string;
   latitude?: string;
   longitude?: string;
   geocode_latitude?: string;
   geocode_longitude?: string;
-  zip_code?: string;  
 };
 
 export default function EditBuildingPage() {
   const { id } = useParams();
   const router = useRouter();
-   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState<Building>({
     building_name: "",
+    address_1: "",
+    city: "",
+    country: "",
+    building_status: "",
+    ownership_type: "",
+    managed_by: "",
+    clli: "",
+    sio: "",
+    zip_code: "",
+    system_building_id: "",
+    building_type: "",
+    construction_year: "",
+    last_renovation_year: "",
+    building_rentable_area: "",
+    building_measure_units: "",
+    purchase_price: "",
+    currency_type: "",
+    portfolio: "",
+    portfolio_sub_group: "",
+    latitude: "",
+    longitude: "",
+    geocode_latitude: "",
+    geocode_longitude: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-  if (!hasPermission("BUILDING", "edit")) {
-    router.replace("/buildings");
-  }
-}, [router]);
+    if (!hasPermission("BUILDING", "edit")) {
+      router.replace("/buildings");
+    }
+  }, [router]);
   /* Fetch building details */
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -52,8 +85,8 @@ export default function EditBuildingPage() {
         return res.json();
       })
       .then((data) => {
-        console.log("Building details:", data);
-        setForm(data);
+        const buildingData = data.building ?? data;
+        setForm(buildingData);
       })
       .catch(() => router.push("/buildings"))
       .finally(() => setLoading(false));
@@ -104,96 +137,34 @@ export default function EditBuildingPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow space-y-4"
       >
-       <Input
-          label="SIO"
-          name="sio"
-          value={form.sio}
-          onChange={handleChange}
-          required
-        />
-         <Input
-          label="CLLI"
-          name="clli"
-          value={form.clli}
-          onChange={handleChange}
-          required
-        />
-        <Input
-          label="Building Name"
-          name="building_name"
-          value={form.building_name}
-          onChange={handleChange}
-          required
-        />
+        <Input label="System Building ID" name="system_building_id" value={form.system_building_id || ""} onChange={handleChange} />
+        <Input label="SIO" name="sio" value={form.sio || ""} onChange={handleChange} />
+        <Input label="CLLI" name="clli" value={form.clli || ""} onChange={handleChange} />
+        <Input label="Building Name" name="building_name" value={form.building_name} onChange={handleChange} required />
+        <Input label="Building Type" name="building_type" value={form.building_type || ""} onChange={handleChange} />
 
-        <Input
-          label="Address"
-          name="address_1"
-          value={form.address_1 || ""}
-          onChange={handleChange}
-        />
+        <Input label="Address" name="address_1" value={form.address_1 || ""} onChange={handleChange} />
+        <Input label="City" name="city" value={form.city || ""} onChange={handleChange} />
+        <Input label="Zip Code" name="zip_code" value={form.zip_code || ""} onChange={handleChange} />
+        <Input label="Country" name="country" value={form.country || ""} onChange={handleChange} />
 
-        <Input
-          label="City"
-          name="city"
-          value={form.city || ""}
-          onChange={handleChange}
-        />
+        <Input label="Latitude" name="latitude" value={form.latitude || ""} onChange={handleChange} />
+        <Input label="Longitude" name="longitude" value={form.longitude || ""} onChange={handleChange} />
+        <Input label="Geocode Latitude" name="geocode_latitude" value={form.geocode_latitude || ""} onChange={handleChange} />
+        <Input label="Geocode Longitude" name="geocode_longitude" value={form.geocode_longitude || ""} onChange={handleChange} />
 
-        <Input
-          label="Zip Code"
-          name="zip_code"
-          value={form.zip_code || ""}
-          onChange={handleChange}
-        />
+        <Input label="Latitude" name="latitude" value={form.latitude || ""} onChange={handleChange} />
+        <Input label="Longitude" name="longitude" value={form.longitude || ""} onChange={handleChange} />
+        <Input label="Geocode Latitude" name="geocode_latitude" value={form.geocode_latitude || ""} onChange={handleChange} />
+        <Input label="Geocode Longitude" name="geocode_longitude" value={form.geocode_longitude || ""} onChange={handleChange} />
 
-        <Input
-          label="Country"
-          name="country"
-          value={form.country || ""}
-          onChange={handleChange}
-        />
+        <Input label="Purchase Price" name="purchase_price" value={form.purchase_price || ""} onChange={handleChange} />
+        <Input label="Currency Type" name="currency_type" value={form.currency_type || ""} onChange={handleChange} />
 
-        <Input
-          label="Latitude"
-          name="latitude"
-          value={form.latitude || ""}
-          onChange={handleChange}
-        />
-        
-         <Input
-          label="Latitude"
-          name="longitude"
-          value={form.longitude|| ""}
-          onChange={handleChange}
-        />
-
-        <Input
-          label="Geocode Latitude"
-          name="geocode_latitude"
-          value={form.geocode_latitude|| " N/A"}
-          onChange={handleChange}
-        />
-        <Input
-          label="Longitude"
-          name="geocode_longitude"
-          value={form.geocode_longitude|| "N/A"}
-          onChange={handleChange}
-        />
-
-        <Input
-          label="Ownership Type"
-          name="ownership_type"
-          value={form.ownership_type || ""}
-          onChange={handleChange}
-        />
-
-        <Input
-          label="Managed By"
-          name="managed_by"
-          value={form.managed_by || ""}
-          onChange={handleChange}
-        />
+        <Input label="Ownership Type" name="ownership_type" value={form.ownership_type || ""} onChange={handleChange} />
+        <Input label="Managed By" name="managed_by" value={form.managed_by || ""} onChange={handleChange} />
+        <Input label="Portfolio" name="portfolio" value={form.portfolio || ""} onChange={handleChange} />
+        <Input label="Portfolio Sub Group" name="portfolio_sub_group" value={form.portfolio_sub_group || ""} onChange={handleChange} />
 
         <select
           name="building_status"
@@ -201,10 +172,12 @@ export default function EditBuildingPage() {
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
         >
-          <option value="">Select Status</option>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
+          <option value="Holdover">Holdover</option>
+          <option value="Terminated">Terminated</option>
         </select>
+
 
         <div className="flex gap-3">
           <button

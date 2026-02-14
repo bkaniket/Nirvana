@@ -1,12 +1,12 @@
 "use client";
 
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 
 export default function CreateBuildingPage() {
   const router = useRouter();
-  
+
   const [saving, setSaving] = useState(false);
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const [form, setForm] = useState({
@@ -14,9 +14,26 @@ export default function CreateBuildingPage() {
     address_1: "",
     city: "",
     country: "",
+    building_status: "Active",
     ownership_type: "",
     managed_by: "",
-    building_status: "Active",
+    clli: "",
+    sio: "",
+    zip_code: "",
+    system_building_id: "",
+    building_type: "",
+    construction_year: "",
+    last_renovation_year: "",
+    building_rentable_area: "",
+    building_measure_units: "",
+    purchase_price: "",
+    currency_type: "",
+    portfolio: "",
+    portfolio_sub_group: "",
+    latitude: "",
+    longitude: "",
+    geocode_latitude: "",
+    geocode_longitude: "",
   });
 
   const handleChange = (
@@ -62,50 +79,48 @@ export default function CreateBuildingPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow space-y-4"
       >
-        <Input
-          label="Building Name"
-          name="building_name"
-          value={form.building_name}
-          onChange={handleChange}
-          required
-        />
+        <div className="border-b pb-2 font-semibold">Basic Information</div>
 
-        <Input
-          label="Address"
-          name="address_1"
-          value={form.address_1}
-          onChange={handleChange}
-        />
+        <Input label="System Building ID" name="system_building_id" value={form.system_building_id} onChange={handleChange} />
+        <Input label="Building Name" name="building_name" value={form.building_name} onChange={handleChange} required />
+        <Input label="CLLI" name="clli" value={form.clli} onChange={handleChange} />
+        <Input label="SIO" name="sio" value={form.sio} onChange={handleChange} />
+        <Input label="Building Type" name="building_type" value={form.building_type} onChange={handleChange} />
 
-        <Input
-          label="City"
-          name="city"
-          value={form.city}
-          onChange={handleChange}
-        />
+        <div className="border-b pb-2 font-semibold mt-6">Location Details</div>
 
-        <Input
-          label="Country"
-          name="country"
-          value={form.country}
-          onChange={handleChange}
-        />
+        <Input label="Address" name="address_1" value={form.address_1} onChange={handleChange} />
+        <Input label="City" name="city" value={form.city} onChange={handleChange} />
+        <Input label="Zip Code" name="zip_code" value={form.zip_code} onChange={handleChange} />
+        <Input label="Country" name="country" value={form.country} onChange={handleChange} />
 
-        <Input
-          label="Ownership Type"
-          name="ownership_type"
-          value={form.ownership_type}
-          onChange={handleChange}
-        />
+        <div className="border-b pb-2 font-semibold mt-6">Geographical Coordinates</div>
 
-        <Input
-          label="Managed By"
-          name="managed_by"
-          value={form.managed_by}
-          onChange={handleChange}
-        />
+        <Input label="Latitude" name="latitude" value={form.latitude} onChange={handleChange} />
+        <Input label="Longitude" name="longitude" value={form.longitude} onChange={handleChange} />
+        <Input label="Geocode Latitude" name="geocode_latitude" value={form.geocode_latitude} onChange={handleChange} />
+        <Input label="Geocode Longitude" name="geocode_longitude" value={form.geocode_longitude} onChange={handleChange} />
 
-        <div>
+        <div className="border-b pb-2 font-semibold mt-6">Property Specifications</div>
+
+        <Input label="Construction Year" name="construction_year" value={form.construction_year} onChange={handleChange} />
+        <Input label="Last Renovation Year" name="last_renovation_year" value={form.last_renovation_year} onChange={handleChange} />
+        <Input label="Rentable Area" name="building_rentable_area" value={form.building_rentable_area} onChange={handleChange} />
+        <Input label="Measurement Unit" name="building_measure_units" value={form.building_measure_units} onChange={handleChange} />
+
+        <div className="border-b pb-2 font-semibold mt-6">Financial Details</div>
+
+        <Input label="Purchase Price" name="purchase_price" value={form.purchase_price} onChange={handleChange} />
+        <Input label="Currency Type" name="currency_type" value={form.currency_type} onChange={handleChange} />
+
+        <div className="border-b pb-2 font-semibold mt-6">Ownership & Management</div>
+
+        <Input label="Ownership Type" name="ownership_type" value={form.ownership_type} onChange={handleChange} />
+        <Input label="Managed By" name="managed_by" value={form.managed_by} onChange={handleChange} />
+        <Input label="Portfolio" name="portfolio" value={form.portfolio} onChange={handleChange} />
+        <Input label="Portfolio Sub Group" name="portfolio_sub_group" value={form.portfolio_sub_group} onChange={handleChange} />
+
+        <div className="mt-4">
           <label className="block text-sm text-gray-600 mb-1">
             Building Status
           </label>
@@ -117,8 +132,11 @@ export default function CreateBuildingPage() {
           >
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
+            <option value="Holdover">Holdover</option>
+            <option value="Terminated">Terminated</option>
           </select>
         </div>
+
 
         <div className="flex gap-3">
           <button
