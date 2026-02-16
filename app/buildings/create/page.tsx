@@ -52,7 +52,7 @@ export default function CreateBuildingPage() {
       return;
     }
 
-    const res = await fetch(`${BASE_URL}/api/buildings`, {
+    const res = await fetch(`${BASE_URL}/buildings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
