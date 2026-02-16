@@ -71,11 +71,11 @@ export default function Sidebar({
             className="hidden md:block text-gray-400 hover:text-white"
             title="Toggle sidebar"
           >
-            {collapsed ? "»" :  <Image src="/icons/close.png"
-    alt="Cross"
-    width={18}
-    height={18}
-    className="object-contain" />}
+            {collapsed ? "»" : <Image src="/icons/close.png"
+              alt="Cross"
+              width={18}
+              height={18}
+              className="object-contain" />}
           </button>
 
           {/* Mobile close */}
