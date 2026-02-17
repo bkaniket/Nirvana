@@ -360,7 +360,8 @@ const leaseSections: {
 ];
 
 export default function LeaseDetailsPage() {
-  const { id } = useParams();
+  const params = useParams();
+const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const { request } = useApi();
   const [lease, setLease] = useState<Lease | null>(null);
@@ -606,7 +607,7 @@ useEffect(() => {
       {/* Modals OUTSIDE content wrapper */}
       {showUpload && (
         <UploadDocumentModal
-          leaseId={id}
+          leaseId={id as string}
           onClose={() => setShowUpload(false)}
 onUploaded={fetchDocuments}
         />
@@ -703,12 +704,14 @@ function Field({
   value,
 }: {
   label: string;
-  value?: string | null;
+  value?: string | number | null;
 }) {
   return (
     <div>
       <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-medium">{value || "-"}</p>
+      <p className="font-medium"> {value !== undefined && value !== null && value !== ""
+    ? String(value)
+    : "-"}</p>
 
     </div>
   );
