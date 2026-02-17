@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
-import { AgGridReact } from "ag-grid-react";
-import { themeQuartz } from "ag-grid-community";
-import type { ColDef } from "ag-grid-community";
-import "@/src/lib/ag-grid-setup";
+import { useApi } from "@/app/hooks/useApi";
+
 
 /* ---------------- Types ---------------- */
 
@@ -274,9 +272,97 @@ function EditDocumentModal({
     </div>
   );
 }
+
+const leaseSections: {
+  title: string;
+  fields: { label: string; key: keyof Lease }[];
+}[] = [
+  {
+    title: "Lease Identification",
+    fields: [
+      { label: "System Lease ID", key: "system_lease_id" },
+      { label: "Client Lease ID", key: "client_lease_id" },
+      { label: "Lease Version", key: "lease_version" },
+      { label: "Lease Source", key: "lease_source" },
+      { label: "Lease Hierarchy", key: "lease_hierarchy" },
+      { label: "Parent Lease ID", key: "parent_lease_id" },
+    ],
+  },
+  {
+    title: "Parties Involved",
+    fields: [
+      { label: "Tenant Legal Name", key: "tenant_legal_name" },
+      { label: "Landlord Legal Name", key: "landlord_legal_name" },
+      { label: "Legacy Entity", key: "legacy_entity_name" },
+    ],
+  },
+  {
+    title: "Key Dates & Lifecycle",
+    fields: [
+      { label: "Lease Agreement Date", key: "lease_agreement_date" },
+      { label: "Possession Date", key: "possession_date" },
+      { label: "Rent Commencement Date", key: "rent_commencement_date" },
+      { label: "Current Commencement Date", key: "current_commencement_date" },
+      { label: "Termination Date", key: "termination_date" },
+      { label: "Possible Expiration", key: "lease_possible_expiration" },
+    ],
+  },
+  {
+    title: "Lease Terms",
+    fields: [
+      { label: "Lease Type", key: "lease_type" },
+      { label: "Lease Status", key: "lease_status" },
+      { label: "Current Term", key: "current_term" },
+      { label: "Term Remaining", key: "current_term_remaining" },
+      { label: "Critical Lease", key: "critical_lease" },
+      { label: "Within Landlord Tenant Act", key: "within_landlord_tenant_act" },
+    ],
+  },
+  {
+    title: "Space & Usage",
+    fields: [
+      { label: "Primary Use", key: "primary_use" },
+      { label: "Additional Use", key: "additional_use" },
+      { label: "Ownership Type", key: "ownership_type" },
+      { label: "Measure Units", key: "measure_units" },
+    ],
+  },
+  {
+    title: "Financial & Recovery",
+    fields: [
+      { label: "Account Type", key: "account_type" },
+      { label: "Lease Recovery Type", key: "lease_recovery_type" },
+      { label: "Escalation Type", key: "escalation_type" },
+      { label: "Security Deposit Type", key: "security_deposit_type" },
+      { label: "Security Deposit Amount", key: "security_deposit_amount" },
+      { label: "Deposit Date", key: "security_deposit_deposited_date" },
+      { label: "Deposit Return Date", key: "security_deposit_return_date" },
+    ],
+  },
+  {
+    title: "Compliance & Legal",
+    fields: [
+      { label: "Compliance Status", key: "compliance_status" },
+      { label: "Deed of Grant", key: "deed_of_grant" },
+      { label: "Lease Acts", key: "lease_acts" },
+      { label: "Lease Clauses", key: "lease_clauses" },
+      { label: "Lease Penalties", key: "lease_penalties" },
+    ],
+  },
+  {
+    title: "Portfolio & Classification",
+    fields: [
+      { label: "Portfolio", key: "portfolio" },
+      { label: "Portfolio Sub Group", key: "portfolio_sub_group" },
+      { label: "Building ID", key: "building_id" },
+    ],
+  },
+];
+
 export default function LeaseDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { request } = useApi();
   const [lease, setLease] = useState<Lease | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -285,140 +371,63 @@ export default function LeaseDetailsPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingDoc, setEditingDoc] = useState<LeaseDocument | null>(null);
-  const openEditModal = (doc: LeaseDocument) => {
-    setEditingDoc(doc);
-  };
+const openEditModal = useCallback((doc: LeaseDocument) => {
+  setEditingDoc(doc);
+}, []);
 
-
-const myTheme = themeQuartz.withParams({
-  backgroundColor: "#f8f9fa",
-  foregroundColor: "#1f2937",
-  headerBackgroundColor: "#dbeafe",
-  headerTextColor: "#1e3a8a",
-  borderColor: "#e5e7eb",
-  spacing: 8,
-  rowHoverColor: "#e0f2fe",
-});
-const documentColumnDefs: ColDef[] = [
-  {
-    field: "file_name",
-    headerName: "File Name",
-    filter: true,
-    flex: 1,
-    minWidth: 120,
-  },
-  {
-    field: "file_type",
-    headerName: "Type",
-    filter: true,
-    flex: 1,
-    minWidth: 120,
-  },
-  {
-    headerName: "Uploaded By",
-    valueGetter: (params) =>
-      params.data.uploaded_by_first_name
-        ? `${params.data.uploaded_by_first_name} ${params.data.uploaded_by_last_name}`
-        : "-",
-    flex: 1,
-    minWidth: 120,
-  },
-  {
-    field: "created_at",
-    headerName: "Created",
-    valueGetter: (params) =>
-      new Date(params.data.created_at).toLocaleString(),
-    flex: 1,
-    minWidth: 120,
-  },
-  {
-    headerName: "Actions",
-
-    cellRenderer: (params: any) => {
-      const doc = params.data;
-
-      return (
-        <div className="flex gap-2">
-          <button
-            onClick={() =>
-              window.open(getFileUrl(doc.file_path), "_blank")
-            }
-            className="text-blue-600 hover:underline text-sm"
-          >
-            View
-          </button>
-
-          <a
-            href={getFileUrl(doc.file_path)}
-            download
-            className="text-green-600 hover:underline text-sm"
-          >
-            Download
-          </a>
-
-          <button
-            onClick={() => openEditModal(doc)}
-            className="text-yellow-600 hover:underline text-sm"
-          >
-            Edit
-          </button>
-
-          <button
-            onClick={() => handleDelete(doc.id)}
-            className="text-red-600 hover:underline text-sm"
-          >
-            Delete
-          </button>
-        </div>
-      );
-    },
-  },
-];
 
   const canView = hasPermission("LEASE", "view");
   const canEdit = hasPermission("LEASE", "edit");
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
+const fetchDocuments = useCallback(async () => {
+  if (!id) return;
 
-    if (!token || !canView) {
-      router.push("/dashboard");
-      return;
-    }
+  const data = await request(`/leases/${id}/documents`);
 
-    fetch(`${BASE_URL}/leases/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch lease");
-        return res.json();
-      })
-      .then((data) => {
-        setLease(data.lease);
-        setWorkflow(data.workflow);
-      })
-      .catch(() => router.push("/leases"))
-      .finally(() => setLoading(false));
-  }, [id, router, canView]);
+  setDocuments(data?.data || []);
+  setDocsLoading(false);
+}, [id, request]);
+const fetchLease = useCallback(async () => {
+  if (!canView || !id) {
+    router.push("/dashboard");
+    return;
+  }
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-    if (!token) return;
+  setLoading(true);
 
-    fetch(`${BASE_URL}/leases/${id}/documents`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDocuments(data.data || []);
-      })
-      .catch(() => setDocuments([]))
-      .finally(() => setDocsLoading(false));
-  }, [id]);
+  const data = await request(`/leases/${id}`);
+
+  if (!data) {
+    setLoading(false);
+    router.push("/leases");
+    return;
+  }
+
+  setLease(data.lease);
+  setWorkflow(data.workflow);
+  setLoading(false);
+}, [id, canView, router, request]);
+
+const handleDelete = useCallback(async (docId: number) => {
+  if (!confirm("Are you sure?")) return;
+
+  const success = await request(`/documents/${docId}`, {
+    method: "DELETE",
+  });
+
+  if (success !== null) {
+    setDocuments((prev) => prev.filter((d) => d.id !== docId));
+  }
+}, [request]);
+
+
+useEffect(() => {
+  fetchLease();
+}, [id, canView]);
+
+useEffect(() => {
+  fetchDocuments();
+}, [id]);
 
   if (loading) {
     return (
@@ -430,21 +439,7 @@ const documentColumnDefs: ColDef[] = [
     );
   }
 
-  const handleDelete = async (docId: number) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
 
-    const token = sessionStorage.getItem("token");
-    if (!token) return;
-
-    await fetch(`${BASE_URL}/documents/${docId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    setDocuments((prev) => prev.filter((d) => d.id !== docId));
-  };
   if (!lease) return null;
 
   return (
@@ -458,18 +453,8 @@ const documentColumnDefs: ColDef[] = [
           <div>
             <h1 className="text-2xl font-semibold">Lease Details</h1>
 
-            {workflow && (
-              <span
-                className={`inline-block mt-2 px-3 py-1 text-sm rounded ${workflow.status === "APPROVED"
-                  ? "bg-green-100 text-green-800"
-                  : workflow.status === "REJECTED"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
-                  }`}
-              >
-                {workflow.status}
-              </span>
-            )}
+          {workflow && <WorkflowPanel workflow={workflow} />}
+
           </div>
 
           {canEdit && workflow?.status !== "APPROVED" && (
@@ -483,84 +468,20 @@ const documentColumnDefs: ColDef[] = [
         </div>
 
         {/* ALL SECTIONS ABOVE STAY SAME */}
-        <div >
-          {/* Sections */}
-          {/* 🔹 Lease Identification */}
-          <Section title="Lease Identification">
-            <Field label="System Lease ID" value={lease.system_lease_id} />
-            <Field label="Client Lease ID" value={lease.client_lease_id} />
-            <Field label="Lease Version" value={lease.lease_version} />
-            <Field label="Lease Source" value={lease.lease_source} />
-            <Field label="Lease Hierarchy" value={lease.lease_hierarchy} />
-            <Field label="Parent Lease ID" value={lease.parent_lease_id} />
-          </Section>
 
-          {/* 🔹 Parties Involved */}
-          <Section title="Parties Involved">
-            <Field label="Tenant Legal Name" value={lease.tenant_legal_name} />
-            <Field label="Landlord Legal Name" value={lease.landlord_legal_name} />
-            <Field label="Legacy Entity" value={lease.legacy_entity_name} />
-          </Section>
-
-          {/* 🔹 Key Dates & Lifecycle */}
-          <Section title="Key Dates & Lifecycle">
-            <Field label="Lease Agreement Date" value={lease.lease_agreement_date} />
-            <Field label="Possession Date" value={lease.possession_date} />
-            <Field label="Rent Commencement Date" value={lease.rent_commencement_date} />
-            <Field label="Current Commencement Date" value={lease.current_commencement_date} />
-            <Field label="Termination Date" value={lease.termination_date} />
-            <Field label="Possible Expiration" value={lease.lease_possible_expiration} />
-          </Section>
-
-          {/* 🔹 Lease Terms */}
-          <Section title="Lease Terms">
-            <Field label="Lease Type" value={lease.lease_type} />
-            <Field label="Lease Status" value={lease.lease_status} />
-            <Field label="Current Term" value={lease.current_term} />
-            <Field label="Term Remaining" value={lease.current_term_remaining} />
-            <Field label="Critical Lease" value={lease.critical_lease} />
-            <Field label="Within Landlord Tenant Act" value={lease.within_landlord_tenant_act} />
-          </Section>
-
-          {/* 🔹 Space & Usage */}
-          <Section title="Space & Usage">
-            <Field label="Primary Use" value={lease.primary_use} />
-            <Field label="Additional Use" value={lease.additional_use} />
-            <Field
-              label="Rentable Area"
-              value={`${lease.lease_rentable_area || "-"} ${lease.measure_units || ""}`}
-            />
-            <Field label="Measure Units" value={lease.measure_units} />
-            <Field label="Ownership Type" value={lease.ownership_type} />
-          </Section>
-
-          {/* 🔹 Financial & Recovery */}
-          <Section title="Financial & Recovery">
-            <Field label="Account Type" value={lease.account_type} />
-            <Field label="Lease Recovery Type" value={lease.lease_recovery_type} />
-            <Field label="Escalation Type" value={lease.escalation_type} />
-            <Field label="Security Deposit Type" value={lease.security_deposit_type} />
-            <Field label="Security Deposit Amount" value={lease.security_deposit_amount} />
-            <Field label="Deposit Date" value={lease.security_deposit_deposited_date} />
-            <Field label="Deposit Return Date" value={lease.security_deposit_return_date} />
-          </Section>
-
-          {/* 🔹 Compliance & Legal */}
-          <Section title="Compliance & Legal">
-            <Field label="Compliance Status" value={lease.compliance_status} />
-            <Field label="Deed of Grant" value={lease.deed_of_grant} />
-            <Field label="Lease Acts" value={lease.lease_acts} />
-            <Field label="Lease Clauses" value={lease.lease_clauses} />
-            <Field label="Lease Penalties" value={lease.lease_penalties} />
-          </Section>
-
-          {/* 🔹 Portfolio & Classification */}
-          <Section title="Portfolio & Classification">
-            <Field label="Portfolio" value={lease.portfolio} />
-            <Field label="Portfolio Sub Group" value={lease.portfolio_sub_group} />
-            <Field label="Building ID" value={lease.building_id} />
-          </Section>
-        </div>
+          <div>
+            {leaseSections.map((section) => (
+  <Section key={section.title} title={section.title}>
+    {section.fields.map((field) => (
+      <Field
+        key={field.key}
+        label={field.label}
+        value={lease[field.key]}
+      />
+    ))}
+  </Section>
+))}
+          </div>
         {/* Lease Documents */}
       
 
@@ -589,24 +510,96 @@ const documentColumnDefs: ColDef[] = [
           ) : documents.length === 0 ? (
             <p>No documents uploaded.</p>
           ) : (
-            <div className="ag-theme-quartz rounded-lg border w-full"
-              style={{ height: 400 }}
-            >
-              <AgGridReact
-                theme={myTheme}
-                rowData={documents}
-                columnDefs={documentColumnDefs}
-                domLayout="normal"
-                defaultColDef={{
-                  flex: 1,
-                  minWidth: 120,
-                  sortable: true,
-                  filter: true,
-                  resizable: true,
-                }}
-                rowSelection="single"
-              />
-            </div>
+            <div className="rounded-lg border border-gray-200 overflow-hidden">
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-sm text-left border-collapse">
+      
+      {/* Header */}
+      <thead className="bg-blue-100 text-blue-900">
+        <tr>
+          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
+            File Name
+          </th>
+          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
+            Type
+          </th>
+          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
+            Uploaded By
+          </th>
+          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
+            Created
+          </th>
+          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
+            Actions
+          </th>
+        </tr>
+      </thead>
+
+      {/* Body */}
+      <tbody className="bg-white">
+        {documents.map((doc) => (
+          <tr
+            key={doc.id}
+            className="hover:bg-blue-50 transition"
+          >
+            <td className="px-4 py-3 border-b border-gray-100">
+              {doc.file_name}
+            </td>
+
+            <td className="px-4 py-3 border-b border-gray-100">
+              {doc.file_type || "-"}
+            </td>
+
+            <td className="px-4 py-3 border-b border-gray-100">
+              {doc.uploaded_by_first_name
+                ? `${doc.uploaded_by_first_name} ${doc.uploaded_by_last_name}`
+                : "-"}
+            </td>
+
+            <td className="px-4 py-3 border-b border-gray-100">
+              {new Date(doc.created_at).toLocaleString()}
+            </td>
+
+            <td className="px-4 py-3 border-b border-gray-100">
+              <div className="flex gap-3">
+                <button
+                  onClick={() =>
+                    window.open(getFileUrl(doc.file_path), "_blank")
+                  }
+                  className="text-blue-600 hover:underline"
+                >
+                  View
+                </button>
+
+                <a
+                  href={getFileUrl(doc.file_path)}
+                  download
+                  className="text-green-600 hover:underline"
+                >
+                  Download
+                </a>
+
+                <button
+                  onClick={() => openEditModal(doc)}
+                  className="text-yellow-600 hover:underline"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(doc.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
       
       )}
       </Section>
@@ -615,17 +608,7 @@ const documentColumnDefs: ColDef[] = [
         <UploadDocumentModal
           leaseId={id}
           onClose={() => setShowUpload(false)}
-          onUploaded={() => {
-            setDocsLoading(true);
-            fetch(`${BASE_URL}/leases/${id}/documents`, {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-              },
-            })
-              .then((res) => res.json())
-              .then((data) => setDocuments(data.data || []))
-              .finally(() => setDocsLoading(false));
-          }}
+onUploaded={fetchDocuments}
         />
       )}
 
@@ -646,7 +629,48 @@ const documentColumnDefs: ColDef[] = [
 
 }
 
+
 /* ---------------- Reusable UI ---------------- */
+
+function WorkflowPanel({ workflow }: { workflow: WorkflowInfo }) {
+  const isApproved = workflow.status === "APPROVED";
+
+  return (
+    <div
+      className={`bg-white p-6 rounded shadow border-l-4 space-y-2 ${
+        isApproved ? "border-green-500" : "border-blue-500"
+      }`}
+    >
+      <h2 className="text-lg font-semibold">Approval Workflow</h2>
+
+      <p>
+        <strong>Status:</strong>{" "}
+        {isApproved ? (
+          <span className="text-green-600 font-semibold">
+            ✅ Approved
+          </span>
+        ) : (
+          <span className="text-yellow-600 font-semibold">
+            ⏳ Approval Pending
+          </span>
+        )}
+      </p>
+
+      <p>
+        <strong>Created By:</strong>{" "}
+        {workflow.created_by?.name || "-"}
+      </p>
+
+      <p>
+        <strong>Approved By:</strong>{" "}
+        {typeof workflow.approved_by === "string"
+          ? workflow.approved_by
+          : workflow.approved_by?.name || "Approval Pending"}
+      </p>
+    </div>
+  );
+}
+
 
 function Section({
   title,

@@ -110,32 +110,10 @@ export default function Sidebar({
 
           {/* 🔹 Lease Section */}
           <li>
-            <button
-              onClick={() => setOpenLease(!openLease)}
-              className="flex items-center justify-between w-full px-3 py-2 rounded text-gray-300 hover:bg-gray-700"
-            >
-              <div className="flex items-center gap-3">
-                <span>📄</span>
-                {!collapsed && <span>Leases</span>}
-              </div>
-              {!collapsed && <span>{openLease ? "▾" : "▸"}</span>}
+            <button onClick={() => go("/leases")} className={linkClass("/leases")}>
+              <span>🏢</span>
+              {!collapsed && <span>Leases</span>}
             </button>
-
-            {openLease && !collapsed && (
-              <ul className="ml-6 mt-1 space-y-1">
-                <li>
-                  <button onClick={() => go("/leases")} className={linkClass("/leases")}>
-                    All Leases
-                  </button>
-                </li>
-
-                <li>
-                  <button onClick={() => go("/documents")} className={linkClass("/documents")}>
-                    Documents
-                  </button>
-                </li>
-              </ul>
-            )}
           </li>
 
           {/* 🔹 Accounts Section */}
