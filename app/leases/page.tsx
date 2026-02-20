@@ -40,6 +40,12 @@ export default function LeasesPage() {
   const canView   = hasPermission("LEASE", "view");
   const canEdit   = hasPermission("LEASE", "edit");
   const canDelete = hasPermission("LEASE", "delete");
+
+  useEffect(() => {
+  if (!hasPermission("LEASE", "view")) {
+    router.push("/dashboard");
+  }
+}, []);
   const myTheme = themeQuartz.withParams({
   backgroundColor: "#f8f9fa",        // off-white grid
   foregroundColor: "#1f2937",

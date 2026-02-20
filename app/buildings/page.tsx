@@ -98,6 +98,11 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   useEffect(() => {
+  if (!hasPermission("BUILDING", "view")) {
+    router.push("/dashboard");
+  }
+}, []);
+  useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
       router.push("/login");
