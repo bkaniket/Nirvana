@@ -14,6 +14,7 @@ export default function CreateBuildingPage() {
     address_1: "",
     city: "",
     country: "",
+    state: "",
     building_status: "Active",
     ownership_type: "",
     managed_by: "",
@@ -91,6 +92,7 @@ export default function CreateBuildingPage() {
 
         <Input label="Address" name="address_1" value={form.address_1} onChange={handleChange} />
         <Input label="City" name="city" value={form.city} onChange={handleChange} />
+        <Input label="State" name="state" value={form.state} onChange={handleChange} />
         <Input label="Zip Code" name="zip_code" value={form.zip_code} onChange={handleChange} />
         <Input label="Country" name="country" value={form.country} onChange={handleChange} />
 

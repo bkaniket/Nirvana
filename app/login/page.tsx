@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [email_id, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
    const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
@@ -21,7 +21,7 @@ const handleLogin = async (e: React.FormEvent) => {
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
-      body: JSON.stringify({ email_id, password }),
+      body: JSON.stringify({ username, password }),
     });
 
     if (!res.ok) {
@@ -57,13 +57,13 @@ const handleLogin = async (e: React.FormEvent) => {
       <form onSubmit={handleLogin}>
         <div className="flex flex-col">
 
-        <label className="mb-1.5 ">Email Id</label>
+        <label className="mb-1.5 ">Username</label>
         <input
         className=" font-medium mb-3 p-2 border border-gray-300 rounded"
-          type="email"
-          placeholder="Email"
-           value={email_id}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Username"
+           value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         /><br />
         <label className="mb-1.5">Password</label>

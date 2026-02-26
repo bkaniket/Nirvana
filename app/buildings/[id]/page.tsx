@@ -9,6 +9,7 @@ type Building = {
   building_name: string;
   address_1?: string;
   city?: string;
+  state?: string;
   country?: string;
   building_status?: string;
   ownership_type?: string;
@@ -263,10 +264,10 @@ export default function BuildingDetailsPage() {
         {/* 🔹 Basic Identification */}
         <CollapsibleSection index={1} title="Basic Information" defaultOpen>
           <div className="grid grid-cols-2 gap-4">
-            <Detail label="System Building ID" value={building.system_building_id} />
+            {/* <Detail label="System Building ID" value={building.system_building_id} /> */}
             <Detail label="Building Name" value={building.building_name} />
-            <Detail label="CLLI" value={building.clli} />
-            <Detail label="SIO" value={building.sio} />
+            {/* <Detail label="CLLI" value={building.clli} />
+            <Detail label="SIO" value={building.sio} /> */}
             <Detail label="Building Type" value={building.building_type} />
             <Detail label="Building Status" value={building.building_status} />
           </div>
@@ -276,6 +277,7 @@ export default function BuildingDetailsPage() {
           <div className="grid grid-cols-2 gap-4">
             <Detail label="Address" value={building.address_1} />
             <Detail label="City" value={building.city} />
+            <Detail label="State" value={building.state} />
             <Detail label="Zip Code" value={building.zip_code} />
             <Detail label="Country" value={building.country} />
           </div>

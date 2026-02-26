@@ -8,6 +8,7 @@ type Building = {
   building_name: string;
   address_1?: string;
   city?: string;
+  state?: string;
   country?: string;
   building_status?: string;
   ownership_type?: string;
@@ -39,6 +40,7 @@ export default function EditBuildingPage() {
     building_name: "",
     address_1: "",
     city: "",
+    state: "",
     country: "",
     building_status: "",
     ownership_type: "",
@@ -145,6 +147,7 @@ export default function EditBuildingPage() {
 
         <Input label="Address" name="address_1" value={form.address_1 || ""} onChange={handleChange} />
         <Input label="City" name="city" value={form.city || ""} onChange={handleChange} />
+        <Input label="State" name="state" value={form.state || ""} onChange={handleChange} />
         <Input label="Zip Code" name="zip_code" value={form.zip_code || ""} onChange={handleChange} />
         <Input label="Country" name="country" value={form.country || ""} onChange={handleChange} />
 

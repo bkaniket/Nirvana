@@ -16,6 +16,7 @@ type Building = {
   city?: string;
   zip_code?: string;
   country?: string;
+  state?: string;
   clli?: string;
   ownership_type?: string;
   building_type?: string;
@@ -81,6 +82,7 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
     { field: "building_name", headerName: "Name",  filter: true },
     { field: "address_1", headerName: "Address", filter: true },
     { field: "city", headerName: "City" , filter: true},
+    { field: "state", headerName: "State" , filter: true},
     { field: "zip_code", headerName: "Zip Code", filter: true },
     { field: "country", headerName: "Country", filter: true },
     { field: "clli", headerName: "CLLI", filter: true },
