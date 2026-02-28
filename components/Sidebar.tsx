@@ -43,7 +43,7 @@ export default function Sidebar({
       {/* 🔹 Mobile Overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-[#3C6FA3]/40 z-40 md:hidden"
           onClick={onClose}
         />
       )}
@@ -51,7 +51,7 @@ export default function Sidebar({
       {/* 🔹 Sidebar */}
       <aside
         className={clsx(
-          "fixed md:static top-0 left-0 h-full bg-gray-900 text-white flex flex-col z-50",
+          "fixed md:static top-0 left-0 h-full bg-[#1E2F5E] text-white flex flex-col z-50",
           "transform transition-all duration-300",
           // Width control
           collapsed ? "md:w-20" : "md:w-64",
@@ -62,7 +62,7 @@ export default function Sidebar({
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <div className="flex items-center justify-between  p-6 border-b border-gray-800">
           {!collapsed && <h2 className="text-xl font-bold">Nirvana</h2>}
 
           {/* Desktop collapse toggle */}

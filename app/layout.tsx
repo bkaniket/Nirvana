@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Real Estate ",
+  title: "EstateFlow ",
   description: "This Project is powered by Nirvana",
 };
 

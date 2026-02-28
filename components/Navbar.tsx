@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -40,7 +40,7 @@ export default function NavBar({onMenuClick}: NavbarProps) {
   };
 
   return (
-    <nav className="w-full h-20 bg-gray-800 text-white flex items-center justify-between px-6">
+    <nav className="w-full h-20 bg-[#1E2F5E] text-white flex items-center justify-between px-6">
 
       {/* Left: Hamburger + Logo */}
       <div className="flex items-center gap-4">
