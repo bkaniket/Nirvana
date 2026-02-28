@@ -78,14 +78,14 @@ useEffect(() => {
 const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = permissions;
 
   const columnDefs: ColDef[] = [
-    { field: "sio", headerName: "SIO", filter: true },
+    // { field: "sio", headerName: "SIO", filter: true },
     { field: "building_name", headerName: "Name",  filter: true },
     { field: "address_1", headerName: "Address", filter: true },
     { field: "city", headerName: "City" , filter: true},
     { field: "state", headerName: "State" , filter: true},
     { field: "zip_code", headerName: "Zip Code", filter: true },
     { field: "country", headerName: "Country", filter: true },
-    { field: "clli", headerName: "CLLI", filter: true },
+    // { field: "clli", headerName: "CLLI", filter: true },
     { field: "ownership_type", headerName: "Ownership", filter: true },
     { field: "building_type", headerName: "Building Type", filter: true },
     { field: "building_rentable_area", headerName: "Rentable Area", filter: true },

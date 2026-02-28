@@ -63,7 +63,7 @@ export default function Sidebar({
       >
         {/* Header */}
         <div className="flex items-center justify-between  p-6 border-b border-gray-800">
-          {!collapsed && <h2 className="text-xl font-bold">Nirvana</h2>}
+          {!collapsed && <h2 className="text-xl font-bold">EstateFlow</h2>}
 
           {/* Desktop collapse toggle */}
           <button

@@ -139,9 +139,9 @@ export default function EditBuildingPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow space-y-4"
       >
-        <Input label="System Building ID" name="system_building_id" value={form.system_building_id || ""} onChange={handleChange} />
+        {/* <Input label="System Building ID" name="system_building_id" value={form.system_building_id || ""} onChange={handleChange} />
         <Input label="SIO" name="sio" value={form.sio || ""} onChange={handleChange} />
-        <Input label="CLLI" name="clli" value={form.clli || ""} onChange={handleChange} />
+        <Input label="CLLI" name="clli" value={form.clli || ""} onChange={handleChange} /> */}
         <Input label="Building Name" name="building_name" value={form.building_name} onChange={handleChange} required />
         <Input label="Building Type" name="building_type" value={form.building_type || ""} onChange={handleChange} />
 

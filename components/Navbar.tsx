@@ -56,6 +56,11 @@ export default function NavBar({onMenuClick}: NavbarProps) {
           className="text-xl font-bold cursor-pointer"
           onClick={() => router.push("/dashboard")}
         >
+          {/* <Image src="/icons/close.png"
+                        alt="Cross"
+                        width={18}
+                        height={18}
+                        className="object-contain" /> */}
           MyLogo
         </div>
         </div>

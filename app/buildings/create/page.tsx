@@ -81,11 +81,11 @@ export default function CreateBuildingPage() {
         className="bg-white p-6 rounded shadow space-y-4"
       >
         <div className="border-b pb-2 font-semibold">Basic Information</div>
-
-        <Input label="System Building ID" name="system_building_id" value={form.system_building_id} onChange={handleChange} />
+{/* 
+        <Input label="System Building ID" name="system_building_id" value={form.system_building_id} onChange={handleChange} /> */}
         <Input label="Building Name" name="building_name" value={form.building_name} onChange={handleChange} required />
-        <Input label="CLLI" name="clli" value={form.clli} onChange={handleChange} />
-        <Input label="SIO" name="sio" value={form.sio} onChange={handleChange} />
+        {/* <Input label="CLLI" name="clli" value={form.clli} onChange={handleChange} />
+        <Input label="SIO" name="sio" value={form.sio} onChange={handleChange} /> */}
         <Input label="Building Type" name="building_type" value={form.building_type} onChange={handleChange} />
 
         <div className="border-b pb-2 font-semibold mt-6">Location Details</div>
