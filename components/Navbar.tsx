@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef ,useState } from "react";
 
@@ -53,7 +53,7 @@ useEffect(() => {
   };
 }, []);
   return (
-    <nav className="w-full h-20 bg-gray-800 text-white flex items-center justify-between px-6">
+    <nav className="w-full h-20 bg-[#1E2F5E] text-white flex items-center justify-between px-6">
 
       {/* Left: Hamburger + Logo */}
       <div className="flex items-center gap-4">
@@ -69,7 +69,15 @@ useEffect(() => {
           className="text-xl font-bold cursor-pointer"
           onClick={() => router.push("/dashboard")}
         >
-          MyLogo
+
+          {/* 
+          Logo
+          <Image src="/icons/close.png"
+                        alt="Cross"
+                        width={18}
+                        height={18}
+                        className="object-contain" /> */}
+          
         </div>
         </div>
       
