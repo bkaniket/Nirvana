@@ -53,7 +53,7 @@ useEffect(() => {
   };
 }, []);
   return (
-    <nav className="w-full h-20 bg-[#1E2F5E] text-white flex items-center justify-between px-6">
+    <nav className="w-full h-20 bg-[#0a172a]/90 backdrop-blur-md border-b border-white/10 text-white flex items-center justify-between px-6 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
 
       {/* Left: Hamburger + Logo */}
       <div className="flex items-center gap-4">
@@ -89,7 +89,8 @@ useEffect(() => {
   >
     {/* Avatar */}
     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 
-      ring-1 ring-white/40 flex items-center justify-center text-white font-semibold text-sm">
+ring-2 ring-blue-400/40 shadow-[0_0_10px_rgba(59,130,246,0.4)]
+flex items-center justify-center text-white font-semibold text-sm">
       {user?.username
         ? user.username.split(" ").map((n) => n[0]).join("").toUpperCase()
         : "U"}
@@ -114,7 +115,7 @@ useEffect(() => {
   </button>
 
   {open && (
-    <div className="absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+    <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.25)] border border-gray-200 z-50 overflow-hidden animate-[fadeIn_.2s_ease]">
 
       {/* Email + Roles (Same Box) */}
       <div className="px-5 py-4 border-b border-gray-100">
@@ -140,20 +141,22 @@ useEffect(() => {
       <div className="py-2">
 
         {/* About */}
-        <button
-          onClick={() => {
-            setOpen(false);
-            router.push("/about");
-          }}
-          className="w-full flex items-center gap-3 px-5 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-          </div>
-          <span>About</span>
-        </button>
+       <button
+  onClick={() => {
+    setOpen(false);
+    router.push("/about");
+  }}
+  className="w-full flex items-center gap-3 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+>
+  <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+    {/* Question Mark Icon */}
+    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  </div>
+  <span>About</span>
+</button>
+
 
         {/* Sign Out */}
         <button

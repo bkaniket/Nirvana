@@ -1,8 +1,58 @@
 "use client";
-import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
+
+
+import {
+  LayoutDashboard,
+  Building2,
+  FileText,
+  Receipt,
+  Wallet,
+  RefreshCw,
+  Users,
+  Shield,
+  ChevronLeft,
+  ChevronRight,
+  } from "lucide-react";
+
+
+
+type MenuItemProps = {
+  path: string;
+  icon: React.ComponentType<{ size: number }>;
+  label: string;
+  collapsed: boolean;
+  go: (path: string) => void;
+  isActive: (path: string) => boolean;
+};
+
+function MenuItem({ path, icon: Icon, label, collapsed, go, isActive }: MenuItemProps) {
+  const active = isActive(path);
+
+  return (
+    <button
+      onClick={() => go(path)}
+      className={clsx(
+        "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-all duration-200",
+        collapsed && "justify-center",
+        active
+          ? "bg-blue-500/15 text-white border border-blue-400/20"
+          : "text-slate-400 hover:bg-white/10 hover:text-white"
+      )}
+    >
+      <Icon size={18} />
+
+      {!collapsed && (
+        <span className="whitespace-nowrap">
+          {label}
+        </span>
+      )}
+    </button>
+  );
+}
+
 
 type SidebarProps = {
   open: boolean;                 // mobile open
@@ -20,23 +70,32 @@ export default function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [openLease, setOpenLease] = useState(true);
+  
   const [openAccounts, setOpenAccounts] = useState(true);
 
   const isActive = (path: string) => pathname === path;
 
-  const linkClass = (path: string) =>
-    clsx(
-      "flex items-center gap-3 w-full px-3 py-2 rounded transition text-sm",
-      isActive(path)
-        ? "bg-gray-800 text-white font-semibold"
-        : "text-gray-300 hover:bg-gray-700 hover:text-white"
-    );
+  // const linkClass = (path: string) =>
+  // clsx(
+  //   "flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm group",
+  //   isActive(path)
+  //     ? "bg-blue-500/20 text-white font-semibold border border-blue-400/30"
+  //     : "text-slate-400 hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+  // );
 
   const go = (path: string) => {
     router.push(path);
     onClose(); // close on mobile after click
   };
+// type MenuItemProps = {
+//   path: string;
+//   icon: React.ComponentType<{ size: number }>;
+//   label: string;
+//   collapsed: boolean;
+//   go: (path: string) => void;
+//   isActive: (path: string) => boolean;
+// };
+
 
   return (
     <>
@@ -51,8 +110,8 @@ export default function Sidebar({
       {/* 🔹 Sidebar */}
       <aside
         className={clsx(
-          "fixed md:static top-0 left-0 h-full bg-[#1E2F5E] text-white flex flex-col z-50",
-          "transform transition-all duration-300",
+          "fixed md:static top-0 left-0 h-full bg-[#0a172a] border-r border-white/10 shadow-[4px_0_30px_rgba(0,0,0,0.4)] text-white flex flex-col z-50",
+          "transform transition-all duration-300 ease-in-out",
           // Width control
           collapsed ? "md:w-20" : "md:w-64",
           "w-64", // mobile always full width
@@ -62,21 +121,32 @@ export default function Sidebar({
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between  p-6 border-b border-gray-800">
-          {!collapsed && <h2 className="text-xl font-bold">EstateFlow</h2>}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+          <h2
+  className={clsx(
+    "text-xl font-bold whitespace-nowrap transition-all",
+    collapsed && "opacity-0 w-0 overflow-hidden translate-x-2 delay-75"
+  )}
+>
+  EstateFlow
+</h2>
 
           {/* Desktop collapse toggle */}
           <button
-            onClick={onToggleCollapse}
-            className="hidden md:block text-gray-400 hover:text-white"
-            title="Toggle sidebar"
-          >
-            {collapsed ? "»" : <Image src="/icons/close.png"
-              alt="Cross"
-              width={18}
-              height={18}
-              className="object-contain" />}
-          </button>
+  onClick={onToggleCollapse}
+  className="
+  hidden md:flex items-center justify-center
+  w-9 h-9 rounded-lg
+  bg-white/10 backdrop-blur-md
+  border border-white/20
+  shadow-[0_4px_20px_rgba(0,0,0,0.25)]
+  hover:bg-white/20
+  hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]
+  transition-all duration-200
+  "
+>
+  {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+</button>
 
           {/* Mobile close */}
           <button
@@ -90,87 +160,122 @@ export default function Sidebar({
         {/* Menu */}
         <ul className="flex-1 space-y-1 p-2">
 
-          {/* Dashboard */}
           <li>
-            <button onClick={() => go("/dashboard")} className={linkClass("/dashboard")}>
-              <span>🏠
+  <MenuItem
+    path="/dashboard"
+    icon={LayoutDashboard}
+    label="Dashboard"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
 
-              </span>
-              {!collapsed && <span>Dashboard</span>}
-            </button>
-          </li>
+<li>
+  <MenuItem
+    path="/buildings"
+    icon={Building2}
+    label="Buildings"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
 
-          {/* Buildings */}
-          <li>
-            <button onClick={() => go("/buildings")} className={linkClass("/buildings")}>
-              <span>🏢</span>
-              {!collapsed && <span>Buildings</span>}
-            </button>
-          </li>
+<li>
+  <MenuItem
+    path="/leases"
+    icon={FileText}
+    label="Leases"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
 
-          {/* 🔹 Lease Section */}
-          <li>
-            <button onClick={() => go("/leases")} className={linkClass("/leases")}>
-              <span>🏢</span>
-              {!collapsed && <span>Leases</span>}
-            </button>
-          </li>
+<li>
+  <MenuItem
+    path="/workflow"
+    icon={RefreshCw}
+    label="Workflow"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
 
           {/* 🔹 Accounts Section */}
-          <li>
-            <button
-              onClick={() => setOpenAccounts(!openAccounts)}
-              className="flex items-center justify-between w-full px-3 py-2 rounded text-gray-300 hover:bg-gray-700"
-            >
-              <div className="flex items-center gap-3">
-                <span>💰</span>
-                {!collapsed && <span>Accounts</span>}
-              </div>
-              {!collapsed && <span>{openAccounts ? "▾" : "▸"}</span>}
-            </button>
+<li>
+  <button
+    onClick={() => setOpenAccounts(!openAccounts)}
+    className={clsx(
+  "flex items-center w-full px-3 py-2 rounded text-gray-300 hover:bg-white/10",
+  collapsed ? "justify-center" : "justify-between"
+)}
+  >
+    <div className={clsx("flex items-center gap-3", collapsed && "justify-center w-full")}>
+      <Wallet size={18} />
+      {!collapsed && <span>Accounts</span>}
+    </div>
+    {!collapsed && <span>{openAccounts ? "▾" : "▸"}</span>}
+  </button>
 
-            {openAccounts && !collapsed && (
-              <ul className="ml-6 mt-1 space-y-1">
-                <li>
-                  <button onClick={() => go("/accounts")} className={linkClass("/accounts")}>
-                    Expenses
-                  </button>
-                </li>
+  {openAccounts && !collapsed && (
+    <ul className="ml-6 mt-1 space-y-1">
+      <li>
+        <MenuItem
+          path="/accounts"
+          icon={Receipt}
+          label="Expenses"
+          collapsed={collapsed}
+          go={go}
+          isActive={isActive}
+        />
+      </li>
 
-                <li>
-                  <button onClick={() => go("/invoices")} className={linkClass("/invoices")}>
-                    Invoices
-                  </button>
-                </li>
-              </ul>
-            )}
-          </li>
+      <li>
+        <MenuItem
+          path="/invoices"
+          icon={FileText}
+          label="Invoices"
+          collapsed={collapsed}
+          go={go}
+          isActive={isActive}
+        />
+      </li>
+    </ul>
+  )}
+</li>
 
-          {/* Workflow */}
-          <li>
-            <button onClick={() => go("/workflow")} className={linkClass("/workflow")}>
-              <span>🔄</span>
-              {!collapsed && <span>Workflow</span>}
-            </button>
-          </li>
 
-          {/* Users */}
-          <li>
-            <button onClick={() => go("/users")} className={linkClass("/users")}>
-              <span>👤</span>
-              {!collapsed && <span>User Management</span>}
-            </button>
-          </li>
 
-          {/* Roles */}
-          <li>
-            <button onClick={() => go("/roles")} className={linkClass("/roles")}>
-              <span>🛡️</span>
-              {!collapsed && <span>Role Management</span>}
-            </button>
-          </li>
-        </ul>
-      </aside>
+{/* Users */}
+<li>
+  <MenuItem
+    path="/users"
+    icon={Users}
+    label="User Management"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
+
+{/* Roles */}
+<li>
+  <MenuItem
+    path="/roles"
+    icon={Shield}
+    label="Role Management"
+    collapsed={collapsed}
+    go={go}
+    isActive={isActive}
+  />
+</li>
+</ul>
+</aside>
+
     </>
   );
 }
+
