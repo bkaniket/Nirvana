@@ -15,8 +15,12 @@ type LeaseForm = {
   lease_agreement_date?: string;
   possession_date?: string;
   rent_commencement_date?: string;
+  next_rent_review_date?: string;
   termination_date?: string;
   lease_rentable_area?: string;
+  primary_use?: string;
+  permitted_use?: string;
+
   measure_units?: string;
   escalation_type?: string;
   security_deposit_type?: string;
@@ -195,6 +199,18 @@ const userOptions = users.map((u) => ({
           value={form.lease_status}
           onChange={handleChange}
         />
+        <Input
+          label="Primary Use"
+          name="primary_use"
+          value={form.primary_use}
+          onChange={handleChange}
+        />
+        <Input
+          label="Permitted Use"
+          name="permitted_use"
+          value={form.permitted_use}
+          onChange={handleChange}
+        />
       </Section>
 
       {/* Parties */}
@@ -234,6 +250,14 @@ const userOptions = users.map((u) => ({
           label="Rent Commencement Date"
           name="rent_commencement_date"
           value={form.rent_commencement_date}
+          onChange={handleChange}
+        />
+
+          <Input
+          type="date"
+          label="Next Rent Review Date"
+          name="next_rent_review_date"
+          value={form.next_rent_review_date}
           onChange={handleChange}
         />
         <Input
