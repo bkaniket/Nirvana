@@ -1,9 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from "framer-motion";
 import { cn } from '@/lib/utils';
 
-interface LiquidGlassCardProps {
+interface LiquidGlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   draggable?: boolean;
@@ -18,7 +18,7 @@ interface LiquidGlassCardProps {
   glowIntensity?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export const LiquidGlassCard = ({
+export const LiquidGlassCard  = ({
   children,
   className = '',
   draggable = true,
@@ -35,12 +35,11 @@ export const LiquidGlassCard = ({
 }: LiquidGlassCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleToggleExpansion = (e: {
-    target: { closest: (arg0: string) => any };
-  }) => {
+  const handleToggleExpansion =  (e: React.MouseEvent<HTMLDivElement>) => {
     if (!expandable) return;
+    const target = e.target as HTMLElement;
     // Don't toggle if clicking on interactive elements
-    if (e.target.closest('a, button, input, select, textarea')) return;
+    if (target.closest('a, button, input, select, textarea')) return;
     setIsExpanded(!isExpanded);
   };
 
@@ -94,7 +93,7 @@ export const LiquidGlassCard = ({
       }
     : {};
 
-  const MotionComponent = draggable || expandable ? motion.div : 'div';
+ const MotionComponent: any = draggable || expandable ? motion.div : "div";
 
   const motionProps =
     draggable || expandable

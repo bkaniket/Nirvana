@@ -21,12 +21,14 @@ import {
 
 type MenuItemProps = {
   path: string;
-  icon: React.ComponentType<{ size: number }>;
+  icon: React.ComponentType<{ size?: number }>;
   label: string;
   collapsed: boolean;
   go: (path: string) => void;
   isActive: (path: string) => boolean;
 };
+
+
 
 function MenuItem({ path, icon: Icon, label, collapsed, go, isActive }: MenuItemProps) {
   const active = isActive(path);
@@ -35,8 +37,8 @@ function MenuItem({ path, icon: Icon, label, collapsed, go, isActive }: MenuItem
     <button
       onClick={() => go(path)}
       className={clsx(
-        "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-all duration-200",
-        collapsed && "justify-center",
+        "flex items-center w-full px-3 py-2 rounded-lg text-sm transition-all duration-300 overflow-hidden",
+        collapsed ? "justify-center" : "gap-3",
         active
           ? "bg-blue-500/15 text-white border border-blue-400/20"
           : "text-slate-400 hover:bg-white/10 hover:text-white"
@@ -44,11 +46,16 @@ function MenuItem({ path, icon: Icon, label, collapsed, go, isActive }: MenuItem
     >
       <Icon size={18} />
 
-      {!collapsed && (
-        <span className="whitespace-nowrap">
-          {label}
-        </span>
-      )}
+      <span
+        className={clsx(
+          "whitespace-nowrap transition-all duration-200",
+          collapsed
+            ? "opacity-0 translate-x-2 w-0"
+            : "opacity-100 translate-x-0 w-auto"
+        )}
+      >
+        {label}
+      </span>
     </button>
   );
 }
@@ -73,29 +80,15 @@ export default function Sidebar({
   
   const [openAccounts, setOpenAccounts] = useState(true);
 
-  const isActive = (path: string) => pathname === path;
-
-  // const linkClass = (path: string) =>
-  // clsx(
-  //   "flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm group",
-  //   isActive(path)
-  //     ? "bg-blue-500/20 text-white font-semibold border border-blue-400/30"
-  //     : "text-slate-400 hover:bg-white/10 hover:text-white hover:shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-  // );
+ const isActive = (path: string) => {
+  if (path === "/") return pathname === "/";
+  return pathname.startsWith(path);
+};
 
   const go = (path: string) => {
     router.push(path);
     onClose(); // close on mobile after click
   };
-// type MenuItemProps = {
-//   path: string;
-//   icon: React.ComponentType<{ size: number }>;
-//   label: string;
-//   collapsed: boolean;
-//   go: (path: string) => void;
-//   isActive: (path: string) => boolean;
-// };
-
 
   return (
     <>
@@ -111,10 +104,10 @@ export default function Sidebar({
       <aside
         className={clsx(
           "fixed md:static top-0 left-0 h-full bg-[#0a172a] border-r border-white/10 shadow-[4px_0_30px_rgba(0,0,0,0.4)] text-white flex flex-col z-50",
-          "transform transition-all duration-300 ease-in-out",
+          "transform transition-[width] duration-300 ease-in-out",
           // Width control
-          collapsed ? "md:w-20" : "md:w-64",
-          "w-64", // mobile always full width
+          collapsed ? "md:w-[80px]" : "md:w-[260px]",
+          "w-[64px]", // mobile always full width
           // Slide for mobile
           open ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0"
@@ -125,7 +118,7 @@ export default function Sidebar({
           <h2
   className={clsx(
     "text-xl font-bold whitespace-nowrap transition-all",
-    collapsed && "opacity-0 w-0 overflow-hidden translate-x-2 delay-75"
+    collapsed && "opacity-0 -translate-x-2 w-0 overflow-hidden"
   )}
 >
   EstateFlow
@@ -221,7 +214,12 @@ export default function Sidebar({
   </button>
 
   {openAccounts && !collapsed && (
-    <ul className="ml-6 mt-1 space-y-1">
+    <ul
+    className={clsx(
+      "ml-6 mt-1 space-y-1 overflow-hidden transition-all duration-300",
+      openAccounts ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+    )}
+  >
       <li>
         <MenuItem
           path="/accounts"
