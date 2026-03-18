@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import Select from "react-select";
 
 type LeaseForm = {
   building_id: number | "";
+   lease_administrator_id?: number | "";
   tenant_legal_name?: string;
   landlord_legal_name?: string;
   lease_type?: string;
@@ -29,15 +31,23 @@ type Building = {
   city?: string;
 };
 
+type User = {
+  user_id: number;
+  username: string;
+  email_id?: string;
+};
+
 export default function CreateLeasePage() {
   const router = useRouter();
   const [buildings, setBuildings] = useState<Building[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 const canViewBuildings = hasPermission("BUILDING", "view");
  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const canCreate = hasPermission("LEASE", "create");
 
   const [form, setForm] = useState<LeaseForm>({
     building_id: "",
+    lease_administrator_id: "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -61,6 +71,20 @@ const canViewBuildings = hasPermission("BUILDING", "view");
     .then(setBuildings)
     .catch(console.error);
 }, [canCreate, canViewBuildings, router]);
+
+
+useEffect(() => {
+  const token = sessionStorage.getItem("token");
+
+  fetch(`${BASE_URL}/users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => setUsers(data.users))
+    .catch(console.error);
+}, []);
 
 
   useEffect(() => {
@@ -108,6 +132,15 @@ const canViewBuildings = hasPermission("BUILDING", "view");
       setSaving(false);
     }
   };
+const buildingOptions = buildings.map((b) => ({
+  value: b.id,
+  label: `${b.building_name}${b.city ? ` (${b.city})` : ""}`,
+}));
+
+const userOptions = users.map((u) => ({
+  value: u.user_id,
+  label: `${u.username}${u.email_id ? ` (${u.email_id})` : ""}`,
+}));
 
   return (
     <div className="space-y-6">
@@ -116,23 +149,36 @@ const canViewBuildings = hasPermission("BUILDING", "view");
       {/* Basic */}
       <div>
   <label className="text-sm text-gray-600">Building *</label>
-  <select
-    className="w-full border px-3 py-2 rounded mt-1"
-    value={form.building_id}
-    onChange={(e) =>
-      setForm((prev) => ({
-        ...prev,
-        building_id: Number(e.target.value),
-      }))
-    }
-  >
-    <option value="">Select Building</option>
-    {buildings.map((b) => (
-      <option key={b.id} value={b.id}>
-        {b.building_name} {b.city ? `(${b.city})` : ""}
-      </option>
-    ))}
-  </select>
+<Select
+  options={buildingOptions}
+  placeholder="Search building..."
+  value={buildingOptions.find(
+    (b) => b.value === form.building_id
+  )}
+  onChange={(selected) =>
+    setForm((prev) => ({
+      ...prev,
+      building_id: selected?.value || "",
+    }))
+  }
+/>
+</div>
+
+<div>
+  <label className="text-sm text-gray-600">Lease Administrator</label>
+<Select
+  options={userOptions}
+  placeholder="Search user..."
+  value={userOptions.find(
+    (u) => u.value === form.lease_administrator_id
+  )}
+  onChange={(selected) =>
+    setForm((prev) => ({
+      ...prev,
+      lease_administrator_id: selected?.value || "",
+    }))
+  }
+/>
 </div>
 
       <Section title="Basic Information">
