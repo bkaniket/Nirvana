@@ -6,6 +6,7 @@ import { hasPermission } from "@/app/lib/permission";
 
 type Lease = {
   building_id: number;
+  lease_administrator_id?: number;
   tenant_legal_name?: string;
   landlord_legal_name?: string;
   lease_type?: string;
@@ -32,22 +33,31 @@ export default function EditLeasePage() {
   const [form, setForm] = useState<Lease | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [users, setUsers] = useState<any[]>([]);
 
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
+useEffect(() => {
+  const token = sessionStorage.getItem("token");
 
-    if (!token || !canEdit) {
-      router.push("/dashboard");
-      return;
-    }
+  if (!token || !canEdit) {
+    router.push("/dashboard");
+    return;
+  }
 
+  Promise.all([
     fetch(`${BASE_URL}/leases/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then(setForm)
-      .finally(() => setLoading(false));
-  }, [id, router, canEdit]);
+    }).then((res) => res.json()),
+
+    fetch(`${BASE_URL}/users`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => res.json()),
+  ])
+   .then(([leaseData, usersData]) => {
+  setForm(leaseData.lease || leaseData);
+  setUsers(usersData.users);
+})
+    .finally(() => setLoading(false));
+}, [id, router, canEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -89,7 +99,33 @@ export default function EditLeasePage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Edit Lease</h1>
 
+      <div>
+
+</div>
+
       {/* Parties */}
+        <label className="text-sm text-gray-600">Lease Administrator</label>
+
+ <select
+  className="w-full border px-3 py-2 rounded mt-1"
+  value={form.lease_administrator_id ?? ""}
+  onChange={(e) =>
+    setForm((prev) => ({
+      ...prev!,
+      lease_administrator_id: e.target.value
+        ? Number(e.target.value)
+        : undefined,
+    }))
+  }
+>
+    <option value="">Select User</option>
+
+    {users.map((user) => (
+      <option key={user.user_id} value={user.user_id}>
+        {user.username}
+      </option>
+    ))}
+  </select>
       <Section title="Parties">
         <Input
           label="Tenant Legal Name"

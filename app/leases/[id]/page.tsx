@@ -23,6 +23,10 @@ type WorkflowInfo = {
 type Lease = {
   id: number;
   building_id?: string;
+  lease_administrator?: {
+  user_id: number;
+  username: string;
+};
   tenant_legal_name?: string;
   landlord_legal_name?: string;
   legacy_entity_name?: string;
@@ -294,6 +298,7 @@ const leaseSections: {
       { label: "Tenant Legal Name", key: "tenant_legal_name" },
       { label: "Landlord Legal Name", key: "landlord_legal_name" },
       { label: "Legacy Entity", key: "legacy_entity_name" },
+       { label: "Lease Administrator", key: "lease_administrator" as keyof Lease },
     ],
   },
   {
@@ -704,15 +709,22 @@ function Field({
   value,
 }: {
   label: string;
-  value?: string | number | null;
+  value?: any;
 }) {
+  let displayValue = "-";
+
+  if (value) {
+    if (typeof value === "object" && value.username) {
+      displayValue = value.username;
+    } else {
+      displayValue = String(value);
+    }
+  }
+
   return (
     <div>
       <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-medium"> {value !== undefined && value !== null && value !== ""
-    ? String(value)
-    : "-"}</p>
-
+      <p className="font-medium">{displayValue}</p>
     </div>
   );
 }
