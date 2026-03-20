@@ -82,6 +82,18 @@ type LeaseDocument = {
   uploaded_by_first_name?: string;
   uploaded_by_last_name?: string;
 };
+type Expense = {
+  expense_id: number;
+  expense_year?: string;
+  expense_period?: string;
+  expense_category?: string;
+  expense_type?: string;
+  amount?: string;
+  currency?: string;
+  status?: string;
+  vendor_name?: string;
+  account_code?: string;
+};
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API ?? "";
 const FILE_BASE_URL = BASE_URL.replace("/api", "");
 const getFileUrl = (path: string) =>
@@ -364,6 +376,133 @@ const leaseSections: {
   },
 ];
 
+function CreateExpenseModal({
+  leaseId,
+  onClose,
+  onCreated,
+}: {
+  leaseId: string | string[];
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+
+  const [form, setForm] = useState({
+    expense_year: "",
+    expense_type: "",
+    expense_category: "",
+    vendor_name: "",
+    amount: "",
+    currency: "INR",
+    status: "PENDING",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (key: string, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleCreate = async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    setLoading(true);
+
+    const res = await fetch(`${BASE_URL}/expenses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...form,
+        lease_id: leaseId,
+      }),
+    });
+
+    setLoading(false);
+
+    if (!res.ok) {
+      alert("Failed to create expense");
+      return;
+    }
+
+    onCreated();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Add Lease Expense</h2>
+
+        {/* Year */}
+        <input
+          placeholder="Expense Year (e.g. 2026)"
+          value={form.expense_year}
+          onChange={(e) => handleChange("expense_year", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Type */}
+        <input
+          placeholder="Expense Type (Electricity, Tax...)"
+          value={form.expense_type}
+          onChange={(e) => handleChange("expense_type", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Category */}
+        <input
+          placeholder="Category (Rent / Non-Rent)"
+          value={form.expense_category}
+          onChange={(e) => handleChange("expense_category", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Vendor */}
+        <input
+          placeholder="Vendor Name"
+          value={form.vendor_name}
+          onChange={(e) => handleChange("vendor_name", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Amount */}
+        <input
+          placeholder="Amount"
+          value={form.amount}
+          onChange={(e) => handleChange("amount", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Currency */}
+        <input
+          placeholder="Currency"
+          value={form.currency}
+          onChange={(e) => handleChange("currency", e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4">
+          <button onClick={onClose} className="px-3 py-1 border rounded">
+            Cancel
+          </button>
+
+          <button
+            onClick={handleCreate}
+            disabled={loading}
+            className="px-4 py-1 bg-blue-600 text-white rounded"
+          >
+            {loading ? "Saving..." : "Create"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function LeaseDetailsPage() {
   const params = useParams();
 const id = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -376,6 +515,9 @@ const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [docsLoading, setDocsLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
+    const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expenseLoading, setExpenseLoading] = useState(true);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<LeaseDocument | null>(null);
 const openEditModal = useCallback((doc: LeaseDocument) => {
   setEditingDoc(doc);
@@ -413,6 +555,23 @@ const fetchLease = useCallback(async () => {
   setWorkflow(data.workflow);
   setLoading(false);
 }, [id, canView, router, request]);
+
+  useEffect(() => {
+  const token = sessionStorage.getItem("token");
+
+  if (!token || !id) return;
+
+  fetch(`${BASE_URL}/expenses/leases/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setExpenses(data.data || []);
+    })
+    .finally(() => setExpenseLoading(false));
+}, [id]);
 
 const handleDelete = useCallback(async (docId: number) => {
   if (!confirm("Are you sure?")) return;
@@ -630,7 +789,93 @@ onUploaded={fetchDocuments}
         />
       )}
 
+        {/** 🔹 Building Expenses */}
+<div className="mt-8 space-y-4 p-2 m-2">
+  <div className="flex justify-between items-center p-2">
+    <h2 className="text-xl font-semibold">Lease Expenses</h2>
+
+    <button
+      className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm"
+     onClick={() => setShowExpenseModal(true)}
+    >
+      + Add Expense
+    </button>
+  </div>
+
+  {expenseLoading ? (
+    <p>Loading expenses...</p>
+  ) : expenses.length === 0 ? (
+    <p className="text-gray-500">No expenses recorded.</p>
+  ) : (
+    <div className="border rounded-lg overflow-hidden">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-100 text-gray-700">
+          <tr>
+            <th className="px-4 py-2 text-left">Year</th>
+            <th className="px-4 py-2 text-left">Type</th>
+            <th className="px-4 py-2 text-left">Category</th>
+            <th className="px-4 py-2 text-left">Vendor</th>
+            <th className="px-4 py-2 text-left">Amount</th>
+            <th className="px-4 py-2 text-left">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {expenses.map((exp) => (
+            <tr
+              key={exp.expense_id}
+              className="border-t hover:bg-gray-50 cursor-pointer"
+              onClick={() => router.push(`/accounts/${exp.expense_id}`)}
+            >
+              <td className="px-4 py-2">{exp.expense_year || "-"}</td>
+              <td className="px-4 py-2">{exp.expense_type || "-"}</td>
+              <td className="px-4 py-2">{exp.expense_category || "-"}</td>
+              <td className="px-4 py-2">{exp.vendor_name || "-"}</td>
+              <td className="px-4 py-2">
+                {exp.amount} {exp.currency}
+              </td>
+              <td className="px-4 py-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded ${
+                    exp.status === "APPROVED"
+                      ? "bg-green-100 text-green-700"
+                      : exp.status === "PENDING"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {exp.status || "N/A"}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
+
+  )}
+  {showExpenseModal && (
+  <CreateExpenseModal
+    leaseId={id as string}
+    onClose={() => setShowExpenseModal(false)}
+    onCreated={() => {
+      // refresh expense list
+      const token = sessionStorage.getItem("token");
+
+      fetch(`${BASE_URL}/expenses/leases/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setExpenses(data.data || []));
+    }}
+  />
+)}
+</div>
+
+    </div>
+    
   );
 
 }
