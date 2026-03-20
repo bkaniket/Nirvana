@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 
+type Invoice = {
+  id: number;
+  invoice_number?: string;
+  invoice_date?: string;
+  amount?: string;
+  file_name: string;
+  file_path: string;
+  created_at: string;
+};
+
 type Expense = {
   expense_id: number;
   expense_category?: string;
@@ -29,8 +39,87 @@ type WorkflowInfo = {
   approved_by?: WorkflowUser | string;
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API || "";
 
+
+function UploadInvoiceModal({
+  expenseId,
+  onClose,
+  onUploaded,
+}: {
+  expenseId: string | string[];
+  onClose: () => void;
+  onUploaded: () => void;
+}) {
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [amount, setAmount] = useState("");
+
+  const handleUpload = async () => {
+    if (!files) return;
+
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    const formData = new FormData();
+    formData.append("expense_id", String(expenseId));
+    formData.append("invoice_number", invoiceNumber);
+    formData.append("amount", amount);
+
+    Array.from(files).forEach((file) => {
+      formData.append("files[]", file);
+    });
+
+    await fetch(`${BASE_URL}/invoices`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    onUploaded();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded w-full max-w-md space-y-4">
+        <h2 className="text-lg font-semibold">Upload Invoice</h2>
+
+        <input
+          placeholder="Invoice Number"
+          value={invoiceNumber}
+          onChange={(e) => setInvoiceNumber(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        <input
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
+
+        <input
+          type="file"
+          multiple
+          onChange={(e) => setFiles(e.target.files)}
+        />
+
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose}>Cancel</button>
+          <button
+            onClick={handleUpload}
+            className="bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function AccountDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -38,6 +127,9 @@ export default function AccountDetailsPage() {
   const [expense, setExpense] = useState<Expense | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+const [invoiceLoading, setInvoiceLoading] = useState(true);
+const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const canEdit = hasPermission("EXPENSE", "edit");
 
@@ -66,6 +158,22 @@ export default function AccountDetailsPage() {
       .catch(() => router.push("/accounts"))
       .finally(() => setLoading(false));
   }, [id, router]);
+
+  useEffect(() => {
+  const token = sessionStorage.getItem("token");
+  if (!token || !id) return;
+
+  fetch(`${BASE_URL}/expenses/${id}/invoices`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setInvoices(data.data || []);
+    })
+    .finally(() => setInvoiceLoading(false));
+}, [id]);
 
   if (loading) {
     return <p className="text-gray-500">Loading expense details...</p>;
@@ -149,6 +257,100 @@ export default function AccountDetailsPage() {
       <div className="bg-white p-6 rounded shadow">
         <Detail label="Remarks / Notes" value={expense.note} />
       </div>
+
+      {/* 🔹 Invoices Section */}
+<div className="bg-white p-6 rounded shadow space-y-4">
+  <div className="flex justify-between items-center">
+    <h2 className="text-lg font-semibold">Invoices</h2>
+
+    <button
+      onClick={() => setShowInvoiceModal(true)}
+      className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm"
+    >
+      + Upload Invoice
+    </button>
+  </div>
+
+  {invoiceLoading ? (
+    <p>Loading invoices...</p>
+  ) : invoices.length === 0 ? (
+    <p className="text-gray-500">No invoices uploaded.</p>
+  ) : (
+    <div className="border rounded-lg overflow-hidden">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 text-left">Invoice #</th>
+            <th className="px-4 py-2 text-left">Date</th>
+            <th className="px-4 py-2 text-left">Amount</th>
+            <th className="px-4 py-2 text-left">File</th>
+            <th className="px-4 py-2 text-left">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {invoices.map((inv) => (
+            <tr key={inv.id} className="border-t">
+              <td className="px-4 py-2">
+                {inv.invoice_number || "-"}
+              </td>
+
+              <td className="px-4 py-2">
+                {inv.invoice_date
+                  ? new Date(inv.invoice_date).toLocaleDateString()
+                  : "-"}
+              </td>
+
+              <td className="px-4 py-2">
+                {inv.amount || "-"}
+              </td>
+
+              <td className="px-4 py-2">
+                {inv.file_name}
+              </td>
+
+              <td className="px-4 py-2 flex gap-3">
+                <a
+                  href={`${BASE_URL.replace("/api", "")}/storage/${inv.file_path}`}
+                  target="_blank"
+                  className="text-blue-600"
+                >
+                  View
+                </a>
+
+                <a
+                  href={`${BASE_URL.replace("/api", "")}/storage/${inv.file_path}`}
+                  download
+                  className="text-green-600"
+                >
+                  Download
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {showInvoiceModal && (
+  <UploadInvoiceModal
+    expenseId={id as string}
+    onClose={() => setShowInvoiceModal(false)}
+    onUploaded={() => {
+      const token = sessionStorage.getItem("token");
+
+      fetch(`${BASE_URL}/expenses/${id}/invoices`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => setInvoices(data.data || []));
+    }}
+  />
+)}
+</div>
+
     </div>
   );
 }
