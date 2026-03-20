@@ -45,35 +45,35 @@ export default function LoginPage() {
 
       router.push("/dashboard");
     } catch (err: any) {
-  setErrorMsg("Your password or username is incorrect");
+      setErrorMsg("Your password or username is incorrect");
 
-  // auto hide after 3 seconds
-  setTimeout(() => {
-    setErrorMsg("");
-  }, 3000);
-} finally {
+      // auto hide after 3 seconds
+      setTimeout(() => {
+        setErrorMsg("");
+      }, 3000);
+    } finally {
       setLoading(false);
     }
   };
   return (
-    
+
     <div className="relative min-h-screen w-full">
-     {errorMsg && (
-  <div className="fixed top-6 left-0 right-0 flex justify-center z-50">
-    <div className="flex items-center gap-3 bg-[#232531] text-white px-5 py-3 rounded-lg shadow-lg border border-red-500/40 backdrop-blur-md animate-[toastSlide_0.4s_ease-out_0s_both]">
-      <div className="text-red-400">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-          strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-          <path strokeLinecap="round" strokeLinejoin="round"
-            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.01"/>
-        </svg>
-      </div>
-      <div className="text-sm font-medium">
-        {errorMsg}
-      </div>
-    </div>
-  </div>
-)}
+      {errorMsg && (
+        <div className="fixed top-6 left-0 right-0 flex justify-center z-50">
+          <div className="flex items-center gap-3 bg-[#232531] text-white px-5 py-3 rounded-lg shadow-lg border border-red-500/40 backdrop-blur-md animate-[toastSlide_0.4s_ease-out_0s_both]">
+            <div className="text-red-400">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.01" />
+              </svg>
+            </div>
+            <div className="text-sm font-medium">
+              {errorMsg}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Background Image */}
       <div className="absolute inset-0 -z-10">
@@ -125,7 +125,7 @@ backdrop-blur-md"
             </div>
 
             {/* Password */}
-           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <label className="text-sm text-white/90 font-medium w-20">
                 Password
               </label>
@@ -154,7 +154,7 @@ cursor-pointer
 active:scale-95 transform
 disabled:cursor-not-allowed
 disabled:opacity-70"
->
+            >
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>

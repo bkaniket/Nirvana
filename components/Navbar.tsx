@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef ,useState } from "react";
+import { createPortal } from "react-dom";
 
 type User = {
   user_id: number;
@@ -53,7 +54,7 @@ useEffect(() => {
   };
 }, []);
   return (
-    <nav className="w-full h-20 bg-[#0a172a]/90 backdrop-blur-md border-b border-white/10 text-white flex items-center justify-between px-6 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+    <nav className="relative z-[999] w-full h-20 bg-[#0a172a]/90 backdrop-blur-md border-b border-white/10 text-white flex items-center justify-between px-6 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
 
       {/* Left: Hamburger + Logo */}
       <div className="flex items-center gap-4">
@@ -115,7 +116,9 @@ flex items-center justify-center text-white font-semibold text-sm">
   </button>
 
   {open && (
-    <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.25)] border border-gray-200 z-50 overflow-hidden animate-[fadeIn_.2s_ease]">
+    <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl 
+shadow-[0_10px_40px_rgba(0,0,0,0.25)] border border-gray-200 
+z-[9999] overflow-hidden animate-[fadeIn_.2s_ease]">
 
       {/* Email + Roles (Same Box) */}
       <div className="px-5 py-4 border-b border-gray-100">
