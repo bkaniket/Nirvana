@@ -66,6 +66,17 @@ type Expense = {
   account_code?: string;
 };
 
+type Certificate = {
+  id: number;
+  certificate_number?: string;
+  certificate_name?: string;
+  certificate_type?: string;
+  issued_by?: string;
+  expiry_date?: string;
+  status?: string;
+  file_path?: string;
+};
+
 function CollapsibleSection({
   index,
   title,
@@ -250,6 +261,117 @@ function CreateExpenseModal({
     </div>
   );
 }
+
+function CreateCertificateModal({
+  buildingId,
+  onClose,
+  onCreated,
+}: any) {
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+
+  const [form, setForm] = useState({
+    certificate_name: "",
+    certificate_type: "",
+    issued_by: "",
+    expiry_date: "",
+    status: "pending",
+  });
+
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (key: string, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleCreate = async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return;
+
+    const formData = new FormData();
+
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    if (files) {
+      Array.from(files).forEach((file) => {
+        formData.append("files[]", file);
+      });
+    }
+
+    setLoading(true);
+
+    const res = await fetch(
+      `${BASE_URL}/buildings/${buildingId}/certificates`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    setLoading(false);
+
+    if (!res.ok) {
+      alert("Failed to upload certificate");
+      return;
+    }
+
+    onCreated();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg p-6 rounded space-y-3">
+        <h2 className="text-lg font-semibold">Add Certificate</h2>
+
+        <input
+          placeholder="Certificate Name"
+          className="w-full border p-2 rounded"
+          onChange={(e) => handleChange("certificate_name", e.target.value)}
+        />
+
+        <input
+          placeholder="Type"
+          className="w-full border p-2 rounded"
+          onChange={(e) => handleChange("certificate_type", e.target.value)}
+        />
+
+        <input
+          placeholder="Issued By"
+          className="w-full border p-2 rounded"
+          onChange={(e) => handleChange("issued_by", e.target.value)}
+        />
+
+        <input
+          type="date"
+          className="w-full border p-2 rounded"
+          onChange={(e) => handleChange("expiry_date", e.target.value)}
+        />
+
+        <input
+          type="file"
+          multiple
+          onChange={(e) => setFiles(e.target.files)}
+        />
+
+        <div className="flex justify-end gap-2 pt-3">
+          <button onClick={onClose}>Cancel</button>
+          <button
+            onClick={handleCreate}
+            className="bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            {loading ? "Uploading..." : "Save"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function BuildingDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -261,6 +383,9 @@ export default function BuildingDetailsPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
 const [expenseLoading, setExpenseLoading] = useState(true);
 const [showExpenseModal, setShowExpenseModal] = useState(false);
+const [certificates, setCertificates] = useState<Certificate[]>([]);
+const [certificateLoading, setCertificateLoading] = useState(true);
+const [showCertificateModal, setShowCertificateModal] = useState(false);
   const canEdit = hasPermission("BUILDING", "edit");
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -304,6 +429,23 @@ const [showExpenseModal, setShowExpenseModal] = useState(false);
       setExpenses(data.data || []);
     })
     .finally(() => setExpenseLoading(false));
+}, [id]);
+
+useEffect(() => {
+  const token = sessionStorage.getItem("token");
+
+  if (!token || !id) return;
+
+  fetch(`${BASE_URL}/buildings/${id}/certificates`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setCertificates(data.data || []);
+    })
+    .finally(() => setCertificateLoading(false));
 }, [id]);
 
   if (loading) {
@@ -512,9 +654,83 @@ const [showExpenseModal, setShowExpenseModal] = useState(false);
       )}
 
       <div>
+          {/** 🔹 Certificates & Compliance */}
+
+        <div className="space-y-4 m-4">
+  <div className="flex justify-between items-center">
+    <h2 className="text-xl font-semibold">Certificates</h2>
+
+    <button
+      className="px-3 py-1.5 bg-green-600 text-white rounded text-sm"
+      onClick={() => setShowCertificateModal(true)}
+    >
+      + Add Certificate
+    </button>
+  </div>
+
+  {certificateLoading ? (
+    <p>Loading certificates...</p>
+  ) : certificates.length === 0 ? (
+    <p className="text-gray-500">No certificates found.</p>
+  ) : (
+    <div className="border rounded-lg overflow-hidden">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2">Name</th>
+            <th className="px-4 py-2">Type</th>
+            <th className="px-4 py-2">Issued By</th>
+            <th className="px-4 py-2">Expiry</th>
+            <th className="px-4 py-2">File</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {certificates.map((cert) => (
+            <tr key={cert.id} className="border-t">
+              <td className="px-4 py-2">{cert.certificate_name}</td>
+              <td className="px-4 py-2">{cert.certificate_type}</td>
+              <td className="px-4 py-2">{cert.issued_by}</td>
+              <td className="px-4 py-2">{cert.expiry_date}</td>
+              <td className="px-4 py-2">
+                {cert.file_path && (
+                  <a
+                    href={cert.file_path}
+                    target="_blank"
+                    className="text-blue-600 underline"
+                  >
+                    View
+                  </a>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {showCertificateModal && (
+    <CreateCertificateModal
+      buildingId={id}
+      onClose={() => setShowCertificateModal(false)}
+      onCreated={() => {
+        const token = sessionStorage.getItem("token");
+
+        fetch(`${BASE_URL}/buildings/${id}/certificates`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => setCertificates(data.data || []));
+      }}
+    />
+  )}
+</div>
 
         {/** 🔹 Building Expenses */}
-<div className="space-y-4">
+<div className="space-y-4 m-4">
   <div className="flex justify-between items-center">
     <h2 className="text-xl font-semibold">Building Expenses</h2>
 
