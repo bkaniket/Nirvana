@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-const BASE_URL = process.env.Backend_API;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const res = await fetch(`${BASE_URL}/api/register`, {
+    const res = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

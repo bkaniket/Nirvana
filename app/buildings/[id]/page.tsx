@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import { apiFetch } from "@/lib/api";
 
 type Building = {
   id: number;
@@ -387,65 +388,31 @@ const [certificates, setCertificates] = useState<Certificate[]>([]);
 const [certificateLoading, setCertificateLoading] = useState(true);
 const [showCertificateModal, setShowCertificateModal] = useState(false);
   const canEdit = hasPermission("BUILDING", "edit");
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    fetch(`${BASE_URL}/buildings/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Building details:", data);
-        setBuilding(data.building);
-        setWorkflow(data.workflow);
-        setLeases(data.leases || []);
-      })
-      .catch(() => router.push("/buildings"))
-      .finally(() => setLoading(false));
-  }, [id, router]);
-
-  useEffect(() => {
-  const token = sessionStorage.getItem("token");
-
-  if (!token || !id) return;
-
-  fetch(`${BASE_URL}/expenses/buildings/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setExpenses(data.data || []);
-    })
-    .finally(() => setExpenseLoading(false));
-}, [id]);
-
 useEffect(() => {
   const token = sessionStorage.getItem("token");
-
   if (!token || !id) return;
 
-  fetch(`${BASE_URL}/buildings/${id}/certificates`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setCertificates(data.data || []);
+  setLoading(true);
+
+  Promise.all([
+    apiFetch(`${BASE_URL}/buildings/${id}`),
+    apiFetch(`${BASE_URL}/expenses/buildings/${id}`),
+    apiFetch(`${BASE_URL}/buildings/${id}/certificates`)
+  ])
+    .then(([buildingRes, expenseRes, certRes]) => {
+      setBuilding(buildingRes.building);
+      setWorkflow(buildingRes.workflow);
+      setLeases(buildingRes.leases || []);
+
+      setExpenses(expenseRes.data || []);
+      setCertificates(certRes.data || []);
     })
-    .finally(() => setCertificateLoading(false));
+    .catch(() => router.push("/buildings"))
+    .finally(() => {
+      setLoading(false);
+      setExpenseLoading(false);
+      setCertificateLoading(false);
+    });
 }, [id]);
 
   if (loading) {
@@ -727,10 +694,10 @@ useEffect(() => {
       }}
     />
   )}
-</div>
+        </div>
 
         {/** 🔹 Building Expenses */}
-<div className="space-y-4 m-4">
+        <div className="space-y-4 m-4">
   <div className="flex justify-between items-center">
     <h2 className="text-xl font-semibold">Building Expenses</h2>
 
@@ -812,7 +779,7 @@ useEffect(() => {
     }}
   />
 )}
-</div>
+        </div>
 
 
       </div>
