@@ -26,7 +26,7 @@ export default function BuildingsLayout({
       <div className="flex flex-col flex-1">
         <NavBar onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <main className="flex-1 p-2 bg-gray-100 overflow-y-auto">
           {children}
         </main>
       </div>

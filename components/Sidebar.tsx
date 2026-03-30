@@ -1,9 +1,9 @@
 "use client";
+
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import clsx from "clsx";
-
-
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Building2,
@@ -15,58 +15,72 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  } from "lucide-react";
+} from "lucide-react";
 
-
-
-type MenuItemProps = {
-  path: string;
-  icon: React.ComponentType<{ size?: number }>;
-  label: string;
-  collapsed: boolean;
-  go: (path: string) => void;
-  isActive: (path: string) => boolean;
-};
+  type MenuItemProps = {
+    path: string;
+    icon: React.ComponentType<{ size?: number }>;
+    label: string;
+    collapsed: boolean;
+    go: (path: string) => void;
+    isActive: (path: string) => boolean;
+  };
 
 
 
 function MenuItem({ path, icon: Icon, label, collapsed, go, isActive }: MenuItemProps) {
   const active = isActive(path);
 
-  return (
-    <button
+     return (
+    <motion.button
       onClick={() => go(path)}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.97 }}
       className={clsx(
-        "flex items-center w-full px-3 py-2 rounded-lg text-sm transition-all duration-300 overflow-hidden",
+        "group relative flex items-center w-full px-3 py-2.5 rounded-xl text-sm transition-all duration-200",
         collapsed ? "justify-center" : "gap-3",
         active
-          ? "bg-blue-500/15 text-white border border-blue-400/20"
-          : "text-slate-400 hover:bg-white/10 hover:text-white"
+          ? "text-white"
+          : "text-slate-400 hover:text-white hover:bg-white/5 hover:backdrop-blur-sm"
       )}
     >
-      <Icon size={18} />
+        {/* Active background */}
+      {active && (
+        <motion.div
+          layoutId="active-pill"
+          className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/25 via-blue-400/10 to-transparent border border-blue-400/30 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        />
+      )}
+        {/* Icon */}
+      <Icon
+        size={18}
+        className="relative z-10 transition-transform group-hover:scale-110"
+      />
 
-      <span
-        className={clsx(
-          "whitespace-nowrap transition-all duration-200",
-          collapsed
-            ? "opacity-0 translate-x-2 w-0"
-            : "opacity-100 translate-x-0 w-auto"
-        )}
-      >
-        {label}
-      </span>
-    </button>
+       {/* Label */}
+      {!collapsed && (
+        <span className="relative z-10 font-medium tracking-wide">
+          {label}
+        </span>
+      )}
+
+      {/* Tooltip */}
+      {collapsed && (
+        <span className="absolute left-full ml-3 z-50 bg-[#0f172a] border border-white/10 shadow-xl text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+          {label}
+        </span>
+      )}
+    </motion.button>
   );
 }
 
-
-type SidebarProps = {
-  open: boolean;                 // mobile open
-  collapsed: boolean;           // desktop collapsed
-  onClose: () => void;
-  onToggleCollapse: () => void; // desktop toggle
-};
+  type SidebarProps = {
+    open: boolean;
+    collapsed: boolean;
+    onClose: () => void;
+    onToggleCollapse: () => void;
+  };
 
 export default function Sidebar({
   open,
@@ -77,203 +91,172 @@ export default function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
 
-  
+  const [hovered, setHovered] = useState(false);
   const [openAccounts, setOpenAccounts] = useState(true);
 
- const isActive = (path: string) => {
-  if (path === "/") return pathname === "/";
-  return pathname.startsWith(path);
-};
+  const expanded = !collapsed || hovered;
+
+  const isActive = (path: string) =>
+    path === "/" ? pathname === "/" : pathname.startsWith(path);
 
   const go = (path: string) => {
     router.push(path);
-    onClose(); // close on mobile after click
+    onClose();
   };
 
-  return (
+    return (
     <>
-      {/* 🔹 Mobile Overlay */}
+      {/* Mobile Overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-[#3C6FA3]/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
           onClick={onClose}
         />
       )}
 
-      {/* 🔹 Sidebar */}
-      <aside
+        {/* Sidebar */}
+ 
+   <motion.aside
+        onMouseEnter={() => window.innerWidth >= 768 && setHovered(true)}
+onMouseLeave={() => window.innerWidth >= 768 && setHovered(false)}
+        animate={{ width: expanded ? 260 : 80 }}
+        transition={{ type: "spring", stiffness: 260, damping: 25 }}
         className={clsx(
-          "fixed md:static top-0 left-0 h-full bg-[#0a172a] border-r border-white/10 shadow-[4px_0_30px_rgba(0,0,0,0.4)] text-white flex flex-col z-50",
-          "transform transition-[width] duration-300 ease-in-out",
-          // Width control
-          collapsed ? "md:w-[80px]" : "md:w-[260px]",
-          "w-[64px]", // mobile always full width
-          // Slide for mobile
-          open ? "translate-x-0" : "-translate-x-full",
-          "md:translate-x-0"
+          "fixed md:static top-0 left-0 h-screen z-50 flex flex-col",
+          "bg-gradient-to-b from-slate-900 to-[#0a172a]",
+          "border-r border-white/10 shadow-2xl",
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+   
+ {/* HEADER */}
+        <div className="flex items-center justify-between px-4 py-5 border-b border-white/5">
+          {/* Logo */}
           <h2
-  className={clsx(
-    "text-xl font-bold whitespace-nowrap transition-all",
-    collapsed && "opacity-0 -translate-x-2 w-0 overflow-hidden"
-  )}
->
-  EstateFlow
-</h2>
-
-          {/* Desktop collapse toggle */}
-          <button
-  onClick={onToggleCollapse}
-  className="
-  hidden md:flex items-center justify-center
-  w-9 h-9 rounded-lg
-  bg-white/10 backdrop-blur-md
-  border border-white/20
-  shadow-[0_4px_20px_rgba(0,0,0,0.25)]
-  hover:bg-white/20
-  hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]
-  transition-all duration-200
-  "
->
-  {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-</button>
-
-          {/* Mobile close */}
-          <button
-            onClick={onClose}
-            className="md:hidden text-gray-400 hover:text-white"
+            className={clsx(
+              "text-lg font-semibold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent transition-[width,opacity,transform] duration-300 ease-in-out",
+              !expanded && "opacity-0 w-0 overflow-hidden"
+            )}
           >
-            ✕
+            EstateFlow
+          </h2>
+
+         
+           {/* Desktop toggle - ALWAYS VISIBLE */}
+  <button
+            onClick={onToggleCollapse}
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition"
+          >
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>
 
-        {/* Menu */}
-        <ul className="flex-1 space-y-1 p-2">
+          {/* Menu */}
+           <ul className="flex-1 px-2 py-3 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+          <MenuItem
+            path="/dashboard"
+            icon={LayoutDashboard}
+            label="Dashboard"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
 
-          <li>
-  <MenuItem
-    path="/dashboard"
-    icon={LayoutDashboard}
-    label="Dashboard"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
+          <MenuItem
+            path="/buildings"
+            icon={Building2}
+            label="Buildings"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
 
-<li>
-  <MenuItem
-    path="/buildings"
-    icon={Building2}
-    label="Buildings"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
+          <MenuItem
+            path="/leases"
+            icon={FileText}
+            label="Leases"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
 
-<li>
-  <MenuItem
-    path="/leases"
-    icon={FileText}
-    label="Leases"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
+          <MenuItem
+            path="/workflow"
+            icon={RefreshCw}
+            label="Workflow"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
 
-<li>
-  <MenuItem
-    path="/workflow"
-    icon={RefreshCw}
-    label="Workflow"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
+            {/* Accounts */}
+            <div>
+            <button
+              onClick={() => setOpenAccounts(!openAccounts)}
+              className={clsx(
+                "w-full flex items-center px-3 py-2.5 rounded-xl text-sm text-slate-300 hover:bg-white/5 hover:backdrop-blur-sm transition",
+                !expanded ? "justify-center" : "justify-between"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Wallet size={18} />
+                {expanded && <span>Accounts</span>}
+              </div>
+              {expanded && (
+                <span className="text-xs opacity-60">
+                  {openAccounts ? "▾" : "▸"}
+                </span>
+              )}
+            </button>
 
-          {/* 🔹 Accounts Section */}
-<li>
-  <button
-    onClick={() => setOpenAccounts(!openAccounts)}
-    className={clsx(
-  "flex items-center w-full px-3 py-2 rounded text-gray-300 hover:bg-white/10",
-  collapsed ? "justify-center" : "justify-between"
-)}
-  >
-    <div className={clsx("flex items-center gap-3", collapsed && "justify-center w-full")}>
-      <Wallet size={18} />
-      {!collapsed && <span>Accounts</span>}
-    </div>
-    {!collapsed && <span>{openAccounts ? "▾" : "▸"}</span>}
-  </button>
+                  <AnimatePresence>
+              {openAccounts && expanded && (
+                <motion.ul
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="ml-6 mt-1 space-y-1 overflow-hidden"
+                >
+                  <MenuItem
+                    path="/accounts"
+                    icon={Receipt}
+                    label="Expenses"
+                    collapsed={!expanded}
+                    go={go}
+                    isActive={isActive}
+                  />
+                  <MenuItem
+                    path="/invoices"
+                    icon={FileText}
+                    label="Invoices"
+                    collapsed={!expanded}
+                    go={go}
+                    isActive={isActive}
+                  />
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </div>
 
-  {openAccounts && !collapsed && (
-    <ul
-    className={clsx(
-      "ml-6 mt-1 space-y-1 overflow-hidden transition-all duration-300",
-      openAccounts ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-    )}
-  >
-      <li>
-        <MenuItem
-          path="/accounts"
-          icon={Receipt}
-          label="Expenses"
-          collapsed={collapsed}
-          go={go}
-          isActive={isActive}
-        />
-      </li>
+          <MenuItem
+            path="/users"
+            icon={Users}
+            label="User Management"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
 
-      <li>
-        <MenuItem
-          path="/invoices"
-          icon={FileText}
-          label="Invoices"
-          collapsed={collapsed}
-          go={go}
-          isActive={isActive}
-        />
-      </li>
-    </ul>
-  )}
-</li>
-
-
-
-{/* Users */}
-<li>
-  <MenuItem
-    path="/users"
-    icon={Users}
-    label="User Management"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
-
-{/* Roles */}
-<li>
-  <MenuItem
-    path="/roles"
-    icon={Shield}
-    label="Role Management"
-    collapsed={collapsed}
-    go={go}
-    isActive={isActive}
-  />
-</li>
-</ul>
-</aside>
-
+          <MenuItem
+            path="/roles"
+            icon={Shield}
+            label="Role Management"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
+        </ul>
+      </motion.aside>
     </>
   );
 }
-
