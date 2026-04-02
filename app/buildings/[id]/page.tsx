@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { Building2 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 
 type Building = {
   id: number;
@@ -529,65 +530,31 @@ const [certificates, setCertificates] = useState<Certificate[]>([]);
 const [certificateLoading, setCertificateLoading] = useState(true);
 const [showCertificateModal, setShowCertificateModal] = useState(false);
   const canEdit = hasPermission("BUILDING", "edit");
-  useEffect(() => {
-    const token = sessionStorage.getItem("token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    fetch(`${BASE_URL}/buildings/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Building details:", data);
-        setBuilding(data.building);
-        setWorkflow(data.workflow);
-        setLeases(data.leases || []);
-      })
-      .catch(() => router.push("/buildings"))
-      .finally(() => setLoading(false));
-  }, [id, router]);
-
-  useEffect(() => {
-  const token = sessionStorage.getItem("token");
-
-  if (!token || !id) return;
-
-  fetch(`${BASE_URL}/expenses/buildings/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setExpenses(data.data || []);
-    })
-    .finally(() => setExpenseLoading(false));
-}, [id]);
-
 useEffect(() => {
   const token = sessionStorage.getItem("token");
-
   if (!token || !id) return;
 
-  fetch(`${BASE_URL}/buildings/${id}/certificates`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setCertificates(data.data || []);
+  setLoading(true);
+
+  Promise.all([
+    apiFetch(`${BASE_URL}/buildings/${id}`),
+    apiFetch(`${BASE_URL}/expenses/buildings/${id}`),
+    apiFetch(`${BASE_URL}/buildings/${id}/certificates`)
+  ])
+    .then(([buildingRes, expenseRes, certRes]) => {
+      setBuilding(buildingRes.building);
+      setWorkflow(buildingRes.workflow);
+      setLeases(buildingRes.leases || []);
+
+      setExpenses(expenseRes.data || []);
+      setCertificates(certRes.data || []);
     })
-    .finally(() => setCertificateLoading(false));
+    .catch(() => router.push("/buildings"))
+    .finally(() => {
+      setLoading(false);
+      setExpenseLoading(false);
+      setCertificateLoading(false);
+    });
 }, [id]);
 
   if (loading) {
@@ -755,7 +722,7 @@ useEffect(() => {
 
       <div className="space-y-6">
         {/* 🔹 Basic Identification */}
-        <CollapsibleSection index={1} title="Basic Information" defaultOpen>
+        <CollapsibleSection  title="Basic Information" defaultOpen>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* <Detail label="System Building ID" value={building.system_building_id} /> */}
             <Detail label="Building Name" value={building.building_name} />
@@ -766,7 +733,7 @@ useEffect(() => {
           </div>
         </CollapsibleSection>
         {/* 🔹 Location & Address */}
-        <CollapsibleSection index={2} title="Location Details">
+        <CollapsibleSection  title="Location Details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Address" value={building.address_1} />
             <Detail label="City" value={building.city} />
@@ -777,7 +744,7 @@ useEffect(() => {
         </CollapsibleSection>
 
         {/* 🔹 Coordinates */}
-        <CollapsibleSection index={3} title="Geographical Coordinates">
+        <CollapsibleSection  title="Geographical Coordinates">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Latitude" value={building.latitude} />
             <Detail label="Longitude" value={building.longitude} />
@@ -787,7 +754,7 @@ useEffect(() => {
         </CollapsibleSection>
 
         {/* 🔹 Property Specifications */}
-        <CollapsibleSection index={4} title="Property Specifications">
+        <CollapsibleSection  title="Property Specifications">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Construction Year" value={building.construction_year} />
             <Detail
@@ -800,7 +767,7 @@ useEffect(() => {
         </CollapsibleSection>
 
         {/* 🔹 Financial Details */}
-        <CollapsibleSection index={5} title="Financial Details">
+        <CollapsibleSection  title="Financial Details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Purchase Price" value={building.purchase_price} />
             <Detail label="Currency Type" value={building.currency_type} />
@@ -808,7 +775,7 @@ useEffect(() => {
         </CollapsibleSection>
 
         {/* 🔹 Ownership & Management */}
-        <CollapsibleSection index={6} title="Ownership & Management">
+        <CollapsibleSection  title="Ownership & Management">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Ownership Type" value={building.ownership_type} />
             <Detail label="Managed By" value={building.managed_by} />
@@ -1052,6 +1019,7 @@ useEffect(() => {
           </p>
         </div>
 
+
         <button
           className="h-12 w-48 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-400 active:scale-[0.98] transition-all duration-200 cursor-pointer"
           onClick={() => setShowExpenseModal(true)}
@@ -1173,6 +1141,7 @@ useEffect(() => {
     </div>
   </div>
 </div>	
+
 
     </div>
   );

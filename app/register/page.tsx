@@ -27,6 +27,7 @@ const roleOptions = [
 
 type RoleOption = typeof roleOptions[number];
 
+
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -64,6 +65,7 @@ export default function RegisterPage() {
       router.push("/login");
       return;
     }
+
 
     if (!role) {
       alert("Please select a role");

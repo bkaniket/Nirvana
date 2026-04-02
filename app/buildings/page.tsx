@@ -38,12 +38,21 @@ export default function BuildingsPage() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+const [showExportModal, setShowExportModal] = useState(false);
+const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+const [exportFormat, setExportFormat] = useState("csv");
+const [debouncedSearch, setDebouncedSearch] = useState(search);
 const [permissions, setPermissions] = useState({
   create: false,
   view: false,
   edit: false,
   delete: false,
 });
+useEffect(() => {
+  setPage(1);
+}, [search]);
 const myTheme = themeQuartz.withParams({
   // 🌿 Main grid background (off-white)
   backgroundColor: "#f8f9fa",
@@ -66,6 +75,13 @@ const myTheme = themeQuartz.withParams({
   // 🔄 Alternate row color
   rowHoverColor: "#e0f2fe",
 });
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search);
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [search]);
 
 useEffect(() => {
   setPermissions({
@@ -126,24 +142,25 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
       router.push("/login");
       return;
     }
-
-    fetch(`${BASE_URL}/buildings`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+ setLoading(true); 
+ fetch(`${BASE_URL}/buildings?page=${page}&per_page=10&search=${debouncedSearch}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => { 
+      setBuildings(data.data);
+      setTotalPages(data.last_page);
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then((data) => { setBuildings(data); console.log(data); })
-      .catch(() => router.push("/dashboard"))
-      .finally(() => setLoading(false));
-  }, [router]);
+    .catch(() => router.push("/dashboard"))
+    .finally(() => setLoading(false));
 
-  const filteredBuildings = buildings.filter((b) =>
-    b.building_name.toLowerCase().includes(search.toLowerCase())
-  );
+}, [page , debouncedSearch]);
+
+  // const filteredBuildings = buildings.filter((b) =>
+  //   b.building_name.toLowerCase().includes(search.toLowerCase())
+  // );
  function BuildingsSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
@@ -188,11 +205,73 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
   );
 }
 
+const downloadFile = (blob: Blob, filename: string) => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+};
+
+const handleExport = async () => {
+  if (selectedColumns.length === 0) {
+    alert("Select at least one column");
+    return;
+  }
+
+  const token = sessionStorage.getItem("token");
+
+  try {
+    const response = await fetch(`${BASE_URL}/buildings/export`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        columns: selectedColumns,
+        format: exportFormat,
+        search: search,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Export failed");
+    }
+
+    // 🔥 IMPORTANT: get blob
+    const blob = await response.blob();
+
+    // 🔽 download
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    let extension = exportFormat;
+    if (exportFormat === "csv") extension = "csv";
+    if (exportFormat === "pdf") extension = "pdf";
+    if (exportFormat === "json") extension = "json";
+
+    a.href = url;
+    a.download = `buildings.${extension}`;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+    setShowExportModal(false);
+
+  } catch (error) {
+    console.error(error);
+    alert("Export failed");
+  }
+};
+
+
+
 if(loading){
 return <BuildingsSkeleton />;
 }
 
   return (
+    
     <div className="space-y-6">
       {/* Header */}
      <div className="relative flex justify-between items-center 
@@ -273,7 +352,8 @@ transition-all duration-200"
       </svg>
     </div>
 
-          <button
+          <button 
+          onClick={() => setShowExportModal(true)}
   className="relative w-36 h-10 flex items-center border border-green-500 
   bg-green-500 rounded-lg group overflow-hidden"
 >
@@ -317,13 +397,15 @@ transition-all duration-200"
   
     <AgGridReact
       theme={myTheme}
-      rowData={filteredBuildings}
+      rowData={buildings}
       columnDefs={columnDefs}
       rowSelection="single"
       animateRows={true}
-      pagination={true}
-      paginationPageSizeSelector={[10, 25, 50, 100]}
-      paginationPageSize={10}
+
+      pagination={false}
+      // paginationPageSizeSelector={[10, 25, 50, 100]}
+      // paginationPageSize={10}
+
       
       rowHeight={52}
       headerHeight={56}
@@ -384,6 +466,91 @@ transition-all duration-200"
     />
   </div>
 </div>
+<div className="flex justify-center gap-4 mt-4">
+  <button 
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Prev
+  </button>
+
+  <span>Page {page} of {totalPages}</span>
+
+  <button 
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Next
+  </button>
+</div>
+{showExportModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    
+    <div className="bg-white rounded-2xl p-6 w-[400px] space-y-4 shadow-xl">
+
+      <h2 className="text-lg font-semibold">Export Data</h2>
+
+      {/* Column Selection */}
+      <div>
+        <p className="font-medium mb-2">Select Columns</p>
+        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+          {columnDefs.map((col) => (
+            <label key={col.field} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                value={col.field}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedColumns([...selectedColumns, col.field as string]);
+                  } else {
+                    setSelectedColumns(selectedColumns.filter(c => c !== col.field));
+                  }
+                }}
+              />
+              {col.headerName}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Format Selection */}
+      <div>
+        <p className="font-medium mb-2">Select Format</p>
+        <select
+          className="w-full border rounded-lg p-2"
+          value={exportFormat}
+          onChange={(e) => setExportFormat(e.target.value)}
+        >
+          <option value="csv">CSV</option>
+          <option value="xlsx">Excel</option>
+          <option value="json">JSON</option>
+          <option value="pdf">PDF</option>
+        </select>
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-end gap-3">
+        <button 
+          onClick={() => setShowExportModal(false)}
+          className="px-4 py-2 bg-gray-200 rounded"
+        >
+          Cancel
+        </button>
+
+        <button 
+          onClick={handleExport}
+          className="px-4 py-2 bg-green-500 text-white rounded"
+        >
+          Export
+        </button>
+      </div>
+
     </div>
+  </div>
+)}
+    </div>
+
   );
 }
