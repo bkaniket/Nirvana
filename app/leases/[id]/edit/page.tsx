@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Calendar, Save, ArrowLeft, Building2, FileText, Users, Key, DollarSign, FileText as FileTextIcon, Users2, Scale } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+
 import { hasPermission } from "@/app/lib/permission";
 
 type Lease = {
@@ -35,32 +38,32 @@ export default function EditLeasePage() {
   const [saving, setSaving] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
 
-useEffect(() => {
-  const token = sessionStorage.getItem("token");
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
 
-  if (!token || !canEdit) {
-    router.push("/dashboard");
-    return;
-  }
+    if (!token || !canEdit) {
+      router.push("/dashboard");
+      return;
+    }
 
-  Promise.all([
-    fetch(`${BASE_URL}/leases/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => res.json()),
+    Promise.all([
+      fetch(`${BASE_URL}/leases/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((res) => res.json()),
 
-    fetch(`${BASE_URL}/users`, {
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => res.json()),
-  ])
-   .then(([leaseData, usersData]) => {
-  setForm(leaseData.lease || leaseData);
-  setUsers(usersData.users);
-})
-    .finally(() => setLoading(false));
-}, [id, router, canEdit]);
+      fetch(`${BASE_URL}/users`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((res) => res.json()),
+    ])
+      .then(([leaseData, usersData]) => {
+        setForm(leaseData.lease || leaseData);
+        setUsers(usersData.users);
+      })
+      .finally(() => setLoading(false));
+  }, [id, router, canEdit]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev!, [name]: value }));
@@ -87,184 +90,309 @@ useEffect(() => {
 
   if (loading || !form) {
     return (
-      <div className="space-y-4 animate-pulse">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-6 bg-gray-300 rounded w-full"></div>
-        ))}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50 py-12">
+        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-10 xl:px-12">
+          <div className="space-y-6 rounded-3xl bg-white/70 backdrop-blur-xl p-8 shadow-2xl border border-white/50">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="space-y-3">
+                <div className="h-4 bg-slate-200 rounded-xl w-48 animate-pulse"></div>
+                <div className="h-10 bg-slate-200 rounded-2xl w-full animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Edit Lease</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-slate-50">
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+      handleSubmit();
+    }}
+     className="
+  bg-white/90 
+  backdrop-blur-xl 
+  border border-slate-200 
+  shadow-sm
+  rounded-none 
+  px-4 md:px-6 
+  py-5
+  space-y-6
+  w-full
+"
+>
+  
+        {/* Header */}
+       
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex flex-col">
+              
+             <div className="flex items-center gap-2 mb-4">
+  <FileText className="w-5 h-5 text-blue-600" />
+  <h1 className="text-2xl font-semibold text-slate-800">
+    Edit Lease
+  </h1>
+</div>
+              </div>
+            {/* SAVE BUTTON */}
+  {/* <button
+    type="submit"
+    disabled={saving}
+    className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-teal-600 to-teal-700 px-8 py-4 text-lg font-semibold text-white shadow-xl hover:shadow-2xl hover:from-teal-700 hover:to-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-500/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <Save className="h-5 w-5" />
+    {saving ? "Saving..." : "Save Lease"}
+  </button> */}
+      </div>
+    
+    {/* FORM CONTENT START */}
 
-      <div>
-
+<div>
+  <h2 className="text-lg font-semibold text-slate-900 mb-2">Basic Information</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <Input
+      label="Tenant Name"
+      name="tenant_legal_name"
+      value={form.tenant_legal_name || ""}
+      onChange={handleChange}
+    />
+    <Input
+      label="Landlord Name"
+      name="landlord_legal_name"
+      value={form.landlord_legal_name || ""}
+      onChange={handleChange}
+    />
+  </div>
 </div>
 
-      {/* Parties */}
-        <label className="text-sm text-gray-600">Lease Administrator</label>
+<div>
+  <h2 className="text-lg font-semibold text-slate-900 mb-2">Lease Info</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <SelectField
+      label="Lease Type"
+      name="lease_type"
+      value={form.lease_type || ""}
+      onChange={handleChange}
+      options={["Commercial", "Residential"]}
+    />
 
- <select
-  className="w-full border px-3 py-2 rounded mt-1"
-  value={form.lease_administrator_id ?? ""}
-  onChange={(e) =>
-    setForm((prev) => ({
-      ...prev!,
-      lease_administrator_id: e.target.value
-        ? Number(e.target.value)
-        : undefined,
-    }))
-  }
->
-    <option value="">Select User</option>
+    <SelectField
+      label="Status"
+      name="lease_status"
+      value={form.lease_status || ""}
+      onChange={handleChange}
+      options={["Active", "Inactive"]}
+    />
+  </div>
+</div>
 
-    {users.map((user) => (
-      <option key={user.user_id} value={user.user_id}>
-        {user.username}
-      </option>
-    ))}
-  </select>
-      <Section title="Parties">
-        <Input
-          label="Tenant Legal Name"
-          name="tenant_legal_name"
-          value={form.tenant_legal_name}
-          onChange={handleChange}
-        />
-        <Input
-          label="Landlord Legal Name"
-          name="landlord_legal_name"
-          value={form.landlord_legal_name}
-          onChange={handleChange}
-        />
-      </Section>
+<div>
+  <h2 className="text-lg font-semibold text-slate-900 mb-2">Dates</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <Input
+      type="date"
+      label="Agreement Date"
+      name="lease_agreement_date"
+      value={form.lease_agreement_date || ""}
+      onChange={handleChange}
+    />
+    <Input
+      type="date"
+      label="Termination Date"
+      name="termination_date"
+      value={form.termination_date || ""}
+      onChange={handleChange}
+    />
+  </div>
+</div>
 
-      {/* Dates */}
-      <Section title="Key Dates">
-        <Input
-          label="Agreement Date"
-          type="date"
-          name="lease_agreement_date"
-          value={form.lease_agreement_date}
-          onChange={handleChange}
-        />
-        <Input
-          label="Possession Date"
-          type="date"
-          name="possession_date"
-          value={form.possession_date}
-          onChange={handleChange}
-        />
-        <Input
-          label="Termination Date"
-          type="date"
-          name="termination_date"
-          value={form.termination_date}
-          onChange={handleChange}
-        />
-      </Section>
+<div>
+  <h2 className="text-lg font-semibold text-slate-900 mb-">Remarks</h2>
+  <Textarea
+    label="Remarks"
+    name="remarks"
+    value={form.remarks || ""}
+    onChange={handleChange}
+  />
+</div>
 
-      {/* Terms */}
-      <Section title="Terms">
-        <Input
-          label="Lease Type"
-          name="lease_type"
-          value={form.lease_type}
-          onChange={handleChange}
-        />
-        <Input
-          label="Lease Status"
-          name="lease_status"
-          value={form.lease_status}
-          onChange={handleChange}
-        />
-      </Section>
+{/* FORM CONTENT END */}
+<div className="flex justify-end gap-3 pt-4 items-center">
+  <button
+    type="submit"
+    disabled={saving}
+    className="h-12 px-6 rounded-xl bg-gradient-to-r from-blue-500/90 to-blue-600/90 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 border border-blue-400/50 backdrop-blur-sm
+    hover:from-blue-500 hover:to-blue-600 hover:shadow-xl hover:shadow-blue-500/40 hover:border-blue-400/70
+    active:translate-y-0 active:shadow-md active:shadow-blue-500/30 active:scale-[0.98]
+    disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+  >
+    {saving ? "Saving..." : "Save Lease"}
+  </button>
 
-      {/* Financials */}
-      <Section title="Financials">
-        <Input
-          label="Rentable Area"
-          name="lease_rentable_area"
-          value={form.lease_rentable_area}
-          onChange={handleChange}
-        />
-        <Input
-          label="Measure Units"
-          name="measure_units"
-          value={form.measure_units}
-          onChange={handleChange}
-        />
-        <Input
-          label="Security Deposit Amount"
-          name="security_deposit_amount"
-          value={form.security_deposit_amount}
-          onChange={handleChange}
-        />
-      </Section>
+  <button
+    type="button"
+    onClick={() => router.back()}
+    className="
+      h-12 px-6 rounded-xl
+      bg-white/70 
+      backdrop-blur-md
+      border border-slate-300/50 
+      text-slate-800 
+      font-semibold text-sm
+      shadow-md
+      hover:bg-red-50 
+      hover:border-red-400/60
+      hover:text-red-600 
+      active:scale-[0.97] active:bg-red-100 
+      transition-all duration-200
+    "
+  >
+    Cancel
+  </button>
+</div>
+    </form>
 
-      {/* Notes */}
-      <Section title="Remarks">
-        <Textarea
-          label="Remarks"
-          name="remarks"
-          value={form.remarks}
-          onChange={handleChange}
-        />
-      </Section>
 
-      {/* Actions */}
-      <div className="flex gap-4">
-        <button
-          onClick={handleSubmit}
-          disabled={saving}
-          className="px-6 py-2 bg-blue-600 text-white rounded"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
 
-        <button
-          className="px-6 py-2 bg-gray-400 text-white rounded"
-          onClick={() => router.back()}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  );
+</div>
+);
 }
 
-/* ---------------- Reusable Components ---------------- */
-
+ // Reusable Components
 function Section({
   title,
+  description,
+  icon,
   children,
+  className = "",
 }: {
   title: string;
+  description?: string;
+  icon: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="bg-white rounded shadow p-6">
-      <h2 className="text-lg font-semibold mb-4">{title}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {children}
+   <section className={`bg-white rounded-2xl p-8 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-200 ${className}`}>
+      <div className="mb-8 flex items-start gap-3">
+        <div className="mt-1 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 p-3 shadow-lg border border-white/50">
+          {icon}
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h2>
+          {description && (
+            <p className="mt-2 text-slate-600 leading-relaxed max-w-lg">{description}</p>
+          )}
+        </div>
       </div>
-    </div>
+      {children}
+    </section>
   );
 }
 
 function Input({
   label,
+  type,
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
+  const isDate = type === "date";
+
   return (
-    <div>
-      <label className="text-sm text-gray-600">{label}</label>
-      <input
-        {...props}
-        className="w-full border px-3 py-2 rounded mt-1"
-      />
+    <div className="space-y-2">
+      <label className="text-sm font-semibold text-slate-700 tracking-tight">{label}</label>
+      <div className="group">
+        <div className="relative">
+          {isDate && (
+           <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+          )}
+          <input
+            type={type}
+            {...props}
+            className={`w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-base text-gray-900 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 hover:border-gray-400 ${
+  isDate ? "pl-12 pr-4" : "px-4"
+}`}
+          />
+        </div>
+        {isDate && (
+          <p className="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
+            <Calendar className="h-3 w-3 -mt-0.5" />
+            Click calendar or type date manually (YYYY-MM-DD)
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SelectField({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: any;
+  options: string[];
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700">
+        {label}
+      </label>
+
+      <div className="relative">
+        {/* Trigger */}
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}className="w-full flex items-center justify-between rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+          
+        >
+          <span className={`${!value ? "text-gray-400" : ""}`}>
+            {value
+  ? value.charAt(0).toUpperCase() + value.slice(1)
+  : "Select"}
+          </span>
+
+          <ChevronDown
+            className={`h-4 w-4 text-slate-600 transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {/* Dropdown */}
+        {open && (
+          <div className="absolute z-50 mt-1 w-full rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+            {options.map((opt) => (
+              <div
+                key={opt}
+                onClick={() => {
+                  onChange({
+                    target: { name, value: opt },
+                  });
+                  setOpen(false);
+                }}
+                className="
+px-3 py-2 text-sm text-slate-800
+hover:bg-white/60 hover:text-blue-600
+cursor-pointer
+transition-all duration-150
+"
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -274,12 +402,14 @@ function Textarea({
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
   return (
-    <div className="md:col-span-2">
-      <label className="text-sm text-gray-600">{label}</label>
+    <div className="space-y-2">
+      <label className="text-sm font-semibold text-slate-700 tracking-tight">
+        {label}
+      </label>
       <textarea
         {...props}
-        rows={4}
-        className="w-full border px-3 py-2 rounded mt-1"
+        rows={5}
+        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-base text-gray-900 placeholder-gray-400 resize-vertical focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 hover:border-gray-400 transition-all duration-200 min-h-[120px]"
       />
     </div>
   );

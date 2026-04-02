@@ -54,7 +54,7 @@ useEffect(() => {
   };
 }, []);
   return (
-    <nav className="relative z-[999] w-full h-20 bg-[#0a172a]/90 backdrop-blur-md border-b border-white/10 text-white flex items-center justify-between px-6 shadow-[0_4px_20px_rgba(0,0,0,0.25)]">
+    <nav className="relative z-[999] w-full h-20 bg-gradient-to-b from-slate-900 to-[#0a172a] border-b border-white/10 text-white flex items-center justify-between px-6 shadow-2xl">
 
       {/* Left: Hamburger + Logo */}
       <div className="flex items-center gap-4">
@@ -85,35 +85,40 @@ useEffect(() => {
       {/* Professional Profile Dropdown */}
 <div className="relative" ref={dropdownRef}>
   <button
-    onClick={() => setOpen((prev) => !prev)}
-    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/10 transition-all duration-200"
+  onClick={() => setOpen((prev) => !prev)}
+  className="flex items-center gap-3 px-3 py-2 rounded-lg 
+  bg-white/5 backdrop-blur-sm border border-white/10 
+  shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.4)]
+  focus:outline-none focus:ring-0 transition-all duration-200 group"
+>
+  {/* Avatar */}
+  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 
+  ring-2 ring-blue-400/30 shadow-[0_4px_16px_rgba(59,130,246,0.4)]
+  flex items-center justify-center text-white font-semibold text-sm 
+  relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-r from-white/15 via-transparent to-white/10 rounded-full" />
+    {user?.username
+      ? user.username.split(" ").map((n) => n[0]).join("").toUpperCase()
+      : "U"}
+  </div>
+
+  {/* Username */}
+  <div className="hidden md:block min-w-0 flex-1 max-w-28">
+        <p className="text-sm font-medium text-white truncate">
+          {user?.username || "User"}
+        </p>
+      </div>
+
+  {/* Chevron */}
+  <svg
+    className={`w-4 h-4 text-white/70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
   >
-    {/* Avatar */}
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 
-ring-2 ring-blue-400/40 shadow-[0_0_10px_rgba(59,130,246,0.4)]
-flex items-center justify-center text-white font-semibold text-sm">
-      {user?.username
-        ? user.username.split(" ").map((n) => n[0]).join("").toUpperCase()
-        : "U"}
-    </div>
-
-    {/* Username */}
-    <div className="hidden sm:block">
-      <p className="text-sm font-semibold text-white">
-        {user?.username || "User"}
-      </p>
-    </div>
-
-    {/* Chevron */}
-    <svg
-      className={`w-4 h-4 text-white/70 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+</button>
 
   {open && (
     <div className="absolute right-0 mt-3 w-72 bg-white rounded-xl 

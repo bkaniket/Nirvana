@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
+import { Building2 } from "lucide-react";
 
 type Building = {
   id: number;
@@ -78,12 +79,10 @@ type Certificate = {
 };
 
 function CollapsibleSection({
-  index,
   title,
   children,
   defaultOpen = false,
 }: {
-  index: number;
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
@@ -91,45 +90,40 @@ function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="flex">
-      {/* Left vertical line */}
-      <div className="flex flex-col items-center mr-4">
-        <div className="text-sm font-semibold text-gray-500">
-          {index.toString().padStart(2, "0")}
-        </div>
-        <div className="w-px flex-1 bg-gray-300 mt-2"></div>
-      </div>
+    <div className={`rounded-2xl border transition-all duration-300 
+    ${open 
+      ? "bg-blue-50/60 border-blue-200 shadow-md" 
+      : "bg-white/70 border-gray-300 hover:bg-gray-50"} 
+    backdrop-blur-xl`}>
 
-      {/* Right content */}
-      <div className="flex-1">
-        {/* Header */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="w-full text-left py-3 flex justify-between items-center group"
+      {/* Header */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full px-5 py-4 flex justify-between items-center"
+      >
+        <span className="text-base font-semibold text-gray-900">
+          {title}
+        </span>
+
+        <svg
+          className={`w-5 h-5 text-slate-400 transform transition-transform duration-300 ${
+            open ? "rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          viewBox="0 0 24 24"
         >
-          <span className="text-base font-semibold text-gray-800 group-hover:text-gray-900">
-            {title}
-          </span>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
 
-          <svg
-            className={`w-4 h-4 text-gray-400 transform transition-transform duration-200 ${open ? "rotate-90" : ""
-              }`}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        {/* Content */}
-        {open && (
-          <div className="ml-4 border-l border-gray-200 pl-4 pb-4 space-y-2">
-            {children}
-          </div>
-        )}
-      </div>
+      {/* Content */}
+      {open && (
+        <div className="px-5 pb-5 grid gap-4">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -191,73 +185,126 @@ function CreateExpenseModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Add Building Expense</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/40 bg-white/95 shadow-2xl">
 
-        {/* Year */}
-        <input
-          placeholder="Expense Year (e.g. 2026)"
-          value={form.expense_year}
-          onChange={(e) => handleChange("expense_year", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        {/* 🔹 Header */}
+        <div className="border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white px-6 py-5">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Add Expense
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Record and manage building expenses
+              </p>
+            </div>
 
-        {/* Type */}
-        <input
-          placeholder="Expense Type (Electricity, Tax...)"
-          value={form.expense_type}
-          onChange={(e) => handleChange("expense_type", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Category */}
-        <input
-          placeholder="Category (Rent / Non-Rent)"
-          value={form.expense_category}
-          onChange={(e) => handleChange("expense_category", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Vendor */}
-        <input
-          placeholder="Vendor Name"
-          value={form.vendor_name}
-          onChange={(e) => handleChange("vendor_name", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Amount */}
-        <input
-          placeholder="Amount"
-          value={form.amount}
-          onChange={(e) => handleChange("amount", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Currency */}
-        <input
-          placeholder="Currency"
-          value={form.currency}
-          onChange={(e) => handleChange("currency", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-3 py-1 border rounded">
-            Cancel
-          </button>
-
-          <button
-            onClick={handleCreate}
-            disabled={loading}
-            className="px-4 py-1 bg-blue-600 text-white rounded"
-          >
-            {loading ? "Saving..." : "Create"}
-          </button>
+            <button
+              onClick={onClose}
+              className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition"
+            >
+              ✕
+            </button>
+          </div>
         </div>
+
+        {/* 🔹 Body */}
+        <div className="space-y-5 px-6 py-6">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <InputField
+              label="Expense Year"
+              placeholder="e.g. 2026"
+              value={form.expense_year}
+              onChange={(v) => handleChange("expense_year", v)}
+            />
+
+            <InputField
+              label="Expense Type"
+              placeholder="Electricity, Rent..."
+              value={form.expense_type}
+              onChange={(v) => handleChange("expense_type", v)}
+            />
+
+            <InputField
+              label="Category"
+              placeholder="Rent / Non-Rent"
+              value={form.expense_category}
+              onChange={(v) => handleChange("expense_category", v)}
+            />
+
+            <InputField
+              label="Vendor Name"
+              placeholder="Vendor / Company"
+              value={form.vendor_name}
+              onChange={(v) => handleChange("vendor_name", v)}
+            />
+
+            <InputField
+              label="Amount"
+              placeholder="Enter amount"
+              value={form.amount}
+              onChange={(v) => handleChange("amount", v)}
+            />
+
+            <InputField
+              label="Currency"
+              placeholder="INR"
+              value={form.currency}
+              onChange={(v) => handleChange("currency", v)}
+            />
+
+          </div>
+        </div>
+
+        {/* 🔹 Footer */}
+       <div className="flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4 sm:flex-row sm:justify-end">
+  <button
+    onClick={handleCreate}
+    disabled={loading}
+    className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+  >
+    {loading ? "Saving..." : "Save Expense"}
+  </button>
+
+  <button
+    onClick={onClose}
+    className="h-11 rounded-xl border border-gray-300 bg-white px-6 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 cursor-pointer"
+  >
+    Cancel
+  </button>
+</div>
       </div>
+    </div>
+  );
+}
+function InputField({
+  label,
+  placeholder,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        {label}
+      </label>
+
+      <input
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition 
+        focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      />
     </div>
   );
 }
@@ -325,53 +372,148 @@ function CreateCertificateModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg p-6 rounded space-y-3">
-        <h2 className="text-lg font-semibold">Add Certificate</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-white/40 bg-white/95 shadow-2xl">
+        {/* Header */}
+        <div className="border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-white px-6 py-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Add Certificate</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Upload and manage a new building certificate
+              </p>
+            </div>
 
-        <input
-          placeholder="Certificate Name"
-          className="w-full border p-2 rounded"
-          onChange={(e) => handleChange("certificate_name", e.target.value)}
-        />
-
-        <input
-          placeholder="Type"
-          className="w-full border p-2 rounded"
-          onChange={(e) => handleChange("certificate_type", e.target.value)}
-        />
-
-        <input
-          placeholder="Issued By"
-          className="w-full border p-2 rounded"
-          onChange={(e) => handleChange("issued_by", e.target.value)}
-        />
-
-        <input
-          type="date"
-          className="w-full border p-2 rounded"
-          onChange={(e) => handleChange("expiry_date", e.target.value)}
-        />
-
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setFiles(e.target.files)}
-        />
-
-        <div className="flex justify-end gap-2 pt-3">
-          <button onClick={onClose}>Cancel</button>
-          <button
-            onClick={handleCreate}
-            className="bg-blue-600 text-white px-3 py-1 rounded"
-          >
-            {loading ? "Uploading..." : "Save"}
-          </button>
+            <button
+              onClick={onClose}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Body */}
+        <div className="space-y-5 px-6 py-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Certificate Name
+              </label>
+              <input
+                placeholder="Enter certificate name"
+                value={form.certificate_name}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                onChange={(e) => handleChange("certificate_name", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Certificate Type
+              </label>
+              <input
+                placeholder="Enter type"
+                value={form.certificate_type}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                onChange={(e) => handleChange("certificate_type", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Issued By
+              </label>
+              <input
+                placeholder="Authority / Organization"
+                value={form.issued_by}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                onChange={(e) => handleChange("issued_by", e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Expiry Date
+              </label>
+              <input
+                type="date"
+                value={form.expiry_date}
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                onChange={(e) => handleChange("expiry_date", e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-slate-700">
+              Upload File
+            </label>
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl p-6 bg-slate-50">
+  <input
+    type="file"
+    multiple
+    onChange={(e) => setFiles(e.target.files)}
+    className="hidden"
+    id="fileUpload"
+  />
+
+  <label
+    htmlFor="fileUpload"
+    className="cursor-pointer flex flex-col items-center gap-2"
+  >
+    <div className="h-12 px-6 flex items-center justify-center rounded-xl bg-emerald-600 text-white font-semibold shadow-md hover:bg-emerald-700 transition">
+      Choose Files
+    </div>
+
+    <p className="text-sm text-slate-500">
+      Upload one or more certificate files
+    </p>
+  </label>
+
+  {files && (
+    <p className="text-xs text-slate-600 mt-2">
+      {files.length} file(s) selected
+    </p>
+  )}
+</div>
+          </div>
+        </div>
+
+        {/* Footer */}
+       <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
+  <button
+    onClick={handleCreate}
+    disabled={loading}
+    className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
+  >
+    {loading ? "Uploading..." : "Save Certificate"}
+  </button>
+
+  <button
+    onClick={onClose}
+    className="h-11 rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 cursor-pointer"
+  >
+    Cancel
+  </button>
+</div>
       </div>
     </div>
   );
 }
+
 export default function BuildingDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -459,7 +601,7 @@ useEffect(() => {
       </div>
 
       {/* Workflow Card */}
-      <div className="bg-white p-6 rounded border border-gray-200 space-y-4">
+      <div className="bg-white/90 p-6 rounded border border-gray-300 space-y-4">
         <div className="h-6 w-48 bg-gray-200 rounded" />
         <div className="space-y-2">
           <div className="h-4 w-40 bg-gray-200 rounded" />
@@ -481,7 +623,7 @@ useEffect(() => {
             {/* Section Content */}
             <div className="flex-1 space-y-3">
               <div className="h-6 w-64 bg-gray-200 rounded" />
-              <div className="ml-4 border-l border-gray-200 pl-4 space-y-2">
+              <div className="ml-4 border-l border-gray-300 pl-4 space-y-2">
                 {[1, 2, 3, 4].map((item) => (
                   <div key={item} className="h-4 w-3/4 bg-gray-200 rounded" />
                 ))}
@@ -499,7 +641,7 @@ useEffect(() => {
           {[1, 2, 3].map((card) => (
             <div
               key={card}
-              className="border rounded p-4 space-y-3 bg-white"
+              className="border rounded p-4 space-y-3 bg-white/90"
             >
               <div className="h-4 w-32 bg-gray-200 rounded" />
               <div className="h-4 w-40 bg-gray-200 rounded" />
@@ -518,54 +660,103 @@ useEffect(() => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Building Details</h1>
+  <div className="space-y-5">
+    <div className="flex justify-between items-center">
+      <div className="flex items-center gap-1">
+  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+    <Building2 className="h-5 w-5" />
+  </div>
+  <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+    Building Details
+  </h1>
+</div>
 
-        {canEdit && (
-          <button
-            className="px-4 py-2 bg-yellow-500 text-white rounded"
-            onClick={() => router.push(`/buildings/${id}/edit`)}
-          >
-            ✏️ Edit Building
-          </button>
-        )}
+      {canEdit && (
+  <button
+    className="h-12 w-44 inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition-all duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 active:scale-[0.98] cursor-pointer"
+    onClick={() => router.push(`/buildings/${id}/edit`)}
+  >
+    <svg
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z"
+      />
+    </svg>
+    Edit Building
+  </button>
+)}
+    </div>
 
+     {/* 🔹 Workflow / Approval Info */}
+{workflow && (
+  <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+    <div className="mb-4 flex items-center justify-between">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Approval Workflow</h2>
+        <p className="text-sm text-slate-500">Current review and approval details</p>
       </div>
-      {/* 🔹 Workflow / Approval Info */}
-      {workflow && (
-        <div className="bg-white p-6 rounded shadow border-l-4
-    border-blue-500 space-y-2">
 
-          <h2 className="text-lg font-semibold">Approval Workflow</h2>
+      <span
+        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+          workflow.status === "APPROVED"
+            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+            : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+        }`}
+      >
+        <span
+          className={`mr-2 h-2 w-2 rounded-full ${
+            workflow.status === "APPROVED" ? "bg-emerald-500" : "bg-amber-500"
+          }`}
+        />
+        {workflow.status === "APPROVED" ? "Approved" : "Approval Pending"}
+      </span>
+    </div>
 
-          <p>
-            <strong>Status:</strong>{" "}
-            {workflow.status === "APPROVED" ? (
-              <span className="text-green-600 font-semibold">✅ Approved</span>
-            ) : (
-              <span className="text-yellow-600 font-semibold">⏳ Approval Pending</span>
-            )}
-          </p>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Status
+        </p>
+        <p className="mt-1 text-sm font-semibold text-slate-900">
+          {workflow.status === "APPROVED" ? "Approved" : "Approval Pending"}
+        </p>
+      </div>
 
-          <p>
-            <strong>Created By:</strong>{" "}
-            {workflow.created_by?.name || "-"}
-          </p>
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Created By
+        </p>
+        <p className="mt-1 text-sm font-semibold text-slate-900">
+          {workflow.created_by?.name || "Not available"}
+        </p>
+      </div>
 
-          <p>
-            <strong>Approved By:</strong>{" "}
-            {typeof workflow.approved_by === "string"
-              ? workflow.approved_by
-              : workflow.approved_by?.name || "Approval Pending"}
-          </p>
-        </div>
-      )}
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          Approved By
+        </p>
+        <p className="mt-1 text-sm font-semibold text-slate-900">
+          {typeof workflow.approved_by === "string"
+            ? workflow.approved_by
+            : workflow.approved_by?.name || "Pending"}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
       <div className="space-y-6">
         {/* 🔹 Basic Identification */}
         <CollapsibleSection index={1} title="Basic Information" defaultOpen>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* <Detail label="System Building ID" value={building.system_building_id} /> */}
             <Detail label="Building Name" value={building.building_name} />
             {/* <Detail label="CLLI" value={building.clli} />
@@ -576,7 +767,7 @@ useEffect(() => {
         </CollapsibleSection>
         {/* 🔹 Location & Address */}
         <CollapsibleSection index={2} title="Location Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Address" value={building.address_1} />
             <Detail label="City" value={building.city} />
             <Detail label="State" value={building.state} />
@@ -587,7 +778,7 @@ useEffect(() => {
 
         {/* 🔹 Coordinates */}
         <CollapsibleSection index={3} title="Geographical Coordinates">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Latitude" value={building.latitude} />
             <Detail label="Longitude" value={building.longitude} />
             <Detail label="Geocode Latitude" value={building.geocode_latitude} />
@@ -597,7 +788,7 @@ useEffect(() => {
 
         {/* 🔹 Property Specifications */}
         <CollapsibleSection index={4} title="Property Specifications">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Construction Year" value={building.construction_year} />
             <Detail
               label="Last Renovation Year"
@@ -610,7 +801,7 @@ useEffect(() => {
 
         {/* 🔹 Financial Details */}
         <CollapsibleSection index={5} title="Financial Details">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Purchase Price" value={building.purchase_price} />
             <Detail label="Currency Type" value={building.currency_type} />
           </div>
@@ -618,7 +809,7 @@ useEffect(() => {
 
         {/* 🔹 Ownership & Management */}
         <CollapsibleSection index={6} title="Ownership & Management">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Detail label="Ownership Type" value={building.ownership_type} />
             <Detail label="Managed By" value={building.managed_by} />
             <Detail label="Portfolio" value={building.portfolio} />
@@ -628,209 +819,383 @@ useEffect(() => {
 
       </div>
 
-      {leases && leases.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Leases in this Building</h2>
+           {leases && leases.length > 0 && (
+        <div className="space-y-2 mt-4">
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+                Leases in this Building
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Browse all lease agreements linked to this property
+              </p>
+            </div>
 
-          <div className="grid grid-cols-3 gap-4">
+            <div className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 sm:block">
+              {leases.length} leases
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {leases.map((lease) => (
               <div
                 key={lease.id}
-                className="border rounded p-4 shadow hover:shadow-md cursor-pointer"
                 onClick={() => router.push(`/leases/${lease.id}`)}
+                className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
               >
-                <p className="font-semibold">{lease.client_lease_id}</p>
-                <p className="text-sm text-gray-600">{lease.landlord_legal_name}</p>
-                <p className="text-sm">
-                  {lease.lease_agreement_date} → {lease.termination_date}
-                </p>
-                <p className="text-sm font-medium">
-                  Status: {lease.lease_status}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-slate-900">
+                      {lease.client_lease_id}
+                    </p>
+                    <p className="mt-1 truncate text-sm text-slate-500">
+                      {lease.landlord_legal_name}
+                    </p>
+                  </div>
+
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 transition group-hover:bg-slate-900 group-hover:text-white">
+                    →
+                  </div>
+                </div>
+
+                <div className="my-4 h-px bg-slate-100" />
+
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Lease period
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-slate-700">
+                      {lease.lease_agreement_date}
+                      <span className="mx-1 text-slate-400">→</span>
+                      {lease.termination_date}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Status
+                    </p>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        lease.lease_status === "ACTIVE"
+                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                          : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
+                      }`}
+                    >
+                      {lease.lease_status}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div>
-          {/** 🔹 Certificates & Compliance */}
+<div>
+  {/** 🔹 Certificates & Compliance */}
+  <div className="space-y-6 p-6">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Certificates</h2>
+          <p className="text-sm text-slate-500 mt-1">Upload and manage a new building certificate</p>
+        </div>
 
-        <div className="space-y-4 m-4">
-  <div className="flex justify-between items-center">
-    <h2 className="text-xl font-semibold">Certificates</h2>
-
-    <button
-      className="px-3 py-1.5 bg-green-600 text-white rounded text-sm"
-      onClick={() => setShowCertificateModal(true)}
-    >
-      + Add Certificate
-    </button>
-  </div>
-
-  {certificateLoading ? (
-    <p>Loading certificates...</p>
-  ) : certificates.length === 0 ? (
-    <p className="text-gray-500">No certificates found.</p>
-  ) : (
-    <div className="border rounded-lg overflow-hidden">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="px-4 py-2">Name</th>
-            <th className="px-4 py-2">Type</th>
-            <th className="px-4 py-2">Issued By</th>
-            <th className="px-4 py-2">Expiry</th>
-            <th className="px-4 py-2">File</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {certificates.map((cert) => (
-            <tr key={cert.id} className="border-t">
-              <td className="px-4 py-2">{cert.certificate_name}</td>
-              <td className="px-4 py-2">{cert.certificate_type}</td>
-              <td className="px-4 py-2">{cert.issued_by}</td>
-              <td className="px-4 py-2">{cert.expiry_date}</td>
-              <td className="px-4 py-2">
-                {cert.file_path && (
-                  <a
-                    href={cert.file_path}
-                    target="_blank"
-                    className="text-blue-600 underline"
-                  >
-                    View
-                  </a>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-
-  {showCertificateModal && (
-    <CreateCertificateModal
-      buildingId={id}
-      onClose={() => setShowCertificateModal(false)}
-      onCreated={() => {
-        const token = sessionStorage.getItem("token");
-
-        fetch(`${BASE_URL}/buildings/${id}/certificates`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => setCertificates(data.data || []));
-      }}
-    />
-  )}
-</div>
-
-        {/** 🔹 Building Expenses */}
-<div className="space-y-4 m-4">
-  <div className="flex justify-between items-center">
-    <h2 className="text-xl font-semibold">Building Expenses</h2>
-
-    <button
-      className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm"
-     onClick={() => setShowExpenseModal(true)}
-    >
-      + Add Expense
-    </button>
-  </div>
-
-  {expenseLoading ? (
-    <p>Loading expenses...</p>
-  ) : expenses.length === 0 ? (
-    <p className="text-gray-500">No expenses recorded.</p>
-  ) : (
-    <div className="border rounded-lg overflow-hidden">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-100 text-gray-700">
-          <tr>
-            <th className="px-4 py-2 text-left">Year</th>
-            <th className="px-4 py-2 text-left">Type</th>
-            <th className="px-4 py-2 text-left">Category</th>
-            <th className="px-4 py-2 text-left">Vendor</th>
-            <th className="px-4 py-2 text-left">Amount</th>
-            <th className="px-4 py-2 text-left">Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {expenses.map((exp) => (
-            <tr
-              key={exp.expense_id}
-              className="border-t hover:bg-gray-50 cursor-pointer"
-              onClick={() => router.push(`/accounts/${exp.expense_id}`)}
-            >
-              <td className="px-4 py-2">{exp.expense_year || "-"}</td>
-              <td className="px-4 py-2">{exp.expense_type || "-"}</td>
-              <td className="px-4 py-2">{exp.expense_category || "-"}</td>
-              <td className="px-4 py-2">{exp.vendor_name || "-"}</td>
-              <td className="px-4 py-2">
-                {exp.amount} {exp.currency}
-              </td>
-              <td className="px-4 py-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded ${
-                    exp.status === "APPROVED"
-                      ? "bg-green-100 text-green-700"
-                      : exp.status === "PENDING"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {exp.status || "N/A"}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-  )}
-  {showExpenseModal && (
-  <CreateExpenseModal
-    buildingId={id as string}
-    onClose={() => setShowExpenseModal(false)}
-    onCreated={() => {
-      // refresh expense list
-      const token = sessionStorage.getItem("token");
-
-      fetch(`${BASE_URL}/expenses/buildings/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => setExpenses(data.data || []));
-    }}
-  />
-)}
-</div>
-
-
+        <button
+          className="h-12 w-48 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-400 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+          onClick={() => setShowCertificateModal(true)}
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Certificate
+        </button>
       </div>
+
+      {/* Loading */}
+      {certificateLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
+          <span className="ml-3 text-sm font-medium text-slate-600">Loading certificates...</span>
+        </div>
+      ) : certificates.length === 0 ? (
+        <div className="text-center py-16 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+          <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">No certificates yet</h3>
+          <p className="text-slate-500 mb-6 max-w-md mx-auto">
+            Add your first certificate to get started. All documents are securely stored.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-slate-400 rounded-full" />
+              <span className="text-sm font-medium text-slate-600">
+                {certificates.length} certificate{certificates.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Name
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Type
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Issued by
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Expiry
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    File
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/50 bg-white">
+                {certificates.map((cert) => (
+                  <tr
+                    key={cert.id}
+                    className="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-semibold text-slate-900">{cert.certificate_name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                        {cert.certificate_type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      {cert.issued_by}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`text-sm px-2 py-1 rounded-full ${
+                          new Date(cert.expiry_date) > new Date()
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {cert.expiry_date}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {cert.file_path ? (
+                        <a
+                          href={cert.file_path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-semibold hover:underline transition-colors duration-200"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          View
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-sm">No file</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Certificate Modal */}
+      {showCertificateModal && (
+        <CreateCertificateModal
+          buildingId={id}
+          onClose={() => setShowCertificateModal(false)}
+          onCreated={() => {
+            const token = sessionStorage.getItem("token");
+            fetch(`${BASE_URL}/buildings/${id}/certificates`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+              .then((res) => res.json())
+              .then((data) => setCertificates(data.data || []));
+          }}
+        />
+      )}
+    </div>
+
+    {/** 🔹 Building Expenses */}
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Building Expenses</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            Record and manage building expenses
+          </p>
+        </div>
+
+        <button
+          className="h-12 w-48 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-400 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+          onClick={() => setShowExpenseModal(true)}
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Expense
+        </button>
+      </div>
+
+      {expenseLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
+          <span className="ml-3 text-sm font-medium text-slate-600">Loading expenses...</span>
+        </div>
+      ) : expenses.length === 0 ? (
+        <div className="text-center py-12 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">No expenses yet</h3>
+          <p className="text-slate-500 text-sm">
+            Add your first expense to start tracking building costs.
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-slate-400 rounded-full" />
+              <span className="text-sm font-medium text-slate-600">
+                {expenses.length} expense{expenses.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Year
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Type
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Vendor
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/50 bg-white">
+                {expenses.map((exp) => (
+                  <tr
+                    key={exp.expense_id}
+                    className="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer"
+                    onClick={() => router.push(`/accounts/${exp.expense_id}`)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      {exp.expense_year || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      {exp.expense_type || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      {exp.expense_category || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      {exp.vendor_name || "-"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {exp.amount} {exp.currency}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium tracking-wide ${
+                          exp.status === "APPROVED"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : exp.status === "PENDING"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {exp.status || "N/A"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Expense Modal */}
+      {showExpenseModal && (
+        <CreateExpenseModal
+          buildingId={id as string}
+          onClose={() => setShowExpenseModal(false)}
+          onCreated={() => {
+            const token = sessionStorage.getItem("token");
+            fetch(`${BASE_URL}/expenses/buildings/${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
+              .then((res) => res.json())
+              .then((data) => setExpenses(data.data || []));
+          }}
+        />
+      )}
+    </div>
+  </div>
+</div>	
+
     </div>
   );
 }
 
-function Detail({ label, value }: { label: string; value?: string }) {
-  return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="text-gray-400">—</span>
-      <div>
-        <span className="text-gray-500">{label}: </span>
-        <span className="text-gray-800 font-medium">
-          {value || "-"}
-        </span>
-      </div>
-    </div>
+//  here
 
+
+function Detail({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number | null;
+}) {
+  return (
+    <div className="flex flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </span>
+      <span className="mt-1 text-sm font-medium text-slate-800">
+        {value ?? "—"}
+      </span>
+    </div>
   );
 }

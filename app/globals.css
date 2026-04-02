@@ -57,3 +57,13 @@ body {
     "SF Pro Text", system-ui, sans-serif;
   font-weight: 500;
 }
+
+:root {
+  --text-primary: #111827;
+  --text-muted: #4b5563;
+}
+
+.dark {
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.68);
+}

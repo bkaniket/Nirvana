@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { useApi } from "@/app/hooks/useApi";
-
+import { FileText, Trash2, ShieldCheck } from "lucide-react";
 
 /* ---------------- Types ---------------- */
 
@@ -141,42 +141,61 @@ function UploadDocumentModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md rounded-xl shadow-xl border border-gray-200 p-6 space-y-5">
-        <h2 className="text-lg font-semibold">Upload Lease Documents</h2>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Upload Lease Documents
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Add one or more files to this lease.
+        </p>
+      </div>
 
-        <input
-          type="text"
-          placeholder="File Type (optional)"
-          value={fileType}
-          onChange={(e) => setFileType(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+      <div className="space-y-4">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            File Type
+          </label>
+          <input
+            type="text"
+            placeholder="Agreement, Amendment, Annexure..."
+            value={fileType}
+            onChange={(e) => setFileType(e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        <input
-          type="file"
-          multiple
-          onChange={(e) => setFiles(e.target.files)}
-          className="w-full"
-        />
-
-        <div className="flex justify-end gap-3 pt-4">
-          <button
-            onClick={onClose}
-            className="px-3 py-1 border rounded"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpload}
-            className="px-4 py-1 bg-blue-600 text-white rounded"
-          >
-            Upload
-          </button>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Documents
+          </label>
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setFiles(e.target.files)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+          />
         </div>
       </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+  onClick={handleUpload}
+  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 cursor-pointer"
+>
+  Upload
+</button>
+      </div>
     </div>
-  );
+  </div>
+);
 }
 function EditDocumentModal({
   document,
@@ -233,60 +252,81 @@ function EditDocumentModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md rounded-lg p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Edit Document</h2>
-
-        {/* Current File */}
-        <p className="text-sm text-gray-500">
-          Current file: <span className="font-medium">{document.file_name}</span>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-slate-900">Edit Document</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Update file details or replace the file.
         </p>
+      </div>
 
-        {/* File Name */}
-        <input
-          value={fileName}
-          onChange={(e) => setFileName(e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+      <div className="space-y-4">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Current File
+          </p>
+          <p className="mt-1 text-sm font-medium text-slate-900">
+            {document.file_name}
+          </p>
+        </div>
 
-        {/* File Type */}
-        <input
-          value={fileType}
-          onChange={(e) => setFileType(e.target.value)}
-          placeholder="File Type"
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Replace File */}
         <div>
-          <label className="text-sm text-gray-500">
-            Replace File (optional)
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            File Name
+          </label>
+          <input
+            value={fileName}
+            onChange={(e) => setFileName(e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            File Type
+          </label>
+          <input
+            value={fileType}
+            onChange={(e) => setFileType(e.target.value)}
+            placeholder="File Type"
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Replace File
           </label>
           <input
             type="file"
             onChange={(e) =>
               setNewFile(e.target.files ? e.target.files[0] : null)
             }
-            className="w-full mt-1"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
           />
         </div>
+      </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-3 py-1 border rounded">
-            Cancel
-          </button>
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          Cancel
+        </button>
 
-          <button
-            onClick={handleUpdate}
-            disabled={loading}
-            className="px-4 py-1 bg-yellow-500 text-white rounded"
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
-        </div>
+        <button
+          onClick={handleUpdate}
+          disabled={loading}
+          className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:opacity-60"
+        >
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 const leaseSections: {
@@ -432,76 +472,111 @@ function CreateExpenseModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl border p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Add Lease Expense</h2>
+ return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="mb-5">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Add Lease Expense
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Add a new expense entry for this lease.
+        </p>
+      </div>
 
-        {/* Year */}
-        <input
-          placeholder="Expense Year (e.g. 2026)"
-          value={form.expense_year}
-          onChange={(e) => handleChange("expense_year", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Expense Year
+          </label>
+          <input
+            placeholder="2026"
+            value={form.expense_year}
+            onChange={(e) => handleChange("expense_year", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        {/* Type */}
-        <input
-          placeholder="Expense Type (Electricity, Tax...)"
-          value={form.expense_type}
-          onChange={(e) => handleChange("expense_type", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Expense Type
+          </label>
+          <input
+            placeholder="Electricity, Tax..."
+            value={form.expense_type}
+            onChange={(e) => handleChange("expense_type", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        {/* Category */}
-        <input
-          placeholder="Category (Rent / Non-Rent)"
-          value={form.expense_category}
-          onChange={(e) => handleChange("expense_category", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Category
+          </label>
+          <input
+            placeholder="Rent / Non-Rent"
+            value={form.expense_category}
+            onChange={(e) => handleChange("expense_category", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        {/* Vendor */}
-        <input
-          placeholder="Vendor Name"
-          value={form.vendor_name}
-          onChange={(e) => handleChange("vendor_name", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Vendor Name
+          </label>
+          <input
+            placeholder="Vendor Name"
+            value={form.vendor_name}
+            onChange={(e) => handleChange("vendor_name", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        {/* Amount */}
-        <input
-          placeholder="Amount"
-          value={form.amount}
-          onChange={(e) => handleChange("amount", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Amount
+          </label>
+          <input
+            placeholder="Amount"
+            value={form.amount}
+            onChange={(e) => handleChange("amount", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
 
-        {/* Currency */}
-        <input
-          placeholder="Currency"
-          value={form.currency}
-          onChange={(e) => handleChange("currency", e.target.value)}
-          className="w-full border p-2 rounded"
-        />
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button onClick={onClose} className="px-3 py-1 border rounded">
-            Cancel
-          </button>
-
-          <button
-            onClick={handleCreate}
-            disabled={loading}
-            className="px-4 py-1 bg-blue-600 text-white rounded"
-          >
-            {loading ? "Saving..." : "Create"}
-          </button>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Currency
+          </label>
+          <input
+            placeholder="INR"
+            value={form.currency}
+            onChange={(e) => handleChange("currency", e.target.value)}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
         </div>
       </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={onClose}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={handleCreate}
+          disabled={loading}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-60"
+        >
+          {loading ? "Saving..." : "Create Expense"}
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 }
 export default function LeaseDetailsPage() {
   const params = useParams();
@@ -519,10 +594,22 @@ const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [expenseLoading, setExpenseLoading] = useState(true);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [editingDoc, setEditingDoc] = useState<LeaseDocument | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
+const [deleting, setDeleting] = useState(false);
 const openEditModal = useCallback((doc: LeaseDocument) => {
   setEditingDoc(doc);
 }, []);
+const confirmDelete = async () => {
+  if (!deleteTarget) return;
 
+  try {
+    setDeleting(true);
+    await handleDelete(deleteTarget.id);
+    setDeleteTarget(null);
+  } finally {
+    setDeleting(false);
+  }
+};
 
   const canView = hasPermission("LEASE", "view");
   const canEdit = hasPermission("LEASE", "edit");
@@ -574,8 +661,6 @@ const fetchLease = useCallback(async () => {
 }, [id]);
 
 const handleDelete = useCallback(async (docId: number) => {
-  if (!confirm("Are you sure?")) return;
-
   const success = await request(`/documents/${docId}`, {
     method: "DELETE",
   });
@@ -594,12 +679,15 @@ useEffect(() => {
   fetchDocuments();
 }, [id]);
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-6 bg-gray-300 rounded w-full"></div>
-        ))}
+      <div className="space-y-6">
+        <div className="h-12 w-80 animate-pulse rounded-2xl bg-white/20" />
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-32 rounded-[28px] bg-white/10 animate-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -608,166 +696,189 @@ useEffect(() => {
   if (!lease) return null;
 
   return (
-    <div className=" bg-gray-50">
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
+   <div className="min-h-screen w-full ">
+<div className="w-full m-0 p-0 space-y-2">
 
         {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-semibold">Lease Details</h1>
+     <div className="space-y-3">
+  <div className="flex items-start justify-between gap-4">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+        <FileText className="h-5 w-5" />
+      </div>
 
-          {workflow && <WorkflowPanel workflow={workflow} />}
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+        Lease Details
+      </h1>
+    </div>
 
-          </div>
+    {canEdit && workflow?.status !== "APPROVED" && (
+      <button
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.98] cursor-pointer"
+        onClick={() => router.push(`/leases/${id}/edit`)}
+      >
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z"
+          />
+        </svg>
+        Edit Lease
+      </button>
+    )}
+  </div>
 
-          {canEdit && workflow?.status !== "APPROVED" && (
-            <button
-              className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-sm hover:bg-yellow-600 transition"
-              onClick={() => router.push(`/leases/${id}/edit`)}
-            >
-              ✏️ Edit Lease
-            </button>
-          )}
-        </div>
+  {workflow && <WorkflowPanel workflow={workflow} />}
+</div>
+
+         
 
         {/* ALL SECTIONS ABOVE STAY SAME */}
 
-          <div>
-            {leaseSections.map((section) => (
-  <Section key={section.title} title={section.title}>
-    {section.fields.map((field) => (
-      <Field
-        key={field.key}
-        label={field.label}
-        value={lease[field.key]}
-      />
-    ))}
-  </Section>
-))}
-          </div>
+         <div className="space-y-3">
+  {leaseSections.map((section) => (
+    <Section key={section.title} title={section.title}>
+      {section.fields.map((field) => (
+        <Field
+          key={field.key}
+          label={field.label}
+          value={lease[field.key]}
+        />
+      ))}
+    </Section>
+  ))}
+</div>
         {/* Lease Documents */}
       
 
-      </div>
-          <Section
-          layout="block"
-          title={
-            <div className="flex items-center w-full">
-              <h2 className="text-base font-semibold text-gray-800">
-                Lease Documents
-              </h2>
-
-              <button
-                onClick={() => setShowUpload(true)}
-                className="ml-auto px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition"
-              >
-                + Upload
-              </button>
-            </div>
-          }
-
-
-      >
-          {docsLoading ? (
-            <p>Loading documents...</p>
-          ) : documents.length === 0 ? (
-            <p>No documents uploaded.</p>
-          ) : (
-            <div className="rounded-lg border border-gray-200 overflow-hidden">
-  <div className="overflow-x-auto">
-    <table className="min-w-full text-sm text-left border-collapse">
       
-      {/* Header */}
-      <thead className="bg-blue-100 text-blue-900">
-        <tr>
-          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
-            File Name
-          </th>
-          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
-            Type
-          </th>
-          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
-            Uploaded By
-          </th>
-          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
-            Created
-          </th>
-          <th className="px-4 py-3 border-b border-gray-200 font-semibold">
-            Actions
-          </th>
-        </tr>
-      </thead>
+      <Section layout="block" className="mt-4">
+  <div className="flex items-start justify-between gap-4">
+    <div>
+      <h2 className="text-lg font-semibold text-slate-900">
+        Lease Documents
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Upload and manage lease documents for this property
+      </p>
+    </div>
 
-      {/* Body */}
-      <tbody className="bg-white">
-        {documents.map((doc) => (
-          <tr
-            key={doc.id}
-            className="hover:bg-blue-50 transition"
-          >
-            <td className="px-4 py-3 border-b border-gray-100">
-              {doc.file_name}
-            </td>
-
-            <td className="px-4 py-3 border-b border-gray-100">
-              {doc.file_type || "-"}
-            </td>
-
-            <td className="px-4 py-3 border-b border-gray-100">
-              {doc.uploaded_by_first_name
-                ? `${doc.uploaded_by_first_name} ${doc.uploaded_by_last_name}`
-                : "-"}
-            </td>
-
-            <td className="px-4 py-3 border-b border-gray-100">
-              {new Date(doc.created_at).toLocaleString()}
-            </td>
-
-            <td className="px-4 py-3 border-b border-gray-100">
-              <div className="flex gap-3">
-                <button
-                  onClick={() =>
-                    window.open(getFileUrl(doc.file_path), "_blank")
-                  }
-                  className="text-blue-600 hover:underline"
-                >
-                  View
-                </button>
-
-                <a
-                  href={getFileUrl(doc.file_path)}
-                  download
-                  className="text-green-600 hover:underline"
-                >
-                  Download
-                </a>
-
-                <button
-                  onClick={() => openEditModal(doc)}
-                  className="text-yellow-600 hover:underline"
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => handleDelete(doc.id)}
-                  className="text-red-600 hover:underline"
-                >
-                  Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <button
+      onClick={() => setShowUpload(true)}
+      className="inline-flex h-10 items-center rounded-xl bg-blue-600 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+    >
+      + Upload
+    </button>
   </div>
-</div>
-      
-      )}
-      </Section>
+
+  <div className="mt-2">
+    {docsLoading ? (
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+        Loading documents...
+      </div>
+    ) : documents.length === 0 ? (
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+        <p className="text-sm font-medium text-slate-700">No documents uploaded</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Upload lease files to get started. All documents are securely stored.
+        </p>
+      </div>
+    ) : (
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-100">
+              <tr className="text-[11px] uppercase tracking-[0.14em] text-slate-700">
+                <th className="px-5 py-4 font-semibold">File Name</th>
+                <th className="px-5 py-4 font-semibold">Type</th>
+                <th className="px-5 py-4 font-semibold">Uploaded By</th>
+                <th className="px-5 py-4 font-semibold">Created</th>
+                <th className="px-5 py-4 text-right font-semibold">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-200 bg-white">
+              {documents.map((doc) => (
+                <tr key={doc.id} className="transition hover:bg-slate-50/70">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+                        📄
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-slate-900">
+                          {doc.file_name}
+                        </p>
+                        <p className="text-xs text-slate-500">Lease document</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                      {doc.file_type || "-"}
+                    </span>
+                  </td>
+
+                  <td className="px-5 py-4 text-slate-700">
+                    {doc.uploaded_by_first_name
+                      ? `${doc.uploaded_by_first_name} ${doc.uploaded_by_last_name}`
+                      : "-"}
+                  </td>
+
+                  <td className="px-5 py-4 text-slate-600">
+                    {new Date(doc.created_at).toLocaleString()}
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => window.open(getFileUrl(doc.file_path), "_blank")}
+                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                      >
+                        View
+                      </button>
+
+                      <a
+                        href={getFileUrl(doc.file_path)}
+                        download
+                        className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+                      >
+                        Download
+                      </a>
+
+                      <button
+                        onClick={() => openEditModal(doc)}
+                        className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => setDeleteTarget(doc)}
+                        className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 transition hover:bg-rose-100"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
+</Section>
       {/* Modals OUTSIDE content wrapper */}
       {showUpload && (
         <UploadDocumentModal
@@ -788,96 +899,144 @@ onUploaded={fetchDocuments}
           }
         />
       )}
+      {deleteTarget && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+          <Trash2 className="h-5 w-5" />
+        </div>
+
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">
+            Delete document?
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            This will permanently remove{" "}
+            <span className="font-medium text-slate-700">
+              {deleteTarget.file_name}
+            </span>
+            .
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          onClick={() => setDeleteTarget(null)}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          disabled={deleting}
+          className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-700 disabled:opacity-60"
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
         {/** 🔹 Building Expenses */}
-<div className="mt-8 space-y-4 p-2 m-2">
-  <div className="flex justify-between items-center p-2">
-    <h2 className="text-xl font-semibold">Lease Expenses</h2>
+<Section title="Lease Expenses" layout="block" className="mt-4">
+  <div className="flex items-start justify-between gap-4">
+    <div>
+      <p className="text-sm text-slate-500">
+        Track and manage expense entries for this lease
+      </p>
+    </div>
 
     <button
-      className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm"
-     onClick={() => setShowExpenseModal(true)}
+      className="inline-flex h-10 items-center rounded-xl bg-blue-600 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
+      onClick={() => setShowExpenseModal(true)}
     >
       + Add Expense
     </button>
   </div>
 
-  {expenseLoading ? (
-    <p>Loading expenses...</p>
-  ) : expenses.length === 0 ? (
-    <p className="text-gray-500">No expenses recorded.</p>
-  ) : (
-    <div className="border rounded-lg overflow-hidden">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-100 text-gray-700">
-          <tr>
-            <th className="px-4 py-2 text-left">Year</th>
-            <th className="px-4 py-2 text-left">Type</th>
-            <th className="px-4 py-2 text-left">Category</th>
-            <th className="px-4 py-2 text-left">Vendor</th>
-            <th className="px-4 py-2 text-left">Amount</th>
-            <th className="px-4 py-2 text-left">Status</th>
-          </tr>
-        </thead>
+  <div className="mt-3">
+    {expenseLoading ? (
+      <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
+        Loading expenses...
+      </div>
+    ) : expenses.length === 0 ? (
+      <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+        <p className="text-sm font-medium text-slate-700">
+          No expenses recorded
+        </p>
+        <p className="mt-1 text-sm text-slate-500">
+          Add expense entries to track lease-related costs.
+        </p>
+      </div>
+    ) : (
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="bg-slate-100">
+              <tr className="text-[11px] uppercase tracking-[0.14em] text-slate-700">
+                <th className="px-5 py-3 font-semibold">Year</th>
+                <th className="px-5 py-3 font-semibold">Type</th>
+                <th className="px-5 py-3 font-semibold">Category</th>
+                <th className="px-5 py-3 font-semibold">Vendor</th>
+                <th className="px-5 py-3 font-semibold">Amount</th>
+                <th className="px-5 py-3 font-semibold">Status</th>
+              </tr>
+            </thead>
 
-        <tbody>
-          {expenses.map((exp) => (
-            <tr
-              key={exp.expense_id}
-              className="border-t hover:bg-gray-50 cursor-pointer"
-              onClick={() => router.push(`/accounts/${exp.expense_id}`)}
-            >
-              <td className="px-4 py-2">{exp.expense_year || "-"}</td>
-              <td className="px-4 py-2">{exp.expense_type || "-"}</td>
-              <td className="px-4 py-2">{exp.expense_category || "-"}</td>
-              <td className="px-4 py-2">{exp.vendor_name || "-"}</td>
-              <td className="px-4 py-2">
-                {exp.amount} {exp.currency}
-              </td>
-              <td className="px-4 py-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded ${
-                    exp.status === "APPROVED"
-                      ? "bg-green-100 text-green-700"
-                      : exp.status === "PENDING"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+            <tbody className="divide-y divide-slate-200 bg-white">
+              {expenses.map((exp) => (
+                <tr
+                  key={exp.expense_id}
+                  className="cursor-pointer hover:bg-slate-50"
+                  onClick={() => router.push(`/accounts/${exp.expense_id}`)}
                 >
-                  {exp.status || "N/A"}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                  <td className="px-5 py-3">{exp.expense_year || "-"}</td>
+                  <td className="px-5 py-3">{exp.expense_type || "-"}</td>
+                  <td className="px-5 py-3">{exp.expense_category || "-"}</td>
+                  <td className="px-5 py-3">{exp.vendor_name || "-"}</td>
+                  <td className="px-5 py-3 font-medium">
+                    {exp.amount || "-"} {exp.currency || ""}
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className="text-xs font-medium">
+                      {exp.status || "N/A"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
 
-  )}
   {showExpenseModal && (
-  <CreateExpenseModal
-    leaseId={id as string}
-    onClose={() => setShowExpenseModal(false)}
-    onCreated={() => {
-      // refresh expense list
-      const token = sessionStorage.getItem("token");
+    <CreateExpenseModal
+      leaseId={id as string}
+      onClose={() => setShowExpenseModal(false)}
+      onCreated={() => {
+        const token = sessionStorage.getItem("token");
 
-      fetch(`${BASE_URL}/expenses/leases/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => setExpenses(data.data || []));
-    }}
-  />
-)}
-</div>
+        fetch(`${BASE_URL}/expenses/leases/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => setExpenses(data.data || []));
+      }}
+    />
+  )}
+</Section>
 
     </div>
-    
-  );
-
+  </div>
+);
 }
 
 
@@ -886,38 +1045,76 @@ onUploaded={fetchDocuments}
 function WorkflowPanel({ workflow }: { workflow: WorkflowInfo }) {
   const isApproved = workflow.status === "APPROVED";
 
+  const approvedBy =
+    typeof workflow.approved_by === "string"
+      ? workflow.approved_by
+      : workflow.approved_by?.name || "Pending";
+
   return (
-    <div
-      className={`bg-white p-6 rounded shadow border-l-4 space-y-2 ${
-        isApproved ? "border-green-500" : "border-blue-500"
-      }`}
-    >
-      <h2 className="text-lg font-semibold">Approval Workflow</h2>
+    <div className="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-md p-5 shadow-sm backdrop-blur">
+      
+      {/* HEADER */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            Approval Workflow
+          </h2>
+          <p className="text-sm text-slate-500">
+            Current review and approval details
+          </p>
+        </div>
 
-      <p>
-        <strong>Status:</strong>{" "}
-        {isApproved ? (
-          <span className="text-green-600 font-semibold">
-            ✅ Approved
-          </span>
-        ) : (
-          <span className="text-yellow-600 font-semibold">
-            ⏳ Approval Pending
-          </span>
-        )}
-      </p>
+        {/* STATUS BADGE */}
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+            isApproved
+              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+              : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+          }`}
+        >
+          <span
+            className={`mr-2 h-2 w-2 rounded-full ${
+              isApproved ? "bg-emerald-500" : "bg-amber-500"
+            }`}
+          />
+          {isApproved ? "Approved" : "Approval Pending"}
+        </span>
+      </div>
 
-      <p>
-        <strong>Created By:</strong>{" "}
-        {workflow.created_by?.name || "-"}
-      </p>
+      {/* GRID */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        
+        {/* STATUS */}
+        <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Status
+          </p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {isApproved ? "Approved" : "Approval Pending"}
+          </p>
+        </div>
 
-      <p>
-        <strong>Approved By:</strong>{" "}
-        {typeof workflow.approved_by === "string"
-          ? workflow.approved_by
-          : workflow.approved_by?.name || "Approval Pending"}
-      </p>
+        {/* CREATED BY */}
+        <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Created By
+          </p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {workflow.created_by?.name || "Not available"}
+          </p>
+        </div>
+
+        {/* APPROVED BY */}
+        <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            Approved By
+          </p>
+          <p className="mt-1 text-sm font-semibold text-slate-900">
+            {approvedBy}
+          </p>
+        </div>
+
+      </div>
     </div>
   );
 }
@@ -927,23 +1124,29 @@ function Section({
   title,
   children,
   layout = "grid",
+  className = "",
 }: {
   title: React.ReactNode;
   children: React.ReactNode;
   layout?: "grid" | "block";
+  className?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div className="mb-4 flex items-center justify-between">
-        {title}
-      </div>
+    <div className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${className}`}>
+      {title && (
+        <div className="mb-4 flex items-start justify-between">
+          <h3 className="text-lg font-semibold text-slate-900">
+            {title}
+          </h3>
+        </div>
+      )}
 
       {layout === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {children}
         </div>
       ) : (
-        <div className="w-full  overflow-hidden">{children}</div>
+        <div className="w-full">{children}</div>
       )}
     </div>
   );
@@ -967,9 +1170,13 @@ function Field({
   }
 
   return (
-    <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-medium">{displayValue}</p>
+    <div className="rounded-xl border border-slate-200 p-3 transition-all duration-300 hover:border-slate-300 hover:bg-slate-50/50 hover:shadow-sm">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 group-hover:text-slate-600">
+        {label}
+      </p>
+      <p className="text-base font-semibold text-slate-900">
+        {displayValue}
+      </p>
     </div>
   );
 }

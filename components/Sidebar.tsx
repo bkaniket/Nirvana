@@ -91,10 +91,10 @@ export default function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [hovered, setHovered] = useState(false);
+  // const [hovered, setHovered] = useState(false);
   const [openAccounts, setOpenAccounts] = useState(true);
 
-  const expanded = !collapsed || hovered;
+  const expanded = !collapsed;
 
   const isActive = (path: string) =>
     path === "/" ? pathname === "/" : pathname.startsWith(path);
@@ -117,42 +117,48 @@ export default function Sidebar({
         {/* Sidebar */}
  
    <motion.aside
-        onMouseEnter={() => window.innerWidth >= 768 && setHovered(true)}
-onMouseLeave={() => window.innerWidth >= 768 && setHovered(false)}
-        animate={{ width: expanded ? 260 : 80 }}
+//         onMouseEnter={() => window.innerWidth >= 768 && setHovered(true)}
+// onMouseLeave={() => window.innerWidth >= 768 && setHovered(false)}
+        animate={{ width: expanded ? 240 : 70 }}
         transition={{ type: "spring", stiffness: 260, damping: 25 }}
         className={clsx(
-          "fixed md:static top-0 left-0 h-screen z-50 flex flex-col",
-          "bg-gradient-to-b from-slate-900 to-[#0a172a]",
-          "border-r border-white/10 shadow-2xl",
-          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        )}
+  "fixed md:static top-0 left-0 h-screen z-50 flex flex-col overflow-x-hidden overflow-y-hidden",
+  "bg-gradient-to-b from-slate-900 to-[#0a172a]",
+  "border-r border-white/10 shadow-2xl",
+  open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+)}
       >
    
  {/* HEADER */}
-        <div className="flex items-center justify-between px-4 py-5 border-b border-white/5">
-          {/* Logo */}
-          <h2
-            className={clsx(
-              "text-lg font-semibold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent transition-[width,opacity,transform] duration-300 ease-in-out",
-              !expanded && "opacity-0 w-0 overflow-hidden"
-            )}
-          >
-            EstateFlow
-          </h2>
+        <div className="flex items-center justify-between gap-2 px-3 py-4 border-b border-white/5">
+  
+  {/* LEFT SIDE - Logo ONLY collapsed, Text ONLY expanded */}
+<div className="flex items-center min-w-0">
+  {!collapsed && (
+    <>
+      <h2 className="text-lg font-semibold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent truncate">
+        EstateFlow
+      </h2>
+      <img
+        src="/logo1.png"
+        alt="EstateFlow"
+        className="ml-2 h-9 w-auto object-contain shrink-0"
+      />
+    </>
+  )}
+</div>
 
-         
-           {/* Desktop toggle - ALWAYS VISIBLE */}
+  {/* TOGGLE BUTTON */}
   <button
-            onClick={onToggleCollapse}
-            className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition"
-          >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
-        </div>
+    onClick={onToggleCollapse}
+    className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 transition text-white"
+  >
+    {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+  </button>
+</div>
 
           {/* Menu */}
-           <ul className="flex-1 px-2 py-3 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+           <ul className="flex-1 min-h-0 px-2 py-3 space-y-1 overflow-y-auto overflow-x-hidden scrollbar-none">
           <MenuItem
             path="/dashboard"
             icon={LayoutDashboard}

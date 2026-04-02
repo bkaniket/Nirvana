@@ -79,7 +79,23 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
 
   const columnDefs: ColDef[] = [
     // { field: "sio", headerName: "SIO", filter: true },
-    { field: "building_name", headerName: "Name",  filter: true },
+    {
+  field: "building_name",
+  headerName: "Name",
+  filter: true,
+  cellRenderer: (params: any) => {
+    return (
+      <span
+        onClick={() => {
+          if (canView) router.push(`/buildings/${params.data.id}`);
+        }}
+        className="text-black hover:text-blue-600 hover:underline cursor-pointer font-medium transition-colors duration-200"
+      >
+        {params.value}
+      </span>
+    );
+  },
+},
     { field: "address_1", headerName: "Address", filter: true },
     { field: "city", headerName: "City" , filter: true},
     { field: "state", headerName: "State" , filter: true},
@@ -297,14 +313,15 @@ transition-all duration-200"
 <div className="group relative rounded-3xl border-2 border-white/40 bg-white border border-gray-200 shadow-2xl shadow-slate-200/50 hover:shadow-3xl hover:shadow-blue-500/20 overflow-hidden ring-1 ring-white/30 transition-all duration-500">
   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
   
-  <div className="relative z-10 h-[580px] w-full">
+  <div className="relative z-10 h-[80vh] w-full">
+  
     <AgGridReact
       theme={myTheme}
       rowData={filteredBuildings}
       columnDefs={columnDefs}
       rowSelection="single"
       animateRows={true}
-      
+      pagination={true}
       paginationPageSizeSelector={[10, 25, 50, 100]}
       paginationPageSize={10}
       
@@ -317,14 +334,39 @@ transition-all duration-200"
       overlayNoRowsTemplate="<div class='p-8 text-center'><span class='text-slate-500 text-lg font-medium'>No buildings found</span></div>"
       
       className="
+      [&_.ag-row]:cursor-default
         [&_.ag-theme-quartz]:bg-transparent 
         [&_.ag-theme-quartz]:backdrop-blur-xl
         [&_.ag-theme-quartz]:border-white/30
         
         /* Pagination */
-        [&_.ag-paginator]:bg-white/80 [&_.ag-paginator]:backdrop-blur-xl [&_.ag-paginator]:border-t-white/40
-        [&_.ag-paginator-button]:bg-white/90 [&_.ag-paginator-button:hover]:bg-white/100 [&_.ag-paginator-button]:backdrop-blur-md [&_.ag-paginator-button]:shadow-md [&_.ag-paginator-button:hover]:shadow-lg
-        [&_.ag-select-list]:bg-white/95 [&_.ag-select-list]:backdrop-blur-2xl [&_.ag-select-list]:border-white/50 [&_.ag-select-list]:shadow-2xl [&_.ag-select-list]:rounded-2xl
+       /* Pagination Premium UI */
+[&_.ag-paginator]:bg-gradient-to-r 
+[&_.ag-paginator]:from-white/90 
+[&_.ag-paginator]:to-blue-50/80 
+[&_.ag-paginator]:backdrop-blur-xl 
+[&_.ag-paginator]:border-t 
+[&_.ag-paginator]:border-blue-100 
+[&_.ag-paginator]:px-4 
+[&_.ag-paginator]:py-2 
+[&_.ag-paginator]:rounded-b-3xl
+
+[&_.ag-paging-button]:rounded-lg 
+[&_.ag-paging-button]:px-3 
+[&_.ag-paging-button]:py-1 
+[&_.ag-paging-button]:mx-1 
+[&_.ag-paging-button]:bg-white 
+[&_.ag-paging-button]:shadow-md 
+[&_.ag-paging-button:hover]:bg-blue-500 
+[&_.ag-paging-button:hover]:text-white 
+[&_.ag-paging-button]:transition-all 
+[&_.ag-paging-button]:duration-200
+
+[&_.ag-paging-button.ag-disabled]:opacity-40 
+[&_.ag-paging-button.ag-disabled]:cursor-not-allowed
+
+[&_.ag-paging-page-summary-panel]:text-sm 
+[&_.ag-paging-page-summary-panel]:text-slate-600
         
         /* Headers */
         [&_.ag-header]:bg-white/85 [&_.ag-header]:backdrop-blur-xl [&_.ag-header]:border-b-white/50
@@ -338,9 +380,7 @@ transition-all duration-200"
         [&_.ag-cell]:backdrop-blur-sm [&_.ag-cell-focus]:ring-2 [&_.ag-cell-focus]:ring-blue-400/50
       "
       
-      onRowClicked={(event) => {
-        if (canView) router.push(`/buildings/${event.data.id}`);
-      }}
+      
     />
   </div>
 </div>

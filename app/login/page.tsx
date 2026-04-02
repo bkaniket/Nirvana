@@ -96,7 +96,7 @@ shadow-[0_10px_30px_rgba(0,0,0,0.6)]
 backdrop-blur-md"
         >
           <h1 className="text-3xl font-semibold font-sans text-center mb-8 text-white tracking-wide drop-shadow-lg">
-            Estateflow
+            EstateFlow
           </h1>
 
 
