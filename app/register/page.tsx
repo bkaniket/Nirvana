@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   ChevronDown,
   Eye,
@@ -43,39 +44,29 @@ export default function RegisterPage() {
   const token =
     typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
 
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // Click outside handler for dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setRole((prev) => prev || null); // Keep selected but close dropdown
-      }
-    };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!token) {
-      alert("Unauthorized");
+      toast.error("Unauthorized");
       router.push("/login");
       return;
     }
 
 
     if (!role) {
-      alert("Please select a role");
+      toast.error("Please select a role");
       return;
     }
 
     try {
       setSubmitting(true);
 
-      const res = await fetch(`${BASE_URL}/api/register`, {
+      const res = await fetch(`${BASE_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,11 +86,11 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Registration failed");
+        toast.error(data.message || "Registration failed");
         return;
       }
 
-      alert("User created successfully");
+      toast.success("User created successfully");
       router.push("/users");
     } finally {
       setSubmitting(false);
@@ -107,7 +98,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="space-y-6 text-[color:var(--text-primary)]">
+    <div className="space-y-6 text-(--text-primary)">
       {/* Header Section */}
       <section className="relative overflow-hidden rounded-[28px] border border-white/15 bg-white/10 p-6 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-80" />
@@ -182,7 +173,6 @@ export default function RegisterPage() {
                   Role
                 </label>
                 <RoleSelect
-                  ref={wrapperRef}
                   options={roleOptions}
                   selectedRole={role}
                   onSelect={(selected) => setRole(selected)}
