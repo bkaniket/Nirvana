@@ -178,24 +178,30 @@ export default function RolePermissionEditor() {
     ])
       .then(([rolesData, modulesData, permissionsData]) => {
         setRoles(rolesData);
+        console.log("rolesData", rolesData);
         setModules(modulesData);
+        console.log("modulesData", modulesData);
         setPermissions(permissionsData);
+        console.log("permissionsData", permissionsData);
       })
       .finally(() => setLoading(false));
   }, [BASE_URL, router, token]);
 
-  const selectRole = (roleId: number) => {
-    const role = roles.find((r) => r.id === roleId);
-    if (!role) return;
+ const selectRole = (roleId: number) => {
+  const role = roles.find((r) => r.id === roleId);
+  if (!role) return;
 
-    const map: Record<number, number[]> = {};
-    role.modules.forEach((m) => {
-      map[m.id] = m.permissions.map((p) => p.id);
-    });
+  const map: Record<number, number[]> = {};
 
-    setMatrix(map);
-    setSelectedRole(role);
-  };
+  modules.forEach((mod) => {
+    const roleModule = role.modules?.find((m) => m.id === mod.id);
+
+    map[mod.id] = roleModule?.permissions?.map((p) => p.id) || [];
+  });
+
+  setMatrix(map);
+  setSelectedRole(role);
+};
 
   const togglePermission = (moduleId: number, permissionId: number) => {
     setMatrix((prev) => {
@@ -209,30 +215,70 @@ export default function RolePermissionEditor() {
     });
   };
 
-  const saveModulePermissions = async (moduleId: number) => {
-    if (!selectedRole) return;
+const saveModulePermissions = async (moduleId: number) => {
+  if (!selectedRole) return;
 
-    try {
-      setSavingModule(moduleId);
+  try {
+    setSavingModule(moduleId);
 
-      await fetch(`${BASE_URL}/admin/assign-permissions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          role_id: selectedRole.id,
-          module_id: moduleId,
-          permission_ids: matrix[moduleId] || [],
+    await fetch(`${BASE_URL}/admin/roles/permissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        role_id: selectedRole.id,
+        module_id: moduleId,
+        permission_ids: matrix[moduleId] || [],
+      }),
+    });
+
+    // ✅ Update roles state (important)
+    setRoles((prevRoles) =>
+      prevRoles.map((role) => {
+        if (role.id !== selectedRole.id) return role;
+
+        return {
+          ...role,
+          modules: role.modules.map((mod) => {
+            if (mod.id !== moduleId) return mod;
+
+            return {
+              ...mod,
+              permissions: permissions.filter((p) =>
+                (matrix[moduleId] || []).includes(p.id)
+              ),
+            };
+          }),
+        };
+      })
+    );
+
+    // ✅ Also update selectedRole so UI stays in sync
+    setSelectedRole((prev) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        modules: prev.modules.map((mod) => {
+          if (mod.id !== moduleId) return mod;
+
+          return {
+            ...mod,
+            permissions: permissions.filter((p) =>
+              (matrix[moduleId] || []).includes(p.id)
+            ),
+          };
         }),
-      });
+      };
+    });
 
-      alert("Permissions updated");
-    } finally {
-      setSavingModule(null);
-    }
-  };
+    alert("Permissions updated");
+  } finally {
+    setSavingModule(null);
+  }
+};
 
   const selectedCount = useMemo(() => {
     return Object.values(matrix).reduce((acc, arr) => acc + arr.length, 0);
