@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { Check, ChevronDown, Save, Shield, ShieldCheck } from "lucide-react";
+import toast from "react-hot-toast";
 
 type Permission = {
   id: number;
@@ -274,7 +275,7 @@ const saveModulePermissions = async (moduleId: number) => {
       };
     });
 
-    alert("Permissions updated");
+    toast.success("Permission Changed");
   } finally {
     setSavingModule(null);
   }
