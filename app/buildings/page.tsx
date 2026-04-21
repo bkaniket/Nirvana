@@ -12,6 +12,8 @@ type Building = {
   id: number;
   sio: string;
   building_name: string;
+  wing: string;
+  unit_no:string;
   address_1: string;
   city?: string;
   zip_code?: string;
@@ -112,6 +114,8 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
     );
   },
 },
+ { field: "wing", headerName: "Wing", filter: true },
+  { field: "unit_no", headerName: "Unit No", filter: true },
     { field: "address_1", headerName: "Address", filter: true },
     { field: "city", headerName: "City" , filter: true},
     { field: "state", headerName: "State" , filter: true},
