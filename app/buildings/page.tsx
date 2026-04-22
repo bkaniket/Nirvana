@@ -528,8 +528,6 @@ transition-all duration-200"
           onChange={(e) => setExportFormat(e.target.value)}
         >
           <option value="csv">CSV</option>
-          <option value="xlsx">Excel</option>
-          <option value="json">JSON</option>
           <option value="pdf">PDF</option>
         </select>
       </div>
