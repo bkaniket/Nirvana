@@ -46,6 +46,20 @@ export default function AccountsPage() {
   const [canView, setCanView] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const [canDelete, setCanDelete] = useState(false);
+  const [page, setPage] = useState(1);
+const [perPage] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
+
+const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search);
+    setPage(1); // reset page on search
+  }, 400);
+
+  return () => clearTimeout(timer);
+}, [search]);
 
   useEffect(() => {
     setMounted(true);
@@ -55,53 +69,56 @@ export default function AccountsPage() {
     setCanDelete(hasPermission("EXPENSE", "delete"));
   }, []);
 
-  const fetchExpenses = async () => {
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
+ const fetchExpenses = async () => {
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    router.push("/login");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await fetch(`${BASE_URL}/expenses`, {
+    const res = await fetch(
+      `${BASE_URL}/expenses?page=${page}&per_page=${perPage}&search=${debouncedSearch}`,
+      {
         headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Unauthorized");
-
-      const data = await res.json();
-      setExpenses(data);
-    } catch {
-      router.push("/dashboard");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!mounted) return;
-    fetchExpenses();
-  }, [mounted]);
-
-  const filteredExpenses = useMemo(() => {
-    return expenses.filter((expense) =>
-      JSON.stringify(expense).toLowerCase().includes(search.toLowerCase())
+      }
     );
-  }, [expenses, search]);
 
-  const totalAmount = useMemo(() => {
-    return filteredExpenses.reduce((sum, item) => {
-      return sum + Number(item.amount || 0);
-    }, 0);
-  }, [filteredExpenses]);
+    if (!res.ok) throw new Error("Unauthorized");
 
-  const pendingCount = useMemo(() => {
-    return filteredExpenses.filter(
-      (item) => item.status?.toLowerCase() === "pending"
-    ).length;
-  }, [filteredExpenses]);
+    const data = await res.json();
+
+    setExpenses(data.data);        // ✅ FIXED
+    setTotalPages(data.last_page); // ✅ OK
+
+  } catch {
+    router.push("/dashboard");
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (!mounted) return;
+  fetchExpenses();
+}, [mounted, page, debouncedSearch]);
+
+
+const totalAmount = useMemo(() => {
+  if (!Array.isArray(expenses)) return 0;
+
+  return expenses.reduce((sum, item) => {
+    return sum + Number(item.amount || 0);
+  }, 0);
+}, [expenses]);
+
+const pendingCount = useMemo(() => {
+  return expenses.filter(
+    (item) => item.status?.toLowerCase() === "pending"
+  ).length;
+}, [expenses]);
 
   const myTheme = themeQuartz.withParams({
     backgroundColor: "transparent",
@@ -219,7 +236,7 @@ export default function AccountsPage() {
               Visible records
             </p>
             <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
-              {filteredExpenses.length}
+              {expenses.length}
             </p>
           </div>
         </div>
@@ -283,7 +300,7 @@ export default function AccountsPage() {
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Search expenses, year, category, status..."
+              placeholder="Search expenses (category, type, vendor, amount...)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-11 w-full rounded-2xl border border-slate-200/80 bg-white/90 pl-11 pr-4 text-sm text-slate-800 outline-none ring-0 transition placeholder:text-slate-400 focus:border-blue-400 focus:shadow-[0_0_0_4px_rgba(59,130,246,0.12)]"
@@ -293,7 +310,7 @@ export default function AccountsPage() {
       </section>
 
       <section className="overflow-hidden rounded-[32px] border border-white/20 bg-white/75 shadow-[0_16px_50px_rgba(15,23,42,0.10)] backdrop-blur-xl">
-        {filteredExpenses.length === 0 ? (
+        {expenses.length === 0 ? (
           <div className="flex min-h-[420px] flex-col items-center justify-center px-6 text-center">
             <div className="mb-4 rounded-full border border-slate-200 bg-slate-50 p-4">
               <ReceiptText className="h-8 w-8 text-slate-500" />
@@ -333,18 +350,36 @@ export default function AccountsPage() {
           >
             <AgGridReact
               theme={myTheme}
-              rowData={filteredExpenses}
+              pagination={false}   
+              rowData={expenses}
               columnDefs={columnDefs}
               rowSelection="single"
               animateRows
-              pagination
-              paginationPageSize={10}
               onRowClicked={(event) => {
                 if (canView) {
                   router.push(`/accounts/${event.data.expense_id}`);
                 }
               }}
             />
+            <div className="flex justify-center gap-4 mt-4">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Prev
+  </button>
+
+  <span>Page {page} of {totalPages}</span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Next
+  </button>
+</div>
           </div>
         )}
       </section>
