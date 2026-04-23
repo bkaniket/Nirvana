@@ -1126,7 +1126,7 @@ function Section({
   layout = "grid",
   className = "",
 }: {
-  title: React.ReactNode;
+  title?: React.ReactNode;
   children: React.ReactNode;
   layout?: "grid" | "block";
   className?: string;

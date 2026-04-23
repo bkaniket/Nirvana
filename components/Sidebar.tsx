@@ -17,14 +17,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-  type MenuItemProps = {
-    path: string;
-    icon: React.ComponentType<{ size?: number }>;
-    label: string;
-    collapsed: boolean;
-    go: (path: string) => void;
-    isActive: (path: string) => boolean;
-  };
+type MenuItemProps = {
+  path: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  collapsed: boolean;
+  go: (path: string) => void;
+  isActive: (path: string) => boolean;
+};
 
 
 

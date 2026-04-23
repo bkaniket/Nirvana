@@ -453,7 +453,10 @@ function DateInput({
               placeholder="Click calendar or type date (DD/MM/YYYY)"
               value={value ? new Date(value).toLocaleDateString('en-GB') : ""}
               readOnly
-              onClick={() => document.getElementById(field as string)?.showPicker?.()}
+              onClick={() => {
+  const el = document.getElementById(field as string) as HTMLInputElement | null;
+  el?.showPicker?.();
+}}
               className="w-full px-3 py-2.5 pr-12 rounded-xl bg-white border border-slate-300 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 shadow-sm transition cursor-pointer"
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
