@@ -67,6 +67,11 @@ export default function LeasesPage() {
     setPage(1);
   }, [search]);
 
+  useEffect(() => {
+  if (showExportModal) {
+    setSelectedColumns([]);
+  }
+}, [showExportModal]);
 
   useEffect(() => {
     if (!hasPermission("LEASE", "view")) {
@@ -455,15 +460,19 @@ onChange={(e) => {
     ? col.exportFields
     : col.field
     ? [col.field]
-    : []; // ✅ fallback if undefined
+    : [];
 
-  if (e.target.checked) {
-    setSelectedColumns(prev => [...prev, ...fields]);
-  } else {
-    setSelectedColumns(prev =>
-      prev.filter(c => !fields.includes(c))
-    );
-  }
+  setSelectedColumns((prev) => {
+    const set = new Set(prev); // 🔥 dedupe base
+
+    if (e.target.checked) {
+      fields.forEach((f) => set.add(f));
+    } else {
+      fields.forEach((f) => set.delete(f));
+    }
+
+    return Array.from(set);
+  });
 }}
                     />
                     {col.headerName}
