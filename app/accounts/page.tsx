@@ -89,7 +89,7 @@ useEffect(() => {
     if (!res.ok) throw new Error("Unauthorized");
 
     const data = await res.json();
-
+    console.log(data);
     setExpenses(data.data);        // ✅ FIXED
     setTotalPages(data.last_page); // ✅ OK
 
@@ -361,6 +361,9 @@ const pendingCount = useMemo(() => {
                 }
               }}
             />
+          </div>
+        )}
+      </section>
             <div className="flex justify-center gap-4 mt-4">
   <button
     disabled={page === 1}
@@ -380,9 +383,6 @@ const pendingCount = useMemo(() => {
     Next
   </button>
 </div>
-          </div>
-        )}
-      </section>
     </div>
   );
 }

@@ -150,6 +150,7 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
  fetch(`${BASE_URL}/buildings?page=${page}&per_page=10&search=${debouncedSearch}`, {
     headers: {
       Authorization: `Bearer ${token}`,
+      Accept: "application/json",
     },
   })
     .then((res) => res.json())
