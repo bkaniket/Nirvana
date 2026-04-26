@@ -186,15 +186,6 @@ export default function Sidebar({
             isActive={isActive}
           />
 
-          <MenuItem
-            path="/workflow"
-            icon={RefreshCw}
-            label="Workflow"
-            collapsed={!expanded}
-            go={go}
-            isActive={isActive}
-          />
-
             {/* Accounts */}
             <div>
             <button
@@ -231,18 +222,29 @@ export default function Sidebar({
                     go={go}
                     isActive={isActive}
                   />
-                  <MenuItem
+                  //
+                  {/* <MenuItem
                     path="/invoices"
                     icon={FileText}
                     label="Invoices"
                     collapsed={!expanded}
                     go={go}
                     isActive={isActive}
-                  />
+                  /> */}
                 </motion.ul>
               )}
             </AnimatePresence>
           </div>
+
+          <MenuItem
+            path="/workflow"
+            icon={RefreshCw}
+            label="Workflow"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
+
 
           <MenuItem
             path="/users"

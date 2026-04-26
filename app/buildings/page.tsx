@@ -86,6 +86,12 @@ useEffect(() => {
 }, [search]);
 
 useEffect(() => {
+  if (showExportModal) {
+    setSelectedColumns([]);
+  }
+}, [showExportModal]);
+
+useEffect(() => {
   setPermissions({
     create: hasPermission("BUILDING", "create"),
     view: hasPermission("BUILDING", "view"),
@@ -507,12 +513,16 @@ transition-all duration-200"
                 type="checkbox"
                 value={col.field}
                 onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedColumns([...selectedColumns, col.field as string]);
-                  } else {
-                    setSelectedColumns(selectedColumns.filter(c => c !== col.field));
-                  }
-                }}
+  const field = col.field as string;
+
+  setSelectedColumns((prev) =>
+    e.target.checked
+      ? prev.includes(field)
+        ? prev
+        : [...prev, field]
+      : prev.filter((c) => c !== field)
+  );
+}}
               />
               {col.headerName}
             </label>
