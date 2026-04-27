@@ -139,11 +139,11 @@ export default function Sidebar({
       <h2 className="text-lg font-semibold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent truncate">
         EstateFlow
       </h2>
-      <img
+      {/* <img
         src="/logo1.png"
         alt="EstateFlow"
         className="ml-2 h-9 w-auto object-contain shrink-0"
-      />
+      /> */}
     </>
   )}
 </div>
@@ -222,7 +222,7 @@ export default function Sidebar({
                     go={go}
                     isActive={isActive}
                   />
-                  //
+                  
                   {/* <MenuItem
                     path="/invoices"
                     icon={FileText}
