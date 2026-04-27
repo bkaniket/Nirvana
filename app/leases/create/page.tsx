@@ -36,6 +36,8 @@ type LeaseForm = {
 type Building = {
   id: number;
   building_name: string;
+  unit_no?: string;
+  wing?: string;
   city?: string;
 };
 
@@ -116,9 +118,11 @@ const [dateInputs, setDateInputs] = useState({
       Authorization: `Bearer ${token}`,
     },
   })
-    .then((res) => res.json())
+    .then((res) => res.json()) 
     .then(setBuildings)
     .catch(console.error);
+    
+    console.log(setBuildings);
 }, [canCreate, canViewBuildings, router]);
 
 
@@ -183,7 +187,15 @@ useEffect(() => {
   };
 const buildingOptions = buildings.map((b) => ({
   value: b.id,
-  label: `${b.building_name}${b.city ? ` (${b.city})` : ""}`,
+  label: [
+    b.building_name,
+    b.wing && `Wing ${b.wing}`,
+    b.unit_no && `Unit ${b.unit_no}`,
+    b.city && b.city,
+  ]
+    .filter(Boolean)
+    .join(" • "),
+    ...b,
 }));
 
 const userOptions = users.map((u) => ({
@@ -221,9 +233,9 @@ const userOptions = users.map((u) => ({
             <label className="text-sm font-medium text-slate-700">
               Building *
             </label>
-            <Select
+ <Select
   options={buildingOptions}
-  placeholder="Search building..."
+  placeholder="Search building, wing, unit..."
   value={buildingOptions.find(
     (b) => b.value === form.building_id
   )}
@@ -233,6 +245,20 @@ const userOptions = users.map((u) => ({
       building_id: selected?.value || "",
     }))
   }
+
+  filterOption={(option, inputValue) => {
+    const data = option.data;
+
+    const search = inputValue.toLowerCase();
+
+    return (
+      data.building_name?.toLowerCase().includes(search) ||
+      data.wing?.toLowerCase().includes(search) ||
+      data.unit_no?.toLowerCase().includes(search) ||
+      data.city?.toLowerCase().includes(search)
+    );
+  }}
+
   className="mt-1"
   styles={{
     control: (base, state) => ({
