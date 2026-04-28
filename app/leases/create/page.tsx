@@ -246,18 +246,17 @@ const userOptions = users.map((u) => ({
     }))
   }
 
-  filterOption={(option, inputValue) => {
-    const data = option.data;
+filterOption={(option, inputValue) => {
+  const data = option.data;
+  const search = inputValue.toLowerCase();
 
-    const search = inputValue.toLowerCase();
-
-    return (
-      data.building_name?.toLowerCase().includes(search) ||
-      data.wing?.toLowerCase().includes(search) ||
-      data.unit_no?.toLowerCase().includes(search) ||
-      data.city?.toLowerCase().includes(search)
-    );
-  }}
+  return (
+    (data.building_name?.toLowerCase().includes(search) ?? false) ||
+    (data.wing?.toLowerCase().includes(search) ?? false) ||
+    (data.unit_no?.toLowerCase().includes(search) ?? false) ||
+    (data.city?.toLowerCase().includes(search) ?? false)
+  );
+}}
 
   className="mt-1"
   styles={{

@@ -169,6 +169,15 @@ export default function Sidebar({
           />
 
           <MenuItem
+            path="/financedashboard"
+            icon={LayoutDashboard}
+            label="Finance Dashboard"
+            collapsed={!expanded}
+            go={go}
+            isActive={isActive}
+          />
+
+          <MenuItem
             path="/buildings"
             icon={Building2}
             label="Buildings"
