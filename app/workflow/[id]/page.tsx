@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 
+type Workflow = {
+  status: "CREATED" | "UPDATED" | "APPROVED" | "REJECTED";
+};
+
 type WorkflowResponse = {
-  workflow: any;
+  workflow: Workflow;
   entity_type: "BUILDING" | "LEASE" | "EXPENSE";
   entity: Record<string, any>;
 };
@@ -21,6 +25,8 @@ export default function WorkflowReviewPage() {
 
   const canApprove = hasPermission("WORKFLOW", "approve");
 
+      const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
+
   useEffect(() => {
     const token = sessionStorage.getItem("token");
     if (!token) {
@@ -28,7 +34,7 @@ export default function WorkflowReviewPage() {
       return;
     }
 
-    fetch(`http://127.0.0.1:8000/api/workflow/${id}`, {
+    fetch(`${BASE_URL}/workflow/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -38,13 +44,14 @@ export default function WorkflowReviewPage() {
       .finally(() => setLoading(false));
   }, [id, router]);
 
-  const handleAction = async (action: "approve" | "reject") => {
-    if (!canApprove) return;
+const handleAction = async (action: "approve" | "reject") => {
+  if (!canApprove) return;
 
-    setSubmitting(true);
+  setSubmitting(true);
 
-    await fetch(
-      `http://127.0.0.1:8000/api/workflow/${id}/${action}`,
+  try {
+    const res = await fetch(
+      `${BASE_URL}/workflow/${id}/${action}`,
       {
         method: "POST",
         headers: {
@@ -55,16 +62,41 @@ export default function WorkflowReviewPage() {
       }
     );
 
-    setSubmitting(false);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Action failed");
+    }
+
+    alert(data.message);
     router.push("/workflow");
-  };
+
+  } catch (err: any) {
+    alert(err.message);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   if (loading) return <p>Loading...</p>;
   if (!data) return <p>Not found</p>;
 
+    const currentStatus = data.workflow?.status;
+
+const canTakeAction =
+  canApprove &&
+  (currentStatus === "CREATED" || currentStatus === "UPDATED");
+
+
   return (
     <div className="space-y-6">
       {/* Header */}
+      <p className="mt-2">
+  Status:{" "}
+  <span className="px-2 py-1 rounded bg-gray-200 text-sm font-medium">
+    {currentStatus}
+  </span>
+</p>
       <div>
         <h1 className="text-2xl font-bold">Workflow Review</h1>
         <p className="text-gray-600">
@@ -104,7 +136,7 @@ export default function WorkflowReviewPage() {
       </div>
 
       {/* Actions */}
-      {canApprove && (
+      {canTakeAction && (
         <div className="flex gap-4">
           <button
             disabled={submitting}
