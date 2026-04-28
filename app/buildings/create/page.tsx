@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { Plus, Home } from "lucide-react";
+
+type ApiError = {
+  message?: string;
+  errors?: Record<string, string[]>;
+};
 export default function CreateBuildingPage() {
   const router = useRouter();
 
@@ -64,12 +69,18 @@ export default function CreateBuildingPage() {
       body: JSON.stringify(form),
     });
 
-    if (res.ok) {
-      router.push("/buildings");
-    } else {
-      const err = await res.json();
-      alert(err.message || "Failed to create building");
-    }
+   if (res.ok) {
+  router.push("/buildings");
+} else {
+ 
+const err: ApiError = await res.json();
+ if (err.errors) {
+  const firstError = Object.values(err.errors)[0]?.[0];
+  alert(firstError || "Validation error");
+} else {
+  alert(err.message || "Failed to create building");
+}
+}
 
     setSaving(false);
   };
