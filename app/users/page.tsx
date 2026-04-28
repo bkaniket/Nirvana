@@ -33,6 +33,11 @@ export default function RBACUsersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
 
+  const [search, setSearch] = useState("");
+const [debouncedSearch, setDebouncedSearch] = useState("");
+const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const token =
     typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
@@ -64,6 +69,24 @@ export default function RBACUsersPage() {
     fetchData();
   }, [router, token]);
 
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(search);
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [search]);
+
+useEffect(() => {
+  setPage(1);
+}, [search]);
+
+useEffect(() => {
+  if (!token) return;
+
+  fetchUsers();
+}, [page, debouncedSearch]);
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -76,14 +99,21 @@ export default function RBACUsersPage() {
     }
   };
 
-  const fetchUsers = async () => {
-    const res = await fetch(`${BASE_URL}/admin/users`, {
+const fetchUsers = async () => {
+  const res = await fetch(
+    `${BASE_URL}/admin/users?page=${page}&per_page=10&search=${debouncedSearch}`,
+    {
       headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error("Failed to fetch users");
-    const data: User[] = await res.json();
-    setUsers(data);
-  };
+    }
+  );
+
+  if (!res.ok) throw new Error("Failed to fetch users");
+
+  const data = await res.json();
+
+  setUsers(data.data);        // ✅ important
+  setTotalPages(data.last_page); // ✅ important
+};
 
   const fetchRoles = async () => {
     const res = await fetch(`${BASE_URL}/admin/roles`, {
@@ -268,10 +298,18 @@ export default function RBACUsersPage() {
               {totalAssignments} total role assignments across {totalUsers} users.
             </p>
           </div>
-
           <div className="rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-[color:var(--text-muted)]">
             Toggle a role to update access
           </div>
+          <div className="flex justify-between items-center mb-4">
+  <input
+    type="text"
+    placeholder="Search users..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="border px-4 py-2 rounded-lg w-80"
+  />
+</div>
         </div>
 
         <div className="overflow-x-auto">
@@ -384,6 +422,27 @@ export default function RBACUsersPage() {
             </tbody>
           </table>
         </div>
+        <div className="flex justify-center gap-4 mt-4">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Prev
+  </button>
+
+  <span>
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 bg-gray-200 rounded"
+  >
+    Next
+  </button>
+</div>
       </section>
     </div>
   );
