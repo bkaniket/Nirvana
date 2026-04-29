@@ -33,7 +33,7 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      // ✅ Session storage (RBAC compatible)
+      // ✅ local storage (RBAC compatible)
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("user_name", data.user.username || "");

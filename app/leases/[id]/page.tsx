@@ -117,7 +117,7 @@ function UploadDocumentModal({
   const handleUpload = async () => {
     if (!files) return;
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     const formData = new FormData();
@@ -214,7 +214,7 @@ function EditDocumentModal({
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     setLoading(true);
@@ -444,7 +444,7 @@ function CreateExpenseModal({
   };
 
   const handleCreate = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     setLoading(true);
@@ -644,7 +644,7 @@ const fetchLease = useCallback(async () => {
 }, [id, canView, router, request]);
 
   useEffect(() => {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   if (!token || !id) return;
 
@@ -1020,7 +1020,7 @@ onUploaded={fetchDocuments}
       leaseId={id as string}
       onClose={() => setShowExpenseModal(false)}
       onCreated={() => {
-        const token = sessionStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
         fetch(`${BASE_URL}/expenses/leases/${id}`, {
           headers: {

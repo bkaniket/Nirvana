@@ -40,11 +40,11 @@ const [totalPages, setTotalPages] = useState(1);
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   const token =
-    typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const sessionRoles =
     typeof window !== "undefined"
-      ? JSON.parse(sessionStorage.getItem("roles") || "[]")
+      ? JSON.parse(localStorage.getItem("roles") || "[]")
       : [];
 
   const isAdmin = sessionRoles.includes("ADMIN");
@@ -52,7 +52,7 @@ const [totalPages, setTotalPages] = useState(1);
 
   const loggedInUserId =
     typeof window !== "undefined"
-      ? JSON.parse(sessionStorage.getItem("user") || "{}")?.user_id
+      ? JSON.parse(localStorage.getItem("user") || "{}")?.user_id
       : null;
 
   useEffect(() => {

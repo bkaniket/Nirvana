@@ -21,8 +21,8 @@ export default function NavBar({onMenuClick}: NavbarProps) {
   const [roles, setRoles] = useState<string[]>([]);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("user");
-    const storedRoles = sessionStorage.getItem("roles");
+    const storedUser = localStorage.getItem("user");
+    const storedRoles = localStorage.getItem("roles");
 
     if (storedUser) {
       setUser(JSON.parse(storedUser));

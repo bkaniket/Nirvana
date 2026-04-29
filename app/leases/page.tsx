@@ -85,7 +85,7 @@ export default function LeasesPage() {
       return;
     }
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     try {
       const response = await fetch(`${BASE_URL}/leases/export`, {
@@ -178,7 +178,7 @@ export default function LeasesPage() {
 ];
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;

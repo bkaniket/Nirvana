@@ -47,7 +47,7 @@ useEffect(() => {
 }, [search]);  
 
 useEffect(() => {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   if (!token) {
     router.push("/login");

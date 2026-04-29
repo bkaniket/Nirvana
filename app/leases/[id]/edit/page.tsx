@@ -39,7 +39,7 @@ export default function EditLeasePage() {
   const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token || !canEdit) {
       router.push("/dashboard");
@@ -73,7 +73,7 @@ export default function EditLeasePage() {
     if (!form) return;
 
     setSaving(true);
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     await fetch(`${BASE_URL}/leases/${id}`, {
       method: "PUT",

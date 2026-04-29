@@ -1,5 +1,5 @@
 export async function apiFetch(url: string) {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   const res = await fetch(url, {
     headers: {

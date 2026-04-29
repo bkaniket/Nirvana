@@ -42,7 +42,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const token =
-    typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
 
 

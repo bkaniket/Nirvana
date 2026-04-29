@@ -28,7 +28,7 @@ export default function WorkflowReviewPage() {
       const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
@@ -56,7 +56,7 @@ const handleAction = async (action: "approve" | "reject") => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ notes }),
       }

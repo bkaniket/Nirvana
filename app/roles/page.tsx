@@ -139,7 +139,7 @@ function RoleSelect({ roles, selectedRole, selectRole }: RoleSelectProps) {
 export default function RolePermissionEditor() {
   const router = useRouter();
   const token =
-    typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 

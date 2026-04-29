@@ -126,7 +126,7 @@ const [dateInputs, setDateInputs] = useState({
 
   if (!canViewBuildings) return;
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   fetch(`${BASE_URL}/buildings/names`, {
     headers: {
@@ -142,7 +142,7 @@ const [dateInputs, setDateInputs] = useState({
 
 
 useEffect(() => {
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   fetch(`${BASE_URL}/users`, {
     headers: {
@@ -175,7 +175,7 @@ useEffect(() => {
     }
 
     setSaving(true);
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     try {
       const res = await fetch(`${BASE_URL}/leases`, {

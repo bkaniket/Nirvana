@@ -4,7 +4,7 @@ type Permissions = {
 
 export function getPermissions(): Permissions {
   if (typeof window === "undefined") return {};
-  const raw = sessionStorage.getItem("permissions");
+  const raw = localStorage.getItem("permissions");
   return raw ? JSON.parse(raw) : {};
 }
 
