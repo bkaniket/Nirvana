@@ -337,7 +337,7 @@ export default function LeasesPage() {
           <div className="relative w-full max-w-md">
             <input
               type="text"
-              placeholder="Search by tenant, landlord, status, or lease type..."
+              placeholder="Search by tenant, landlord, client lease id..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm text-slate-700 shadow-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
