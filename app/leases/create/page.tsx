@@ -58,11 +58,26 @@ const canViewBuildings = hasPermission("BUILDING", "view");
   const [form, setForm] = useState<LeaseForm>({
   building_id: "",
   lease_administrator_id: "",
-  lease_agreement_date: null as any,
-  possession_date: null as any,
-  rent_commencement_date: null as any,
-  next_rent_review_date: null as any,
-  termination_date: null as any,
+
+  tenant_legal_name: "",
+  landlord_legal_name: "",
+  lease_type: "",
+  lease_status: "",
+  lease_agreement_date: "",
+  possession_date: "",
+  rent_commencement_date: "",
+  next_rent_review_date: "",
+  termination_date: "",
+  lease_rentable_area: "",
+  primary_use: "",
+  permitted_use: "",
+
+  measure_units: "",
+  escalation_type: "",
+  security_deposit_type: "",
+  security_deposit_amount: "",
+  portfolio: "",
+  remarks: "",
 });
 
   // Convert string to Date for datepicker
