@@ -101,7 +101,8 @@ useEffect(() => {
         <table className="min-w-full border">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-3 border text-left">ID</th>
+              {/* <th className="p-3 border text-left">ID</th> */}
+
               <th className="p-3 border text-left">Entity</th>
               <th className="p-3 border text-left">Type</th>
               <th className="p-3 border text-left">Status</th>
@@ -131,9 +132,9 @@ useEffect(() => {
                   className="hover:bg-gray-50 cursor-pointer"
                   onClick={() => router.push(`/workflow/${item.id}`)}
                 >
-                  <td className="p-3 border font-medium">
+                  {/* <td className="p-3 border font-medium">
                     #{item.id}
-                  </td>
+                  </td> */}
 
                   <td className="p-3 border">
                     {item.entity_name ?? "-"}
