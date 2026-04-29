@@ -50,7 +50,7 @@ export default function FinanceDashboard() {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     fetch(`${BASE_URL}/finance-dashboard/stats`, {
       headers: {

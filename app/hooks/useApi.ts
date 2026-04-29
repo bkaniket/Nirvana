@@ -19,7 +19,7 @@ export function useApi() {
       endpoint: string,
       options: ApiOptions = {}
     ): Promise<T | null> => {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       if (!token) {
         setError("Unauthorized");

@@ -30,7 +30,7 @@ const [form, setForm] = useState({
   files: [] as File[],
 });
 
-  const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   useEffect(() => {
     if (!token) {
