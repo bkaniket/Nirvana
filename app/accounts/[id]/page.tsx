@@ -73,7 +73,7 @@ function UploadInvoiceModal({
     if (!files || !files[0]) return;
 
     setUploading(true);
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     const formData = new FormData();
@@ -203,7 +203,7 @@ export default function AccountDetailsPage() {
   const canEdit = hasPermission("EXPENSE", "edit");
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
@@ -228,7 +228,7 @@ export default function AccountDetailsPage() {
   }, [id, router]);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token || !id) return;
 
     fetch(`${BASE_URL}/expenses/${id}/invoices`, {
@@ -244,7 +244,7 @@ export default function AccountDetailsPage() {
   }, [id]);
 
   const refreshInvoices = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token || !id) return;
 
     setInvoiceLoading(true);

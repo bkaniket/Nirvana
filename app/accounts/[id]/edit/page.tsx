@@ -46,7 +46,7 @@ export default function AccountEditPage() {
   }, [canEdit, router]);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
@@ -70,7 +70,7 @@ export default function AccountEditPage() {
     if (!expense) return;
 
     setSaving(true);
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     try {
       const res = await fetch(`${BASE_URL}/expenses/${id}`, {

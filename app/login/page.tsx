@@ -34,11 +34,11 @@ export default function LoginPage() {
       const data = await res.json();
 
       // ✅ Session storage (RBAC compatible)
-      sessionStorage.setItem("token", data.token);
-      sessionStorage.setItem("user", JSON.stringify(data.user));
-      sessionStorage.setItem("user_name", data.user.username || "");
-      sessionStorage.setItem("roles", JSON.stringify(data.user.roles || []));
-      sessionStorage.setItem(
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user_name", data.user.username || "");
+      localStorage.setItem("roles", JSON.stringify(data.user.roles || []));
+      localStorage.setItem(
         "permissions",
         JSON.stringify(data.permissions || {})
       );

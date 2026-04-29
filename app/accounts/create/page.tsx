@@ -48,7 +48,7 @@ export default function CreateExpensePage() {
   };
 
   const submit = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token || !isValid) return;
 
     try {
