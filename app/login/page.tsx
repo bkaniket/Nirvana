@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -55,6 +56,14 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    router.push("/dashboard");
+  }
+}, [router]);
+
   return (
 
     <div className="relative min-h-screen w-full">
