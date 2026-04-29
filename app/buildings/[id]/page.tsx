@@ -158,7 +158,7 @@ function CreateExpenseModal({
   };
 
   const handleCreate = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     setLoading(true);
@@ -334,7 +334,7 @@ function CreateCertificateModal({
   };
 
   const handleCreate = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) return;
 
     const formData = new FormData();
@@ -532,7 +532,7 @@ export default function BuildingDetailsPage() {
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const canEdit = hasPermission("BUILDING", "edit");
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token || !id) return;
 
     setLoading(true);
@@ -1005,7 +1005,7 @@ export default function BuildingDetailsPage() {
                 buildingId={id}
                 onClose={() => setShowCertificateModal(false)}
                 onCreated={() => {
-                  const token = sessionStorage.getItem("token");
+                  const token = localStorage.getItem("token");
                   fetch(`${BASE_URL}/buildings/${id}/certificates`, {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -1135,7 +1135,7 @@ export default function BuildingDetailsPage() {
                 buildingId={id as string}
                 onClose={() => setShowExpenseModal(false)}
                 onCreated={() => {
-                  const token = sessionStorage.getItem("token");
+                  const token = localStorage.getItem("token");
                   fetch(`${BASE_URL}/expenses/buildings/${id}`, {
                     headers: {
                       Authorization: `Bearer ${token}`,

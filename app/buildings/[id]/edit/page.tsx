@@ -78,7 +78,7 @@ export default function EditBuildingPage() {
   }, [router]);
   /* Fetch building details */
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
@@ -111,7 +111,7 @@ export default function EditBuildingPage() {
     e.preventDefault();
     setSaving(true);
 
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     const res = await fetch(
       `${BASE_URL}/buildings/${id}`,

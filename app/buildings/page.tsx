@@ -147,7 +147,7 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
   }
 }, []);
   useEffect(() => {
-    const token = sessionStorage.getItem("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
       return;
@@ -230,7 +230,7 @@ const handleExport = async () => {
     return;
   }
 
-  const token = sessionStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   try {
     const response = await fetch(`${BASE_URL}/buildings/export`, {
