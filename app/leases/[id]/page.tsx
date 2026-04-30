@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { useApi } from "@/app/hooks/useApi";
 import { FileText, Trash2, ShieldCheck } from "lucide-react";
-import { jsPDF } from "jspdf";
+
 
 /* ---------------- Types ---------------- */
 
