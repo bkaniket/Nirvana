@@ -58,6 +58,7 @@ type Lease = {
   lease_status?: string;
 };
 type Expense = {
+  expense_name?: string;
   expense_id: number;
   expense_year?: string;
   expense_period?: string;
@@ -1067,6 +1068,9 @@ export default function BuildingDetailsPage() {
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead>
                       <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
+                          Expense Name
+                        </th>
                         <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
                           Year
                         </th>
@@ -1094,6 +1098,9 @@ export default function BuildingDetailsPage() {
                           className="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer"
                           onClick={() => router.push(`/accounts/${exp.expense_id}`)}
                         >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                            {exp.expense_name || "-"}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                             {exp.expense_year || "-"}
                           </td>

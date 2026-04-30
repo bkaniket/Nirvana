@@ -19,6 +19,7 @@ type Expense = {
   expense_id?: number;
   lease_id?: number | null;
   building_id?: number | null;
+  expense_name?: string;
   expense_year?: string;
   expense_period?: string;
   expense_category?: string;
@@ -204,6 +205,14 @@ export default function AccountEditPage() {
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
+            <Input
+              label="Expense Name"
+              hint="Name of Expense"
+              icon={<CalendarRange className="h-4 w-4" />}
+              value={expense.expense_name}
+              onChange={(v) => setExpense({ ...expense, expense_name: v })}
+            />
+
             <Input
               label="Expense year"
               hint="Accounting year for this record"
