@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { hasPermission } from "@/app/lib/permission";
 import { useApi } from "@/app/hooks/useApi";
 import { FileText, Trash2, ShieldCheck } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 /* ---------------- Types ---------------- */
 
@@ -250,6 +251,8 @@ function EditDocumentModal({
     onUpdated(data.data);
     onClose();
   };
+
+
 
   return (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
@@ -679,6 +682,7 @@ useEffect(() => {
   fetchDocuments();
 }, [id]);
 
+
     if (loading) {
     return (
       <div className="space-y-6">
@@ -847,13 +851,12 @@ useEffect(() => {
                         View
                       </button>
 
-                      <a
-                        href={getFileUrl(doc.file_path)}
-                        download
-                        className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+                    <button
+                       onClick={() => window.open(getFileUrl(doc.file_path), "_blank")}
+                        className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
                       >
                         Download
-                      </a>
+                    </button>
 
                       <button
                         onClick={() => openEditModal(doc)}
