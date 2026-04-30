@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Syne } from "next/font/google";
 import AppClientWrapper from "../components/AppClientWrapper";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
@@ -14,8 +14,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["700"],
+});
+
 export const metadata: Metadata = {
-  title: "EstateFlow ",
+  title: "EstateFlow",
   description: "EstateFlow A produt by VertexNirvana",
 };
 
@@ -25,13 +31,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-         <AppClientWrapper> 
-        {children}
-         </AppClientWrapper>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${syne.variable}`}
+    >
+      <body className="antialiased">
+        <AppClientWrapper>{children}</AppClientWrapper>
         <Toaster position="top-right" />
       </body>
     </html>

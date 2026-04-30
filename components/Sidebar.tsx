@@ -15,6 +15,7 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
+  ChartColumnIncreasing,
 } from "lucide-react";
 
 type MenuItemProps = {
@@ -136,9 +137,9 @@ export default function Sidebar({
 <div className="flex items-center min-w-0">
   {!collapsed && (
     <>
-      <h2 className="text-lg font-semibold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent truncate">
-        EstateFlow
-      </h2>
+     <h2 className="text-lg [font-family:var(--font-syne)] font-bold tracking-wide bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent truncate">
+  EstateFlow
+</h2>
       {/* <img
         src="/logo1.png"
         alt="EstateFlow"
@@ -170,7 +171,7 @@ export default function Sidebar({
 
           <MenuItem
             path="/financedashboard"
-            icon={LayoutDashboard}
+            icon={ChartColumnIncreasing}
             label="Finance Dashboard"
             collapsed={!expanded}
             go={go}
