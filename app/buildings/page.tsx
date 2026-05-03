@@ -7,6 +7,11 @@ import { AgGridReact } from "ag-grid-react";
 import { themeQuartz } from "ag-grid-community";
 import type { ColDef } from "ag-grid-community";
 import "@/src/lib/ag-grid-setup";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Building = {
   id: number;
@@ -283,7 +288,7 @@ return <BuildingsSkeleton />;
 
   return (
     
-    <div className="space-y-6">
+   <div className="flex flex-col gap-6 h-screen overflow-hidden">
       {/* Header */}
      <div className="relative flex justify-between items-center 
 px-6 py-4 rounded-2xl 
@@ -306,30 +311,40 @@ ring-1 ring-white/40 overflow-hidden">
     Manage and monitor all properties
   </p>
 </div>
-          {canCreate && (
-            <button
-  onClick={() => router.push("/buildings/create")}
-  className="flex items-center px-5 py-2.5 
-  bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 
-  text-white font-semibold text-sm rounded-full 
-  shadow-lg hover:from-blue-600 hover:via-blue-700 hover:to-blue-600 
-  focus:outline-none focus:ring-2 focus:ring-blue-300 
-  active:scale-95 transform hover:scale-105 
-  transition duration-300 ease-in-out"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5 mr-2 animate-pulse"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-  </svg>
-  Create
-</button>
-          )}
+         {canCreate && (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <button
+        onClick={() => router.push("/buildings/create")}
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-full
+                   bg-blue-600 px-5 text-sm font-semibold text-white shadow-md
+                   transition-all duration-200 hover:bg-blue-700
+                   focus:outline-none focus:ring-2 focus:ring-blue-300
+                   active:scale-95"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 5v14M5 12h14"
+          />
+        </svg>
+        <span>Create</span>
+      </button>
+    </TooltipTrigger>
+
+    <TooltipContent side="bottom" sideOffset={8}>
+      <p>Create building</p>
+    </TooltipContent>
+  </Tooltip>
+)}
 
           {/* <button className="px-4 py-2 bg-yellow-300 text-white rounded">
             ✏️ Edit
@@ -363,34 +378,38 @@ transition-all duration-200"
       </svg>
     </div>
 
-          <button 
-          onClick={() => setShowExportModal(true)}
-  className="relative w-36 h-10 flex items-center border border-green-500 
-  bg-green-500 rounded-lg group overflow-hidden"
->
-  <span
-    className="text-white font-semibold ml-6 
-    transform group-hover:translate-x-16 transition-all duration-300"
-  >
-    Export
-  </span>
-
-  <span
-    className="absolute right-0 h-full w-10 bg-green-600 
-    flex items-center justify-center 
-    group-hover:w-full transition-all duration-300"
-  >
-    <svg
-      className="w-5 h-5 text-white"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
+         <Tooltip>
+  <TooltipTrigger asChild>
+    <button
+      onClick={() => setShowExportModal(true)}
+      className="inline-flex h-10 items-center justify-center gap-2 rounded-full
+                 bg-green-600 px-5 text-sm font-semibold text-white shadow-md
+                 transition-all duration-200 hover:bg-green-700
+                 focus:outline-none focus:ring-2 focus:ring-green-300
+                 active:scale-95"
     >
-      <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  </span>
-</button>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path
+          d="M12 4v10m0 0l4-4m-4 4l-4-4M4 20h16"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span>Export</span>
+    </button>
+  </TooltipTrigger>
+
+  <TooltipContent side="bottom" sideOffset={8}>
+    <p>Export data</p>
+  </TooltipContent>
+</Tooltip>
 
         </div>
       </div>
@@ -399,167 +418,216 @@ transition-all duration-200"
 
 
 
-      {/* Table */}
-   {/* Premium Glass Table */}
-<div className="group relative rounded-3xl border-2 border-white/40 bg-white border border-gray-200 shadow-2xl shadow-slate-200/50 hover:shadow-3xl hover:shadow-blue-500/20 overflow-hidden ring-1 ring-white/30 transition-all duration-500">
+{/* Table */}
+{/* Premium Glass Table */}
+<div className="group relative flex flex-col rounded-3xl border-2 border-white/40 bg-white border border-gray-200 shadow-2xl shadow-slate-200/50 hover:shadow-3xl hover:shadow-blue-500/20 overflow-hidden ring-1 ring-white/30 transition-all duration-500">
   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-  
-  <div className="relative z-10 h-[80vh] w-full">
-  
+
+  <div className="relative z-10 w-full h-[calc(100vh-320px)] min-h-[420px] max-h-[610px]">
     <AgGridReact
       theme={myTheme}
       rowData={buildings}
       columnDefs={columnDefs}
       rowSelection="single"
       animateRows={true}
-
       pagination={false}
-      // paginationPageSizeSelector={[10, 25, 50, 100]}
-      // paginationPageSize={10}
-
-      
       rowHeight={52}
       headerHeight={56}
-      
       suppressCellFocus={true}
       suppressRowClickSelection={false}
-      
       overlayNoRowsTemplate="<div class='p-8 text-center'><span class='text-slate-500 text-lg font-medium'>No buildings found</span></div>"
-      
       className="
-      [&_.ag-row]:cursor-default
+        [&_.ag-row]:cursor-default
         [&_.ag-theme-quartz]:bg-transparent 
         [&_.ag-theme-quartz]:backdrop-blur-xl
         [&_.ag-theme-quartz]:border-white/30
-        
-        /* Pagination */
-       /* Pagination Premium UI */
-[&_.ag-paginator]:bg-gradient-to-r 
-[&_.ag-paginator]:from-white/90 
-[&_.ag-paginator]:to-blue-50/80 
-[&_.ag-paginator]:backdrop-blur-xl 
-[&_.ag-paginator]:border-t 
-[&_.ag-paginator]:border-blue-100 
-[&_.ag-paginator]:px-4 
-[&_.ag-paginator]:py-2 
-[&_.ag-paginator]:rounded-b-3xl
 
-[&_.ag-paging-button]:rounded-lg 
-[&_.ag-paging-button]:px-3 
-[&_.ag-paging-button]:py-1 
-[&_.ag-paging-button]:mx-1 
-[&_.ag-paging-button]:bg-white 
-[&_.ag-paging-button]:shadow-md 
-[&_.ag-paging-button:hover]:bg-blue-500 
-[&_.ag-paging-button:hover]:text-white 
-[&_.ag-paging-button]:transition-all 
-[&_.ag-paging-button]:duration-200
+        [&_.ag-paginator]:bg-gradient-to-r 
+        [&_.ag-paginator]:from-white/90 
+        [&_.ag-paginator]:to-blue-50/80 
+        [&_.ag-paginator]:backdrop-blur-xl 
+        [&_.ag-paginator]:border-t 
+        [&_.ag-paginator]:border-blue-100 
+        [&_.ag-paginator]:px-4 
+        [&_.ag-paginator]:py-2 
+        [&_.ag-paginator]:rounded-b-3xl
 
-[&_.ag-paging-button.ag-disabled]:opacity-40 
-[&_.ag-paging-button.ag-disabled]:cursor-not-allowed
+        [&_.ag-paging-button]:rounded-lg 
+        [&_.ag-paging-button]:px-3 
+        [&_.ag-paging-button]:py-1 
+        [&_.ag-paging-button]:mx-1 
+        [&_.ag-paging-button]:bg-white 
+        [&_.ag-paging-button]:shadow-md 
+        [&_.ag-paging-button:hover]:bg-blue-500 
+        [&_.ag-paging-button:hover]:text-white 
+        [&_.ag-paging-button]:transition-all 
+        [&_.ag-paging-button]:duration-200
 
-[&_.ag-paging-page-summary-panel]:text-sm 
-[&_.ag-paging-page-summary-panel]:text-slate-600
-        
-        /* Headers */
+        [&_.ag-paging-button.ag-disabled]:opacity-40 
+        [&_.ag-paging-button.ag-disabled]:cursor-not-allowed
+
+        [&_.ag-paging-page-summary-panel]:text-sm 
+        [&_.ag-paging-page-summary-panel]:text-slate-600
+
         [&_.ag-header]:bg-white/85 [&_.ag-header]:backdrop-blur-xl [&_.ag-header]:border-b-white/50
         [&_.ag-header-cell]:font-semibold [&_.ag-header-cell]:text-slate-800 [&_.ag-header-cell:hover]:bg-blue-50/80
-        
-        /* Rows */
+
         [&_.ag-row-hover]:bg-gradient-to-r [&_.ag-row-hover]:from-blue-50/60 [&_.ag-row-hover]:to-indigo-50/60
         [&_.ag-row-selected]:bg-gradient-to-r [&_.ag-row-selected]:from-blue-500/10 [&_.ag-row-selected]:to-blue-600/10
-        
-        /* Cells */
+
         [&_.ag-cell]:backdrop-blur-sm [&_.ag-cell-focus]:ring-2 [&_.ag-cell-focus]:ring-blue-400/50
-      "
       
-      
+        "
+        
     />
   </div>
 </div>
-<div className="flex justify-center gap-4 mt-4">
-  <button 
+
+{/* pagination */}
+<div className="flex items-center justify-center gap-3 mt-3 pb-2">
+  <button
     disabled={page === 1}
     onClick={() => setPage(page - 1)}
-    className="px-4 py-2 bg-gray-200 rounded"
+    className="h-9 px-4 text-sm font-medium rounded-lg
+      bg-white
+      text-gray-700
+      border border-gray-200
+      hover:bg-gray-50
+      disabled:opacity-40 disabled:cursor-not-allowed
+      transition-colors shadow-sm"
   >
-    Prev
+    ← Prev
   </button>
 
-  <span>Page {page} of {totalPages}</span>
+  <span className="text-sm font-medium text-gray-600 min-w-[100px] text-center">
+    Page {page} of {totalPages}
+  </span>
 
-  <button 
+  <button
     disabled={page === totalPages}
     onClick={() => setPage(page + 1)}
-    className="px-4 py-2 bg-gray-200 rounded"
+    className="h-9 px-4 text-sm font-medium rounded-lg
+      bg-white
+      text-gray-700
+      border border-gray-200
+      hover:bg-gray-50
+      disabled:opacity-40 disabled:cursor-not-allowed
+      transition-colors shadow-sm"
   >
-    Next
+    Next →
   </button>
 </div>
-{showExportModal && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    
-    <div className="bg-white rounded-2xl p-6 w-[400px] space-y-4 shadow-xl">
 
-      <h2 className="text-lg font-semibold">Export Data</h2>
+{showExportModal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="
+      bg-white dark:bg-gray-900
+      border border-gray-200 dark:border-gray-700
+      rounded-2xl p-6 w-[420px] shadow-2xl space-y-5
+    ">
+      {/* Title */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+          Export Buildings
+        </h2>
+        <button
+          onClick={() => setShowExportModal(false)}
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       {/* Column Selection */}
       <div>
-        <p className="font-medium mb-2">Select Columns</p>
-        <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Select Columns
+        </p>
+        <div className="grid grid-cols-2 gap-y-2 gap-x-3 max-h-48 overflow-y-auto
+          pr-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
           {columnDefs.map((col) => (
-            <label key={col.field} className="flex items-center gap-2 text-sm">
+            <label
+              key={col.field}
+              className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300
+                cursor-pointer select-none group"
+            >
               <input
                 type="checkbox"
                 value={col.field}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600
+                  text-blue-600 bg-white dark:bg-gray-800
+                  focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
                 onChange={(e) => {
-  const field = col.field as string;
-
-  setSelectedColumns((prev) =>
-    e.target.checked
-      ? prev.includes(field)
-        ? prev
-        : [...prev, field]
-      : prev.filter((c) => c !== field)
-  );
-}}
+                  const field = col.field as string;
+                  setSelectedColumns((prev) =>
+                    e.target.checked
+                      ? prev.includes(field) ? prev : [...prev, field]
+                      : prev.filter((c) => c !== field)
+                  );
+                }}
               />
-              {col.headerName}
+              <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {col.headerName}
+              </span>
             </label>
           ))}
         </div>
+        {selectedColumns.length > 0 && (
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+            {selectedColumns.length} column{selectedColumns.length > 1 ? "s" : ""} selected
+          </p>
+        )}
       </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-100 dark:border-gray-800" />
 
       {/* Format Selection */}
       <div>
-        <p className="font-medium mb-2">Select Format</p>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Export Format
+        </p>
         <select
-          className="w-full border rounded-lg p-2"
+          className="w-full h-10 px-3 rounded-lg text-sm
+            bg-white dark:bg-gray-800
+            text-gray-900 dark:text-gray-100
+            border border-gray-300 dark:border-gray-600
+            focus:outline-none focus:ring-2 focus:ring-blue-400
+            transition-colors"
           value={exportFormat}
           onChange={(e) => setExportFormat(e.target.value)}
         >
-          <option value="csv">CSV</option>
-          <option value="pdf">PDF</option>
+          <option value="csv">CSV (.csv)</option>
+          <option value="pdf">PDF (.pdf)</option>
         </select>
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <button 
+      <div className="flex justify-end gap-3 pt-1">
+        <button
           onClick={() => setShowExportModal(false)}
-          className="px-4 py-2 bg-gray-200 rounded"
+          className="h-9 px-4 text-sm font-medium rounded-lg
+            text-gray-700 dark:text-gray-300
+            bg-gray-100 dark:bg-gray-800
+            hover:bg-gray-200 dark:hover:bg-gray-700
+            border border-gray-200 dark:border-gray-700
+            transition-colors"
         >
           Cancel
         </button>
-
-        <button 
+        <button
           onClick={handleExport}
-          className="px-4 py-2 bg-green-500 text-white rounded"
+          className="h-9 px-5 text-sm font-semibold rounded-lg
+            text-white bg-green-600 hover:bg-green-700
+            disabled:opacity-50 disabled:cursor-not-allowed
+            transition-colors shadow-sm"
+          disabled={selectedColumns.length === 0}
         >
           Export
         </button>
       </div>
-
     </div>
   </div>
 )}

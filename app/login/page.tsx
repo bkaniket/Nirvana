@@ -37,11 +37,18 @@ export default function LoginPage() {
         body: JSON.stringify({ username: trimmedUsername, password: trimmedPassword }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setErrorMsg(data?.message || "Invalid username or password");
-        return;
-      }
+    if (!res.ok) {
+  const data = await res.json().catch(() => null);
+  let message = data?.message || "Invalid username or password";
+  
+  // Frontend override
+  if (message === "Invalid email or password") {
+    message = "Invalid username or password";
+  }
+  
+  setErrorMsg(message);
+  return;
+}
 
       const data = await res.json();
       localStorage.setItem("token", data.token);
