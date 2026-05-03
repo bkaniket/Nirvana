@@ -295,35 +295,7 @@ function CreateExpenseModal({
   );
 }
 
-// function InputField({
-//   label,
-//   placeholder,
-//   value,
-//   onChange,
-// }: {
-//   label: string;
-//   placeholder: string;
-//   value: string;
-//   onChange: (v: string) => void;
-// }) {
-//   return (
-//     <div>
-//       <label className="block text-sm font-semibold text-gray-700 mb-2">
-//         {label}
-//       </label>
-
-//       <input
-//         placeholder={placeholder}
-//         value={value}
-//         onChange={(e) => onChange(e.target.value)}
-//         className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition 
-//         focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-//       />
-//     </div>
-//   );
-// }
-
-function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
+function CreateCertificateModal({ buildingId, onClose, onCreated, editingData }: any) {
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
 
   const ALLOWED_TYPES = ["application/pdf","image/jpeg","image/jpg","image/png","image/svg+xml","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain"];
@@ -343,6 +315,23 @@ function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
     status: "",
     notes: "",
   });
+  useEffect(() => {
+  if (editingData) {
+    setForm({
+      certificate_number: editingData.certificate_number || "",
+      certificate_name: editingData.certificate_name || "",
+      certificate_type: editingData.certificate_type || "",
+      owner_name: editingData.owner_name || "",
+      owner_address: editingData.owner_address || "",
+      issued_by: editingData.issued_by || "",
+      approved_by: editingData.approved_by || "",
+      issued_date: editingData.issued_date || "",
+      expiry_date: editingData.expiry_date || "",
+      status: editingData.status || "",
+      notes: editingData.notes || "",
+    });
+  }
+}, [editingData]);
 
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState("");
@@ -371,7 +360,7 @@ function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
   };
 
   const MANDATORY_CERT = ["certificate_number","certificate_name","certificate_type","owner_name","issued_by","approved_by","issued_date","status"];
-  const certFormValid = MANDATORY_CERT.every((k) => (form as any)[k]?.trim()) && file !== null;
+ const certFormValid = MANDATORY_CERT.every((k) => (form as any)[k]?.trim());
 
   const handleCreate = async () => {
     const token = localStorage.getItem("token");
@@ -395,6 +384,32 @@ function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
     onCreated();
     onClose();
   };
+
+  const handleUpdate = async () => {
+  const token = localStorage.getItem("token");
+  if (!token || !editingData) return;
+
+  setLoading(true);
+
+  const res = await fetch(`${BASE_URL}/certificates/${editingData.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(form),
+  });
+
+  setLoading(false);
+
+  if (!res.ok) {
+    alert("Failed to update certificate");
+    return;
+  }
+
+  onCreated();
+  onClose();
+};
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 px-4 pt-24 pb-6 backdrop-blur-sm">
@@ -500,6 +515,11 @@ function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
             <label className="mb-2 block text-sm font-semibold text-slate-700">
               Upload File <span className="text-red-500">*</span>
             </label>
+            {editingData && editingData.file_path && !file && (
+  <a href={editingData.file_path} target="_blank" className="text-sm text-blue-600 underline">
+    View existing file
+  </a>
+)}
             <div className={`flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-6 bg-slate-50 transition-colors ${fileError ? "border-red-300 bg-red-50" : file ? "border-emerald-300 bg-emerald-50" : "border-slate-300"}`}>
               <input type="file" onChange={handleFileChange} className="hidden" id="fileUpload"
                 accept=".pdf,.jpg,.jpeg,.png,.svg,.doc,.docx,.txt" />
@@ -522,7 +542,7 @@ function CreateCertificateModal({ buildingId, onClose, onCreated }: any) {
 
         {/* Footer */}
         <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:flex-row sm:justify-end">
-          <button onClick={handleCreate} disabled={loading || !certFormValid}
+          <button onClick={editingData ? handleUpdate : handleCreate} disabled={loading || !certFormValid}
             className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer">
             {loading ? "Uploading..." : "Save Certificate"}
           </button>
@@ -563,6 +583,7 @@ export default function BuildingDetailsPage() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [certificateLoading, setCertificateLoading] = useState(true);
+  const [editingCertificate, setEditingCertificate] = useState<Certificate | null>(null);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const canEdit = hasPermission("BUILDING", "edit");
   const [activeSection, setActiveSection] = useState<string>("basic");
@@ -999,190 +1020,195 @@ export default function BuildingDetailsPage() {
 )}
 
 
- {/** 🔹 Certificates & Compliance */}
-      <div>
-       
-        <div className="space-y-6 p-0">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">Certificates</h2>
-                <p className="text-sm text-slate-500 mt-1">Upload and manage a new building certificate</p>
-              </div>
-
-             <Tooltip>
-  <TooltipTrigger asChild>
-    <button
-      onClick={() => setShowCertificateModal(true)}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-full
-                 bg-green-600 px-5 text-sm font-semibold text-white shadow-md
-                 transition-all duration-200 hover:bg-green-700
-                 focus:outline-none focus:ring-2 focus:ring-green-300
-                 active:scale-95"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 4v16m8-8H4"
-        />
-      </svg>
-      <span>Add Certificate</span>
-    </button>
-  </TooltipTrigger>
-
-  <TooltipContent side="top" sideOffset={8}>
-    <p>Add building certificates</p>
-  </TooltipContent>
-</Tooltip>
-            </div>
-
-            {/* Loading */}
-            {certificateLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
-                <span className="ml-3 text-sm font-medium text-slate-600">Loading certificates...</span>
-              </div>
-            ) : certificates.length === 0 ? (
-              <div className="text-center py-16 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+  {/** 🔹 Certificates & Compliance */}
+        <div>
+        
+          <div className="space-y-6 p-0">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              {/* Header */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">Certificates</h2>
+                  <p className="text-sm text-slate-500 mt-1">Upload and manage a new building certificate</p>
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">No certificates yet</h3>
-                <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                  Add your first certificate to get started. All documents are securely stored.
-                </p>
+
+              <Tooltip>
+    <TooltipTrigger asChild>
+      <button
+        onClick={() => setShowCertificateModal(true)}
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-full
+                  bg-green-600 px-5 text-sm font-semibold text-white shadow-md
+                  transition-all duration-200 hover:bg-green-700
+                  focus:outline-none focus:ring-2 focus:ring-green-300
+                  active:scale-95"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        <span>Add Certificate</span>
+      </button>
+    </TooltipTrigger>
+
+    <TooltipContent side="top" sideOffset={8}>
+      <p>Add building certificates</p>
+    </TooltipContent>
+  </Tooltip>
               </div>
-            ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-slate-400 rounded-full" />
-                    <span className="text-sm font-medium text-slate-600">
-                      {certificates.length} certificate{certificates.length !== 1 ? "s" : ""}
-                    </span>
+
+              {/* Loading */}
+              {certificateLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
+                  <span className="ml-3 text-sm font-medium text-slate-600">Loading certificates...</span>
+                </div>
+              ) : certificates.length === 0 ? (
+                <div className="text-center py-16 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">No certificates yet</h3>
+                  <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                    Add your first certificate to get started. All documents are securely stored.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+                  <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 bg-slate-400 rounded-full" />
+                      <span className="text-sm font-medium text-slate-600">
+                        {certificates.length} certificate{certificates.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-slate-200">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Name</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Type</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Issued by</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Expiry</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200/50 bg-white">
+                        {certificates.map((cert) => {
+                          const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null;
+                          const isExpired = expiryDate ? expiryDate <= new Date() : true;
+                          return (
+                            <tr key={cert.id} className="hover:bg-slate-50/70 transition-colors duration-150">
+                              <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{cert.certificate_name}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{cert.certificate_type}</span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{cert.issued_by}</td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`text-sm px-2 py-1 rounded-full ${!isExpired ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                                  {cert.expiry_date || "No expiry"}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-2">
+                                  {/* View */}
+                                  {cert.file_path && (
+                                    <a href={cert.file_path} target="_blank" rel="noopener noreferrer"
+                                      title="View"
+                                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
+                                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                      </svg>
+                                    </a>
+                                  )}
+                                  {/* Download */}
+                                  {cert.file_path && (
+                                    <a href={cert.file_path} download
+                                      title="Download"
+                                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
+                                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                      </svg>
+                                    </a>
+                                  )}
+                                  {/* Edit */}
+                                  <button
+                                    title="Edit"
+                                    onClick={() => {
+  setEditingCertificate(cert);
+  setShowCertificateModal(true);
+}}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-600 transition">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z" />
+                                    </svg>
+                                  </button>
+                                  {/* Delete */}
+                                  <button
+                                    title="Delete"
+                                    onClick={async () => {
+                                      if (!confirm("Delete this certificate?")) return;
+                                      const token = localStorage.getItem("token");
+                                      const res = await fetch(`${BASE_URL}/certificates/${cert.id}`, {
+                                        method: "DELETE",
+                                        headers: { Authorization: `Bearer ${token}` },
+                                      });
+                                      if (res.ok) {
+                                        setCertificates((prev) => prev.filter((c) => c.id !== cert.id));
+                                      } else {
+                                        alert("Failed to delete certificate");
+                                      }
+                                    }}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 transition">
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
+              )}
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200">
-                     <thead>
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Name</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Type</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Issued by</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Expiry</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Actions</th>
-                      </tr>
-                    </thead>
-                     <tbody className="divide-y divide-slate-200/50 bg-white">
-                      {certificates.map((cert) => {
-                        const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null;
-                        const isExpired = expiryDate ? expiryDate <= new Date() : true;
-                        return (
-                          <tr key={cert.id} className="hover:bg-slate-50/70 transition-colors duration-150">
-                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{cert.certificate_name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{cert.certificate_type}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{cert.issued_by}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`text-sm px-2 py-1 rounded-full ${!isExpired ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                                {cert.expiry_date || "No expiry"}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center gap-2">
-                                {/* View */}
-                                {cert.file_path && (
-                                  <a href={cert.file_path} target="_blank" rel="noopener noreferrer"
-                                    title="View"
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {/* Download */}
-                                {cert.file_path && (
-                                  <a href={cert.file_path} download
-                                    title="Download"
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {/* Edit */}
-                                <button
-                                  title="Edit"
-                                  onClick={() => router.push(`/buildings/${id}/certificates/${cert.id}/edit`)}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-600 transition">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z" />
-                                  </svg>
-                                </button>
-                                {/* Delete */}
-                                <button
-                                  title="Delete"
-                                  onClick={async () => {
-                                    if (!confirm("Delete this certificate?")) return;
-                                    const token = localStorage.getItem("token");
-                                    const res = await fetch(`${BASE_URL}/buildings/${id}/certificates/${cert.id}`, {
-                                      method: "DELETE",
-                                      headers: { Authorization: `Bearer ${token}` },
-                                    });
-                                    if (res.ok) {
-                                      setCertificates((prev) => prev.filter((c) => c.id !== cert.id));
-                                    } else {
-                                      alert("Failed to delete certificate");
-                                    }
-                                  }}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 transition">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Certificate Modal */}
-            {showCertificateModal && (
-              <CreateCertificateModal
-                buildingId={id}
-                onClose={() => setShowCertificateModal(false)}
-                onCreated={() => {
-                  const token = localStorage.getItem("token");
-                  fetch(`${BASE_URL}/buildings/${id}/certificates`, {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  })
-                    .then((res) => res.json())
-                    .then((data) => setCertificates(data.data || []));
-                }}
-              />
-            )}
-          </div>
+              {/* Certificate Modal */}
+              {showCertificateModal && (
+                <CreateCertificateModal
+  buildingId={id}
+  editingData={editingCertificate}
+  onClose={() => {
+    setShowCertificateModal(false);
+    setEditingCertificate(null);
+  }}
+  onCreated={() => {
+    const token = localStorage.getItem("token");
+    fetch(`${BASE_URL}/buildings/${id}/certificates`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setCertificates(data.data || []));
+  }}
+/>
+              )}
+            </div>
 
           {/** 🔹 Building Expenses */}
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
