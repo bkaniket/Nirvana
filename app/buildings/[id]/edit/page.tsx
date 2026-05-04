@@ -181,9 +181,9 @@ export default function EditBuildingPage() {
   <h2 className="text-lg font-semibold text-slate-900 mb-3">Basic Information</h2>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     <Input label="Building Name" name="building_name" value={form.building_name} onChange={handleChange} required />
+    <Input label="Building Type" name="building_type" value={form.building_type || ""} onChange={handleChange} />
     <Input label="Wing" name="wing" value={form.wing || ""} onChange={handleChange} />
     <Input label="Unit No" name="unit_no" value={form.unit_no || ""} onChange={handleChange} />
-    <Input label="Building Type" name="building_type" value={form.building_type || ""} onChange={handleChange} />
   </div>
 </div>
 
