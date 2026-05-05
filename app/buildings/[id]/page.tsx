@@ -200,6 +200,7 @@ function CreateExpenseModal({
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ ...form, building_id: buildingId }),
     });
+    
     setLoading(false);
     if (!res.ok) { alert("Failed to create expense"); return; }
     onCreated();
