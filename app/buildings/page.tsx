@@ -48,7 +48,7 @@ export default function BuildingsPage() {
   const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
 const [showExportModal, setShowExportModal] = useState(false);
-const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+const [selectedColumns, setSelectedColumns] = useState<string[]>(["building_name"]);
 const [exportFormat, setExportFormat] = useState("csv");
 const [debouncedSearch, setDebouncedSearch] = useState(search);
 const [permissions, setPermissions] = useState({
@@ -92,7 +92,7 @@ useEffect(() => {
 
 useEffect(() => {
   if (showExportModal) {
-    setSelectedColumns([]);
+    setSelectedColumns(["building_name"]);
   }
 }, [showExportModal]);
 
@@ -144,6 +144,14 @@ const { create: canCreate, view: canView, edit: canEdit, delete: canDelete } = p
     { field: "geocode_longitude", headerName: "Geocode Longitude", filter: true },
 
   ];
+  const allColumnFields = columnDefs
+  .map((col) => col.field)
+  .filter((field): field is string => Boolean(field));
+
+const allSelected =
+  allColumnFields.length > 0 && selectedColumns.length === allColumnFields.length;
+
+const someSelected = selectedColumns.length > 0 && !allSelected;
 
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API;
   useEffect(() => {
@@ -542,44 +550,68 @@ transition-all duration-200"
 
       {/* Column Selection */}
       <div>
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Select Columns
-        </p>
-        <div className="grid grid-cols-2 gap-y-2 gap-x-3 max-h-48 overflow-y-auto
-          pr-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-          {columnDefs.map((col) => (
-            <label
-              key={col.field}
-              className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300
-                cursor-pointer select-none group"
-            >
-              <input
-                type="checkbox"
-                value={col.field}
-                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600
-                  text-blue-600 bg-white dark:bg-gray-800
-                  focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
-                onChange={(e) => {
-                  const field = col.field as string;
-                  setSelectedColumns((prev) =>
-                    e.target.checked
-                      ? prev.includes(field) ? prev : [...prev, field]
-                      : prev.filter((c) => c !== field)
-                  );
-                }}
-              />
-              <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {col.headerName}
-              </span>
-            </label>
-          ))}
-        </div>
-        {selectedColumns.length > 0 && (
-          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-            {selectedColumns.length} column{selectedColumns.length > 1 ? "s" : ""} selected
-          </p>
-        )}
-      </div>
+  <div className="mb-2 flex items-center justify-between">
+    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      Select Columns
+    </p>
+
+    <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer select-none">
+      <input
+        type="checkbox"
+        checked={allSelected}
+        ref={(el) => {
+          if (el) el.indeterminate = someSelected;
+        }}
+        onChange={(e) => {
+          setSelectedColumns(e.target.checked ? allColumnFields : []);
+        }}
+        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 bg-white dark:bg-gray-800 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+      />
+      <span>Select All</span>
+    </label>
+  </div>
+
+  <div className="grid grid-cols-2 gap-y-2 gap-x-3 max-h-48 overflow-y-auto
+    pr-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+    {columnDefs.map((col) => {
+      const field = col.field as string;
+
+      return (
+        <label
+          key={field}
+          className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300
+            cursor-pointer select-none group"
+        >
+          <input
+            type="checkbox"
+            checked={selectedColumns.includes(field)}
+            className="w-4 h-4 rounded border-gray-300 dark:border-gray-600
+              text-blue-600 bg-white dark:bg-gray-800
+              focus:ring-blue-500 focus:ring-offset-0 cursor-pointer"
+            onChange={(e) => {
+              setSelectedColumns((prev) =>
+                e.target.checked
+                  ? prev.includes(field)
+                    ? prev
+                    : [...prev, field]
+                  : prev.filter((c) => c !== field)
+              );
+            }}
+          />
+          <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {col.headerName}
+          </span>
+        </label>
+      );
+    })}
+  </div>
+
+  {selectedColumns.length > 0 && (
+    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+      {selectedColumns.length} column{selectedColumns.length > 1 ? "s" : ""} selected
+    </p>
+  )}
+</div>
 
       {/* Divider */}
       <div className="border-t border-gray-100 dark:border-gray-800" />
