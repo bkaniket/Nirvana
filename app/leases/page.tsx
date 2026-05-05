@@ -133,8 +133,8 @@ export default function LeasesPage() {
 
  const columnDefs: CustomColDef[] = [
   {
-    field: "tenant_legal_name",
-    headerName: "Tenant",
+    field: "lease_name",
+    headerName: "Lease Name",
     filter: true,
     flex: 1,
     cellRenderer: (params: any) => (
@@ -146,7 +146,7 @@ export default function LeasesPage() {
       </span>
     ),
   },
-
+  { field: "tenant_legal_name", headerName: "Tenant", filter: true, flex: 1 },
   { field: "landlord_legal_name", headerName: "Landlord", filter: true, flex: 1 },
   { field: "lease_type", headerName: "Lease Type", filter: true, flex: 1 },
   { field: "lease_status", headerName: "Status", filter: true, flex: 1 },
