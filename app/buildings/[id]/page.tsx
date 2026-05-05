@@ -97,14 +97,14 @@ type Certificate = {
 function CollapsibleSection({
   title,
   children,
-  defaultOpen = false,
+  open,
+  onToggle,
 }: {
   title: string;
   children: React.ReactNode;
-  defaultOpen?: boolean;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
-
   return (
     <div
       className={`rounded-2xl border transition-all duration-300 ${open
@@ -113,7 +113,7 @@ function CollapsibleSection({
         } backdrop-blur-xl`}
     >
       <button
-        onClick={() => setOpen(!open)}
+        onClick={onToggle}
         className="w-full px-5 py-4 flex justify-between items-center"
       >
         <span className="text-base font-semibold text-gray-900">{title}</span>
@@ -186,7 +186,7 @@ function CreateExpenseModal({
   const handleChange = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  const EXP_MANDATORY = ["expense_year", "expense_type", "expense_category", "vendor_name", "amount", "currency", "status", "is_escalable", "account_code"];
+  const EXP_MANDATORY = ["expense_name","expense_year", "expense_type", "expense_category", "vendor_name", "amount", "currency", "status", "is_escalable", "account_code"];
   const expFormValid = EXP_MANDATORY.every((k) => (form as any)[k]?.trim());
 
   const handleCreate = async () => {
@@ -596,6 +596,16 @@ export default function BuildingDetailsPage() {
   const canEdit = hasPermission("BUILDING", "edit");
   const [activeSection, setActiveSection] = useState<string>("basic");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ basic: true });
+
+  const handleSectionNav = (sectionId: string) => {
+    setActiveSection(sectionId);
+    setOpenSections({ [sectionId]: true });
+    setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token || !id) return;
@@ -751,610 +761,576 @@ export default function BuildingDetailsPage() {
         )}
       </div>
 
-      {/* ── Workflow + LHS Menu side by side ── */}
-      <div className="flex gap-4 items-start">
+    
+{/* Workflow Status Card */}
+     {workflow && (
+  <div className="rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-50 to-white p-4 shadow-sm">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className="flex items-center gap-2">
+        <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span className="font-semibold text-slate-600">Approval Workflow</span>
+      </div>
 
-        {/* Toggle Section */}
-        {/* ── Left Sidebar ── */}
-        <div className={`shrink-0 transition-all duration-300 ${sidebarOpen ? "w-48" : "w-10"}`}>
-          <div className="rounded-2xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur overflow-hidden">
+      <span className="hidden sm:block h-4 w-px bg-slate-200" />
 
-            {/* Toggle button */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="w-full flex items-center justify-between px-3 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors"
-            >
-              {sidebarOpen && (
-                <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-                  Sections
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Status</span>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            workflow.status === "APPROVED"
+              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+              : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+          }`}
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${workflow.status === "APPROVED" ? "bg-emerald-500" : "bg-amber-500"}`} />
+          {workflow.status}
+        </span>
+      </div>
+
+      {workflow.created_by && (
+        <>
+          <span className="hidden sm:block h-4 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Created By</span>
+            <span className="font-medium text-slate-700">
+              {workflow.created_by.name}
+              {workflow.created_by.created_at ? (
+                <span className="ml-1 text-xs text-slate-400">
+                  · {new Date(workflow.created_by.created_at).toLocaleDateString()}
                 </span>
-              )}
-              <svg
-                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${sidebarOpen ? "" : "rotate-180 mx-auto"}`}
-                fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            {/* Section items — only show when open */}
-            {sidebarOpen && SECTIONS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors duration-150 border-b border-slate-50 last:border-0 flex items-center gap-2 ${activeSection === item.id
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${activeSection === item.id ? "bg-blue-500" : "bg-transparent"}`} />
-                {item.label}
-              </button>
-            ))}
-
-            {/* Collapsed: show dot indicators */}
-            {!sidebarOpen && SECTIONS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => { setActiveSection(item.id); setSidebarOpen(true); }}
-                className={`w-full flex justify-center py-2.5 border-b border-slate-50 last:border-0 transition-colors ${activeSection === item.id ? "bg-blue-50" : "hover:bg-slate-50"
-                  }`}
-                title={item.label}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full ${activeSection === item.id ? "bg-blue-500" : "bg-slate-300"}`} />
-              </button>
-            ))}
+              ) : null}
+            </span>
           </div>
-        </div>
+        </>
+      )}
 
-        {/* ── Right: all main content ── */}
-        <div className="flex-1 min-w-0 space-y-5">
-          {/* Approval Workflow */}
-          {workflow && (
-            <div className="w-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+      {workflow.approved_by && (
+        <>
+          <span className="hidden sm:block h-4 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">Approved By</span>
+            <span className="font-medium text-slate-700">
+              {typeof workflow.approved_by === "object"
+                ? workflow.approved_by.name
+                : workflow.approved_by}
+              {typeof workflow.approved_by === "object" && workflow.approved_by.approved_at ? (
+                <span className="ml-1 text-xs text-slate-400">
+                  · {new Date(workflow.approved_by.approved_at).toLocaleDateString()}
+                </span>
+              ) : null}
+            </span>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
+{/* Sidebar + content layout */}
+<div className="flex gap-4 items-start">
+    {/* Left sidebar */}
+  <div className="shrink-0 sticky top-4 self-start flex flex-col items-center">
+  <aside className={`rounded-2xl border border-slate-200 bg-white/90 shadow-sm backdrop-blur overflow-hidden transition-all duration-300 ${sidebarOpen ? "w-72" : "w-12"}`}>
+    <button
+      onClick={() => setSidebarOpen(!sidebarOpen)}
+      className="w-full flex items-center justify-center h-12 border-b border-slate-100 hover:bg-slate-50 transition-colors"
+      title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+    >
+      {sidebarOpen ? (
+         <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+) : (
+  <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+  </svg>
+      )}
+    </button>
+
+    <div className={`transition-opacity duration-200 ${sidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none h-0 overflow-hidden"}`}>
+      <div className="max-h-[calc(100vh-120px)] overflow-y-auto p-2">
+       {[
+          { id: "basic", label: "Basic Information" },
+          { id: "location", label: "Location Details" },
+          { id: "coordinates", label: "Coordinates" },
+          { id: "property", label: "Property Specs" },
+          { id: "financial", label: "Financial Details" },
+          { id: "ownership", label: "Ownership Mgmt" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => handleSectionNav(item.id)}
+            className={`w-full rounded-xl px-3 py-2.5 text-left text-sm transition-colors flex items-center gap-2 ${
+              activeSection === item.id ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+          >
+            <span className={`h-2 w-2 rounded-full shrink-0 ${activeSection === item.id ? "bg-blue-500" : "bg-slate-300"}`} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+
+        <div className="my-2 border-t border-slate-100" />
+
+        {[
+          { id: "leases", label: "Leases in this Building" },
+          { id: "certificates", label: "Certificates" },
+          { id: "expenses", label: "Building Expenses" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => handleSectionNav(item.id)}
+            className={`w-full rounded-xl px-3 py-2.5 text-left text-sm transition-colors flex items-center gap-2 ${
+              activeSection === item.id ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+            }`}
+          >
+            <span className={`h-2 w-2 rounded-full shrink-0 ${activeSection === item.id ? "bg-blue-500" : "bg-slate-300"}`} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  </aside>
+
+  {/* Vertical track line shown when sidebar is collapsed */}
+  {!sidebarOpen && (
+    <div className="w-px bg-slate-200 rounded-full mt-2" style={{ minHeight: "80vh" }} />
+  )}
+  </div>
+
+   {/* Right content */}
+<div className="flex-1 min-w-0 space-y-5">
+  {/* Dynamic sections */}
+  <div className="space-y-6">
+    {orderedSections.map((section) => {
+      const isActive = section.id === activeSection;
+      return (
+        <div key={section.id} id={section.id} className="scroll-mt-6">
+         <CollapsibleSection
+            title={section.title}
+            open={openSections[section.id] ?? false}
+            onToggle={() =>
+              setOpenSections((prev) => ({ ...prev, [section.id]: !prev[section.id] }))
+            }
+          >
+            {section.id === "basic" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Building Name" value={building.building_name} />
+                <Detail label="Building Type" value={building.building_type} />
+                <Detail label="Wing" value={building.wing} />
+                <Detail label="Unit No" value={building.unit_no} />
+                {/* <Detail label="Building Status" value={building.building_status} /> */}
+              </div>
+            )}
+
+            {section.id === "location" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Address" value={building.address_1} />
+                <Detail label="City" value={building.city} />
+                <Detail label="State" value={building.state} />
+                <Detail label="Zip Code" value={building.zip_code} />
+                <Detail label="Country" value={building.country} />
+              </div>
+            )}
+
+            {section.id === "coordinates" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Latitude" value={building.latitude} />
+                <Detail label="Longitude" value={building.longitude} />
+                <Detail label="Geocode Latitude" value={building.geocode_latitude} />
+                <Detail label="Geocode Longitude" value={building.geocode_longitude} />
+              </div>
+            )}
+
+            {section.id === "property" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Construction Year" value={building.construction_year} />
+                <Detail label="Last Renovation Year" value={building.last_renovation_year || "Not Yet Renovated"} />
+                <Detail label="Rentable Area" value={building.building_rentable_area} />
+                <Detail label="Measurement Unit" value={building.building_measure_units} />
+              </div>
+            )}
+
+            {section.id === "financial" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Purchase Price" value={building.purchase_price} />
+                <Detail label="Currency Type" value={building.currency_type} />
+              </div>
+            )}
+
+            {section.id === "ownership" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Detail label="Ownership Type" value={building.ownership_type} />
+                <Detail label="Managed By" value={building.managed_by} />
+                <Detail label="Portfolio" value={building.portfolio} />
+                <Detail label="Portfolio Sub Group" value={building.portfolio_sub_group} />
+              </div>
+            )}
+          </CollapsibleSection>
+        </div>
+      );
+    })}
+  </div>
+
+  <div id="leases" className="scroll-mt-6 mt-6">
+    {leases && leases.length > 0 && (
+      <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+        <div className="space-y-2">
+          <div className="mb-5 flex items-end justify-between">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+                Leases in this Building
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Browse all lease agreements linked to this property
+              </p>
+            </div>
+
+            <div className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 sm:block">
+              {leases.length} leases
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {leases.map((lease) => (
+              <div
+                key={lease.id}
+                onClick={() => router.push(`/leases/${lease.id}`)}
+                className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-slate-900">
+                      {lease.client_lease_id}
+                    </p>
+                    <p className="mt-1 truncate text-sm text-slate-500">
+                      {lease.landlord_legal_name}
+                    </p>
                   </div>
+
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 transition group-hover:bg-slate-900 group-hover:text-white">
+                    →
+                  </div>
+                </div>
+
+                <div className="my-4 h-px bg-slate-100" />
+
+                <div className="space-y-3">
                   <div>
-                    <h2 className="text-base font-semibold text-slate-900">Approval Workflow</h2>
-                    <p className="text-xs text-slate-400">Current review and approval details</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Lease period
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-slate-700">
+                      {lease.lease_agreement_date}
+                      <span className="mx-1 text-slate-400">→</span>
+                      {lease.termination_date}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      Status
+                    </p>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        lease.lease_status?.trim().toUpperCase() === "ACTIVE"
+                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                          : lease.lease_status?.trim().toUpperCase() === "INACTIVE"
+                            ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200"
+                            : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
+                      }`}
+                    >
+                      {lease.lease_status}
+                    </span>
                   </div>
                 </div>
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${workflow.status === "APPROVED"
-                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-                    : "bg-amber-50 text-amber-700 ring-amber-200"
-                  }`}>
-                  <span className={`h-1.5 w-1.5 rounded-full ${workflow.status === "APPROVED" ? "bg-emerald-500" : "bg-amber-400 animate-pulse"}`} />
-                  {workflow.status === "APPROVED" ? "Approved" : "Pending Approval"}
-                </span>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: "Status", value: workflow.status === "APPROVED" ? "Approved" : "Pending" },
-                  { label: "Created By", value: workflow.created_by?.name || "Not available" },
-                  { label: "Approved By", value: typeof workflow.approved_by === "string" ? workflow.approved_by : workflow.approved_by?.name || "Pending" },
-                ].map(({ label, value }) => (
-                  <div key={label} className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
-                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-                    <p className="mt-1 text-sm font-semibold text-slate-800">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* LHS Section Menu — fixed width, sits right of workflow */}
-          <div className="w-48 shrink-0">
-            
+            ))}
           </div>
         </div>
       </div>
-      {/* ── Dynamic Sections — active always on top and open ── */}
+    )}
+  </div>
 
-      <div key={activeSection} className="space-y-6">
-        {orderedSections.map((section) => {
-          const isActive = section.id === activeSection;
-          return (
-            <div key={section.id} id={section.id}>
-              <CollapsibleSection title={section.title} defaultOpen={isActive}>
+  <div id="certificates" className="scroll-mt-6 mt-6">
+    <div className="space-y-6 p-0">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight">Certificates</h2>
+            <p className="text-sm text-slate-500 mt-1">Upload and manage a new building certificate</p>
+          </div>
 
-                {section.id === "basic" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Building Name" value={building.building_name} />
-                    <Detail label="Building Type" value={building.building_type} />
-                    <Detail label="Wing" value={building.wing} />
-                    <Detail label="Unit No" value={building.unit_no} />
-                    <Detail label="Building Status" value={building.building_status} />
-                  </div>
-                )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setShowCertificateModal(true)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-green-600 px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 active:scale-95"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Certificate</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" sideOffset={8}>
+              <p>Add building certificates</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
 
-                {section.id === "location" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Address" value={building.address_1} />
-                    <Detail label="City" value={building.city} />
-                    <Detail label="State" value={building.state} />
-                    <Detail label="Zip Code" value={building.zip_code} />
-                    <Detail label="Country" value={building.country} />
-                  </div>
-                )}
-
-                {section.id === "coordinates" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Latitude" value={building.latitude} />
-                    <Detail label="Longitude" value={building.longitude} />
-                    <Detail label="Geocode Latitude" value={building.geocode_latitude} />
-                    <Detail label="Geocode Longitude" value={building.geocode_longitude} />
-                  </div>
-                )}
-
-                {section.id === "property" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Construction Year" value={building.construction_year} />
-                    <Detail label="Last Renovation Year" value={building.last_renovation_year || "Not Yet Renovated"} />
-                    <Detail label="Rentable Area" value={building.building_rentable_area} />
-                    <Detail label="Measurement Unit" value={building.building_measure_units} />
-                  </div>
-                )}
-
-                {section.id === "financial" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Purchase Price" value={building.purchase_price} />
-                    <Detail label="Currency Type" value={building.currency_type} />
-                  </div>
-                )}
-
-                {section.id === "ownership" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Detail label="Ownership Type" value={building.ownership_type} />
-                    <Detail label="Managed By" value={building.managed_by} />
-                    <Detail label="Portfolio" value={building.portfolio} />
-                    <Detail label="Portfolio Sub Group" value={building.portfolio_sub_group} />
-                  </div>
-                )}
-
-              </CollapsibleSection>
+        {certificateLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
+            <span className="ml-3 text-sm font-medium text-slate-600">Loading certificates...</span>
+          </div>
+        ) : certificates.length === 0 ? (
+          <div className="text-center py-16 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
-          );
-        })}
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">No certificates yet</h3>
+            <p className="text-slate-500 mb-6 max-w-md mx-auto">
+              Add your first certificate to get started. All documents are securely stored.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 bg-slate-400 rounded-full" />
+                <span className="text-sm font-medium text-slate-600">
+                  {certificates.length} certificate{certificates.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead>
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Type</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Issued by</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Expiry</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/50 bg-white">
+                  {certificates.map((cert) => {
+                    const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null;
+                    const isExpired = expiryDate ? expiryDate <= new Date() : true;
+                    return (
+                      <tr key={cert.id} className="hover:bg-slate-50/70 transition-colors duration-150">
+                        <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{cert.certificate_name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{cert.certificate_type}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{cert.issued_by}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`text-sm px-2 py-1 rounded-full ${!isExpired ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                            {cert.expiry_date || "No expiry"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            {cert.file_path && (
+                              <a href={cert.file_path} target="_blank" rel="noopener noreferrer" title="View" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </a>
+                            )}
+                            {cert.file_path && (
+                              <a href={cert.file_path} download title="Download" className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                              </a>
+                            )}
+                            <button title="Edit" onClick={() => { setEditingCertificate(cert); setShowCertificateModal(true); }} className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-600 transition">
+                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z" />
+                              </svg>
+                            </button>
+                            <button
+                              title="Delete"
+                              onClick={async () => {
+                                if (!confirm("Delete this certificate?")) return;
+                                const token = localStorage.getItem("token");
+                                const res = await fetch(`${BASE_URL}/certificates/${cert.id}`, {
+                                  method: "DELETE",
+                                  headers: { Authorization: `Bearer ${token}` },
+                                });
+                                if (res.ok) {
+                                  setCertificates((prev) => prev.filter((c) => c.id !== cert.id));
+                                } else {
+                                  alert("Failed to delete certificate");
+                                }
+                              }}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 transition"
+                            >
+                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {showCertificateModal && (
+          <CreateCertificateModal
+            buildingId={id}
+            editingData={editingCertificate}
+            onClose={() => {
+              setShowCertificateModal(false);
+              setEditingCertificate(null);
+            }}
+            onCreated={() => {
+              const token = localStorage.getItem("token");
+              fetch(`${BASE_URL}/buildings/${id}/certificates`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+                .then((res) => res.json())
+                .then((data) => setCertificates(data.data || []));
+            }}
+          />
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div id="expenses" className="scroll-mt-6 mt-6">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Building Expenses</h2>
+          <p className="text-sm text-slate-500 mt-1">Record and manage building expenses</p>
+        </div>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => setShowExpenseModal(true)}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-green-600 px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Add Expense</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top" sideOffset={8}>
+            <p>Add building expenses</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
-
-      {/* leases */}
-      {leases && leases.length > 0 && (
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
-          <div className="space-y-2">
-            <div className="mb-5 flex items-end justify-between">
-              <div>
-                <h2 className="text-xl font-semibold tracking-tight text-slate-900">
-                  Leases in this Building
-                </h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Browse all lease agreements linked to this property
-                </p>
-              </div>
-
-              <div className="hidden rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 sm:block">
-                {leases.length} leases
-              </div>
+      {expenseLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
+          <span className="ml-3 text-sm font-medium text-slate-600">Loading expenses...</span>
+        </div>
+      ) : expenses.length === 0 ? (
+        <div className="text-center py-12 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">No expenses yet</h3>
+          <p className="text-slate-500 text-sm">Add your first expense to start tracking building costs.</p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-slate-400 rounded-full" />
+              <span className="text-sm font-medium text-slate-600">
+                {expenses.length} expense{expenses.length !== 1 ? "s" : ""}
+              </span>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {leases.map((lease) => (
-                <div
-                  key={lease.id}
-                  onClick={() => router.push(`/leases/${lease.id}`)}
-                  className="group cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-semibold text-slate-900">
-                        {lease.client_lease_id}
-                      </p>
-                      <p className="mt-1 truncate text-sm text-slate-500">
-                        {lease.landlord_legal_name}
-                      </p>
-                    </div>
-
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400 transition group-hover:bg-slate-900 group-hover:text-white">
-                      →
-                    </div>
-                  </div>
-
-                  <div className="my-4 h-px bg-slate-100" />
-
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        Lease period
-                      </p>
-                      <p className="mt-1 text-sm font-medium text-slate-700">
-                        {lease.lease_agreement_date}
-                        <span className="mx-1 text-slate-400">→</span>
-                        {lease.termination_date}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                        Status
-                      </p>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${lease.lease_status?.trim().toUpperCase() === "ACTIVE"
-                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                            : lease.lease_status?.trim().toUpperCase() === "INACTIVE"
-                              ? "bg-rose-50 text-rose-700 ring-1 ring-rose-200"
-                              : "bg-slate-100 text-slate-700 ring-1 ring-slate-200"
-                          }`}
-                      >
-                        {lease.lease_status}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead>
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Expense Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Year</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Category</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Vendor</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Amount</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/50 bg-white">
+                {expenses.map((exp) => (
+                  <tr
+                    key={exp.expense_id}
+                    className="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer"
+                    onClick={() => router.push(`/accounts/${exp.expense_id}`)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{exp.expense_name || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{exp.expense_year || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{exp.expense_type || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{exp.expense_category || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{exp.vendor_name || "-"}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                      {exp.amount} {exp.currency}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`text-xs px-3 py-1.5 rounded-full font-medium tracking-wide ${
+                        exp.status === "APPROVED"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : exp.status === "PENDING"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-slate-100 text-slate-700"
+                      }`}>
+                        {exp.status || "N/A"}
                       </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
-
-      {/** 🔹 Certificates & Compliance */}
-      <div>
-
-        <div className="space-y-6 p-0">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">Certificates</h2>
-                <p className="text-sm text-slate-500 mt-1">Upload and manage a new building certificate</p>
-              </div>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setShowCertificateModal(true)}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full
-                  bg-green-600 px-5 text-sm font-semibold text-white shadow-md
-                  transition-all duration-200 hover:bg-green-700
-                  focus:outline-none focus:ring-2 focus:ring-green-300
-                  active:scale-95"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <span>Add Certificate</span>
-                  </button>
-                </TooltipTrigger>
-
-                <TooltipContent side="top" sideOffset={8}>
-                  <p>Add building certificates</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            {/* Loading */}
-            {certificateLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
-                <span className="ml-3 text-sm font-medium text-slate-600">Loading certificates...</span>
-              </div>
-            ) : certificates.length === 0 ? (
-              <div className="text-center py-16 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                  <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">No certificates yet</h3>
-                <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                  Add your first certificate to get started. All documents are securely stored.
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-slate-400 rounded-full" />
-                    <span className="text-sm font-medium text-slate-600">
-                      {certificates.length} certificate{certificates.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Name</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Type</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Issued by</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Expiry</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/50 bg-white">
-                      {certificates.map((cert) => {
-                        const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null;
-                        const isExpired = expiryDate ? expiryDate <= new Date() : true;
-                        return (
-                          <tr key={cert.id} className="hover:bg-slate-50/70 transition-colors duration-150">
-                            <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{cert.certificate_name}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{cert.certificate_type}</span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">{cert.issued_by}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`text-sm px-2 py-1 rounded-full ${!isExpired ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                                {cert.expiry_date || "No expiry"}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center gap-2">
-                                {/* View */}
-                                {cert.file_path && (
-                                  <a href={cert.file_path} target="_blank" rel="noopener noreferrer"
-                                    title="View"
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {/* Download */}
-                                {cert.file_path && (
-                                  <a href={cert.file_path} download
-                                    title="Download"
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                  </a>
-                                )}
-                                {/* Edit */}
-                                <button
-                                  title="Edit"
-                                  onClick={() => {
-                                    setEditingCertificate(cert);
-                                    setShowCertificateModal(true);
-                                  }}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-600 transition">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16.862 3.487a2.25 2.25 0 113.182 3.182L8.25 18.463 4 20l1.537-4.25L16.862 3.487z" />
-                                  </svg>
-                                </button>
-                                {/* Delete */}
-                                <button
-                                  title="Delete"
-                                  onClick={async () => {
-                                    if (!confirm("Delete this certificate?")) return;
-                                    const token = localStorage.getItem("token");
-                                    const res = await fetch(`${BASE_URL}/certificates/${cert.id}`, {
-                                      method: "DELETE",
-                                      headers: { Authorization: `Bearer ${token}` },
-                                    });
-                                    if (res.ok) {
-                                      setCertificates((prev) => prev.filter((c) => c.id !== cert.id));
-                                    } else {
-                                      alert("Failed to delete certificate");
-                                    }
-                                  }}
-                                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-red-600 transition">
-                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Certificate Modal */}
-            {showCertificateModal && (
-              <CreateCertificateModal
-                buildingId={id}
-                editingData={editingCertificate}
-                onClose={() => {
-                  setShowCertificateModal(false);
-                  setEditingCertificate(null);
-                }}
-                onCreated={() => {
-                  const token = localStorage.getItem("token");
-                  fetch(`${BASE_URL}/buildings/${id}/certificates`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  })
-                    .then((res) => res.json())
-                    .then((data) => setCertificates(data.data || []));
-                }}
-              />
-            )}
-          </div>
-
-          {/** 🔹 Building Expenses */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">Building Expenses</h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  Record and manage building expenses
-                </p>
-              </div>
-
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setShowExpenseModal(true)}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full
-                 bg-green-600 px-5 text-sm font-semibold text-white shadow-md
-                 transition-all duration-200 hover:bg-green-700
-                 focus:outline-none focus:ring-2 focus:ring-green-300
-                 active:scale-95"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    <span>Add Expense</span>
-                  </button>
-                </TooltipTrigger>
-
-                <TooltipContent side="top" sideOffset={8}>
-                  <p>Add building expenses</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            {expenseLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin h-8 w-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full" />
-                <span className="ml-3 text-sm font-medium text-slate-600">Loading expenses...</span>
-              </div>
-            ) : expenses.length === 0 ? (
-              <div className="text-center py-12 px-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">No expenses yet</h3>
-                <p className="text-slate-500 text-sm">
-                  Add your first expense to start tracking building costs.
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-slate-50/70 to-slate-100/70 px-6 py-4 border-b border-slate-200/50">
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-slate-400 rounded-full" />
-                    <span className="text-sm font-medium text-slate-600">
-                      {expenses.length} expense{expenses.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200">
-                    <thead>
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Expense Name
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Year
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Type
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Category
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Vendor
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Amount
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200/50 bg-white">
-                      {expenses.map((exp) => (
-                        <tr
-                          key={exp.expense_id}
-                          className="hover:bg-slate-50/70 transition-colors duration-150 cursor-pointer"
-                          onClick={() => router.push(`/accounts/${exp.expense_id}`)}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                            {exp.expense_name || "-"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                            {exp.expense_year || "-"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                            {exp.expense_type || "-"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                            {exp.expense_category || "-"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                            {exp.vendor_name || "-"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                            {exp.amount} {exp.currency}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`text-xs px-3 py-1.5 rounded-full font-medium tracking-wide ${exp.status === "APPROVED"
-                                ? "bg-emerald-50 text-emerald-700"
-                                : exp.status === "PENDING"
-                                  ? "bg-amber-50 text-amber-700"
-                                  : "bg-slate-100 text-slate-700"
-                                }`}
-                            >
-                              {exp.status || "N/A"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Expense Modal */}
-            {showExpenseModal && (
-              <CreateExpenseModal
-                buildingId={id as string}
-                onClose={() => setShowExpenseModal(false)}
-                onCreated={() => {
-                  const token = localStorage.getItem("token");
-                  fetch(`${BASE_URL}/expenses/buildings/${id}`, {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  })
-                    .then((res) => res.json())
-                    .then((data) => setExpenses(data.data || []));
-                }}
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-
+      {showExpenseModal && (
+        <CreateExpenseModal
+          buildingId={id as string}
+          onClose={() => setShowExpenseModal(false)}
+          onCreated={() => {
+            const token = localStorage.getItem("token");
+            fetch(`${BASE_URL}/expenses/buildings/${id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+              .then((res) => res.json())
+              .then((data) => setExpenses(data.data || []));
+          }}
+        />
+      )}
     </div>
+  </div>
+</div>
+      </div>
+</div>
   );
 }
 
