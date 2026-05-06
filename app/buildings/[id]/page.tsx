@@ -49,7 +49,7 @@ type WorkflowUser = {
 };
 
 type WorkflowInfo = {
-  status: "APPROVED" | "PENDING";
+  status: "APPROVED" | "PENDING"| "REJECTED";
   created_by?: WorkflowUser;
   approved_by?: WorkflowUser | string;
 };
@@ -621,6 +621,7 @@ export default function BuildingDetailsPage() {
       .then(([buildingRes, expenseRes, certRes]) => {
         setBuilding(buildingRes.building);
         setWorkflow(buildingRes.workflow);
+        console.log("Workflow", buildingRes.workflow);
         setLeases(buildingRes.leases || []);
 
         setExpenses(expenseRes.data || []);
@@ -1295,15 +1296,19 @@ export default function BuildingDetailsPage() {
                       {exp.amount} {exp.currency}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-xs px-3 py-1.5 rounded-full font-medium tracking-wide ${
-                        exp.status === "APPROVED"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : exp.status === "PENDING"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-slate-100 text-slate-700"
-                      }`}>
-                        {exp.status || "N/A"}
-                      </span>
+                      <span
+  className={`text-xs px-3 py-1.5 rounded-full font-medium tracking-wide ${
+    exp.status === "APPROVED"
+      ? "bg-emerald-50 text-emerald-700"
+      : exp.status === "PENDING"
+      ? "bg-amber-50 text-amber-700"
+      : exp.status === "REJECTED"
+      ? "bg-red-50 text-red-700"
+      : "bg-slate-100 text-slate-700"
+  }`}
+>
+  {exp.status || "N/A"}
+</span>
                     </td>
                   </tr>
                 ))}
