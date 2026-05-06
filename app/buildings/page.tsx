@@ -296,7 +296,7 @@ return <BuildingsSkeleton />;
 
   return (
     
-   <div className="flex flex-col gap-6 h-screen overflow-hidden">
+  <div className="flex flex-col h-full overflow-hidden gap-4">
       {/* Header */}
      <div className="relative flex justify-between items-center 
 px-6 py-4 rounded-2xl 
@@ -323,29 +323,18 @@ ring-1 ring-white/40 overflow-hidden">
   <Tooltip>
     <TooltipTrigger asChild>
       <button
-        onClick={() => router.push("/buildings/create")}
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-full
-                   bg-blue-600 px-5 text-sm font-semibold text-white shadow-md
-                   transition-all duration-200 hover:bg-blue-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-300
-                   active:scale-95"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 5v14M5 12h14"
-          />
-        </svg>
-        <span>Create</span>
-      </button>
+  onClick={() => router.push("/buildings/create")}
+  className="inline-flex h-10 items-center justify-center gap-2 rounded-full
+             bg-[#2563eb] px-5 text-sm font-semibold text-[#fbfcfe] shadow-md
+             transition-all duration-200 hover:bg-[#1d4ed8]
+             focus:outline-none focus:ring-2 focus:ring-blue-400/50
+             active:scale-95"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+  </svg>
+  <span>Create</span>
+</button>
     </TooltipTrigger>
 
     <TooltipContent side="bottom" sideOffset={8}>
@@ -390,11 +379,11 @@ transition-all duration-200"
   <TooltipTrigger asChild>
     <button
       onClick={() => setShowExportModal(true)}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-full
-                 bg-green-600 px-5 text-sm font-semibold text-white shadow-md
-                 transition-all duration-200 hover:bg-green-700
-                 focus:outline-none focus:ring-2 focus:ring-green-300
-                 active:scale-95"
+       className="inline-flex h-10 items-center justify-center gap-2 rounded-full
+             bg-[#2563eb] px-5 text-sm font-semibold text-[#fbfcfe] shadow-md
+             transition-all duration-200 hover:bg-[#1d4ed8]
+             focus:outline-none focus:ring-2 focus:ring-blue-400/50
+             active:scale-95"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -427,11 +416,10 @@ transition-all duration-200"
 
 
 {/* Table */}
-{/* Premium Glass Table */}
-<div className="group relative flex flex-col rounded-3xl border-2 border-white/40 bg-white border border-gray-200 shadow-2xl shadow-slate-200/50 hover:shadow-3xl hover:shadow-blue-500/20 overflow-hidden ring-1 ring-white/30 transition-all duration-500">
+<div className="group relative flex flex-col flex-1 min-h-0 rounded-3xl border-2 border-white/40 bg-white border border-gray-200 shadow-2xl shadow-slate-200/50 hover:shadow-3xl hover:shadow-blue-500/20 overflow-hidden ring-1 ring-white/30 transition-all duration-500">
   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-  <div className="relative z-10 w-full h-[calc(100vh-320px)] min-h-[420px] max-h-[610px]">
+  <div className="relative z-10 w-full h-full">
     <AgGridReact
       theme={myTheme}
       rowData={buildings}
@@ -491,17 +479,14 @@ transition-all duration-200"
   </div>
 </div>
 
-{/* pagination */}
-<div className="flex items-center justify-center gap-3 mt-3 pb-2">
+{/* pagination — sticky at bottom */}
+<div className="flex-shrink-0 flex items-center justify-center gap-3 py-3 bg-white border-t border-gray-100 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
   <button
     disabled={page === 1}
     onClick={() => setPage(page - 1)}
     className="h-9 px-4 text-sm font-medium rounded-lg
-      bg-white
-      text-gray-700
-      border border-gray-200
-      hover:bg-gray-50
-      disabled:opacity-40 disabled:cursor-not-allowed
+      bg-white text-gray-700 border border-gray-200
+      hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed
       transition-colors shadow-sm"
   >
     ← Prev
@@ -515,11 +500,8 @@ transition-all duration-200"
     disabled={page === totalPages}
     onClick={() => setPage(page + 1)}
     className="h-9 px-4 text-sm font-medium rounded-lg
-      bg-white
-      text-gray-700
-      border border-gray-200
-      hover:bg-gray-50
-      disabled:opacity-40 disabled:cursor-not-allowed
+      bg-white text-gray-700 border border-gray-200
+      hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed
       transition-colors shadow-sm"
   >
     Next →
